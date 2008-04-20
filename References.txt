@@ -1,0 +1,12 @@
+References:
+------------------------
+Horst Meyerdierks, Sputnik 2.1.1 - http://www.chiandh.me.uk/soft/  (SDP4)
+
+"Astronomy on the Personal Computer" by Oliver Montenbruck (Author), Thomas Pfleger (Author), R.M. West (Preface), S. Dunlop (Translator), Springer; 4th completely rev. ed. 2000. Corr. 3rd printing edition (July 21, 2005)
+
+"Astronomical Algorithms" by Jean Meeus,  Willmann-Bell; 2nd edition (December 1998)
+
+"Satellite Orbits: Models, Methods and Applications" by Oliver Montenbruck (Author), Eberhard Gill (Author), Springer; 1st ed. 2000. Corr. 3rd printing edition (September 19, 2005)
+
+"Fundamentals of Astrodynamics and Applications", by David A Vallado 2nd. ed. (The Space Technology Library),  Microcosm, Inc (May 21, 2001)
+
