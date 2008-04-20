@@ -63,7 +63,7 @@
  *
  *  Version 3.1.0 - 22 Mar2008 - added bean shell - plugins and command line interface and remote command server / client
  *                               from the command you can access jsattrak object to have access to all of its methods to change things on the fly
- *          3.1.1 - 18 April2008 - updated to swingx 0.9.2 compatibility -removed deleted features (table highlighters)
+ *          3.1.1 - 20 April2008 - updated to swingx 0.9.2 compatibility -removed deleted features (table highlighters). Added Ground Station browser button to toolbar
  * Ideas:  from World Wind take pics of ground (get imagery) - simulate ikonos or something, 3D annotations, clickable info
  *         , 3D view centered on a sat or Ground station, gruond station radar fences
  *        
@@ -168,7 +168,7 @@ import name.gano.file.FileTypeFilter;
  */
 public class JSatTrak extends javax.swing.JFrame implements InternalFrameListener, WindowListener, Serializable
 {
-    private String versionString = "Version 3.1.1 (18 April 2008)"; // Version of app
+    private String versionString = "Version 3.1.1 (20 April 2008)"; // Version of app
     
     // hastable to store all the statelites currently being processed
     private Hashtable<String,AbstractSatellite> satHash = new Hashtable<String,AbstractSatellite>();
@@ -512,6 +512,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         jToolBar = new javax.swing.JToolBar();
         saveButton = new javax.swing.JButton();
         openSatBrowserButton = new javax.swing.JButton();
+        openGSbrowser = new javax.swing.JButton();
         resetTimeButton = new javax.swing.JButton();
         playBackButton = new javax.swing.JButton();
         stepBackButton = new javax.swing.JButton();
@@ -609,6 +610,20 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
             }
         });
         jToolBar.add(openSatBrowserButton);
+
+        openGSbrowser.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/custom/groundStation_obj.png"))); // NOI18N
+        openGSbrowser.setToolTipText("Open Ground Station Browser");
+        openGSbrowser.setFocusable(false);
+        openGSbrowser.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        openGSbrowser.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        openGSbrowser.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                openGSbrowserActionPerformed(evt);
+            }
+        });
+        jToolBar.add(openGSbrowser);
 
         resetTimeButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/gnome_2_18/media-seek-backward.png"))); // NOI18N
         resetTimeButton.setToolTipText("Reset To Current Time or Epoch"); // NOI18N
@@ -2089,6 +2104,11 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         CommandClientGUI client = new CommandClientGUI();
         client.setVisible(true);   
     }//GEN-LAST:event_commandClientMenuItemActionPerformed
+
+    private void openGSbrowserActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_openGSbrowserActionPerformed
+    {//GEN-HEADEREND:event_openGSbrowserActionPerformed
+        showGSBrowserInternalFrame();
+    }//GEN-LAST:event_openGSbrowserActionPerformed
     
     public void openTrackingToolSelectorWindow()
     {
@@ -2215,6 +2235,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
     private javax.swing.JMenuItem newInternal3DWindowMenuItem;
     private javax.swing.JMenuItem newMenuItem;
     private javax.swing.JMenuItem nonRealTimeMenuItem;
+    private javax.swing.JButton openGSbrowser;
     private javax.swing.JMenuItem openMenuItem;
     private javax.swing.JButton openSatBrowserButton;
     private javax.swing.JButton playBackButton;
