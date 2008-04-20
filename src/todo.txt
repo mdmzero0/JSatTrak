@@ -1,5 +1,4 @@
 ideas to maybe work on (x=done)
-test
 
 Version 1.0
 ------------------
