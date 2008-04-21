@@ -37,6 +37,7 @@ import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Quaternion;
 import gov.nasa.worldwind.layers.CompassLayer;
+import gov.nasa.worldwind.layers.Earth.CountryBoundariesLayer;
 import gov.nasa.worldwind.layers.Earth.LandsatI3;
 import gov.nasa.worldwind.layers.Earth.StarsLayer;
 import gov.nasa.worldwind.layers.Earth.TerrainProfileLayer;
@@ -126,7 +127,13 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
     private String terrainProfileSat = "";
     private double terrainProfileLongSpan = 10.0;
     
-    /** Creates new form J3DEarthPanel */
+    /** Creates new form J3DEarthPanel
+     * @param parent
+     * @param satHash
+     * @param gsHash
+     * @param currentMJD
+     * @param app 
+     */
     public J3DEarthInternalPanel(JInternalFrame parent, Hashtable<String, AbstractSatellite> satHash, Hashtable<String, GroundStation> gsHash, double currentMJD, JSatTrak app)
     {
         this.parent = parent;
@@ -156,8 +163,10 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
         m.setShowWireframeExterior(false);
         m.setShowWireframeInterior(false);
         m.setShowTessellationBoundingVolumes(false);
-     
         
+        // add political boundary layer
+        m.getLayers().add(new CountryBoundariesLayer());
+            
         // set default layer visabiliy
         for (Layer layer : m.getLayers())
         {
@@ -195,7 +204,11 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
                 // for now just enlarge radius by a factor of 10
                 starsLayer.setRadius(starsLayer.getRadius()*10.0);
             }
-        }
+            if(layer instanceof CountryBoundariesLayer)
+            {
+                ((CountryBoundariesLayer) layer).setEnabled(false); // off by default
+            }
+        } // for layers
         
         
         

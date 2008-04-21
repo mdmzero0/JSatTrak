@@ -64,6 +64,8 @@
  *  Version 3.1.0 - 22 Mar2008 - added bean shell - plugins and command line interface and remote command server / client
  *                               from the command you can access jsattrak object to have access to all of its methods to change things on the fly
  *          3.1.1 - 20 April2008 - updated to swingx 0.9.2 compatibility -removed deleted features (table highlighters). Added Ground Station browser button to toolbar
+ *          3.1.2 - 21 April08 - added polical boundaries layer for 3D globe,
+ * 
  * Ideas:  from World Wind take pics of ground (get imagery) - simulate ikonos or something, 3D annotations, clickable info
  *         , 3D view centered on a sat or Ground station, gruond station radar fences
  *        
@@ -168,7 +170,7 @@ import name.gano.file.FileTypeFilter;
  */
 public class JSatTrak extends javax.swing.JFrame implements InternalFrameListener, WindowListener, Serializable
 {
-    private String versionString = "Version 3.1.1 (20 April 2008)"; // Version of app
+    private String versionString = "Version 3.1.2 (21 April 2008)"; // Version of app
     
     // hastable to store all the statelites currently being processed
     private Hashtable<String,AbstractSatellite> satHash = new Hashtable<String,AbstractSatellite>();
