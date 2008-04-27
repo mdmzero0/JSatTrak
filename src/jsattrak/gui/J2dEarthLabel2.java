@@ -25,8 +25,10 @@ package jsattrak.gui;
 import jsattrak.objects.GroundStation;
 import java.awt.*;
 import java.util.Hashtable;
+import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.*;
+import jsattrak.coverage.JSatTrakRenderable;
 import jsattrak.objects.AbstractSatellite;
 import name.gano.astro.AstroConst;
 import name.gano.astro.bodies.Sun;
@@ -69,6 +71,9 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
     
     // sun
     Sun sun;
+    
+    // vector of renderable objects to be drawn - SEG 26-April-2008
+    Vector<JSatTrakRenderable> renderableObjects = new Vector<JSatTrakRenderable>();
     
 
     private transient Time currentTime; // object storing the current time
@@ -132,6 +137,12 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
         int[] xy = new int[2];
         int[] xy_old = new int[2];
         
+        
+        // draw renderable objects first
+        for(JSatTrakRenderable renderable : renderableObjects)
+        {
+            renderable.draw2d(g2, this, w, h, imageWidth, imageHeight, zoomFactor, centerLat, centerLong);
+        }
         
         // draw sun if desired
         // draw the foot print
@@ -1121,5 +1132,20 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
     public void setSunAlpha(float sunAlpha)
     {
         this.sunAlpha = sunAlpha;
+    }
+    
+    public void addRenderableObject(JSatTrakRenderable renderable)
+    {
+        renderableObjects.add(renderable);
+    }
+    
+    public boolean removeRenderableObject(JSatTrakRenderable renderable)
+    {
+        return renderableObjects.remove(renderable);
+    }
+    
+    public void clearRenderableObjects()
+    {
+        renderableObjects.clear();
     }
 }

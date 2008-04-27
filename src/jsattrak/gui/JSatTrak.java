@@ -147,6 +147,7 @@ import javax.swing.UIManager;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 import jguiserver.GuiServer;
+import jsattrak.coverage.CoverageAnalyzer;
 import jsattrak.objects.AbstractSatellite;
 import jsattrak.objects.SatelliteTleSGP4;
 import jsattrak.utilities.ConsoleDialog;
@@ -442,6 +443,10 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         // check for plugin scripts
         checkAndInstallPlugins();
         
+        
+        // Debug for coverage module - for now create it and add it to 2D window
+        CoverageAnalyzer ca = new CoverageAnalyzer(); // default
+        twoDWindowVec.get(0).addRenderableObject(ca); // add it to the panel
         
     } // constructor
     

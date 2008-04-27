@@ -35,6 +35,7 @@ import javax.swing.event.PopupMenuListener;
 import java.awt.image.*;
 import java.util.Hashtable;
 import java.util.Vector;
+import jsattrak.coverage.JSatTrakRenderable;
 import jsattrak.objects.AbstractSatellite;
 import jsattrak.utilities.LandMassRegions;
 import name.gano.astro.bodies.Sun;
@@ -1000,4 +1001,12 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
         
     } // setRegionDrawingOptions
     
+    /**
+     * Add renderable object to the 2D Earth Label
+     * @param renderable
+     */
+    public void addRenderableObject(JSatTrakRenderable renderable)
+    {
+        imageMap.addRenderableObject(renderable);
+    }
 }

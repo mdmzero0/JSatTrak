@@ -7,6 +7,7 @@ Open Source Changes:
 -- other ideas:
 -> lifetime (of lifespan) estimator tool for satellite time to decay (de-orbit), plot ecentricity, hieght of apogee and perigee
 -> Coverage calculation and visualization (2 modes) - fixed step any # of satellites, grid up earth, scale by color, select time frame make sure all sats exsist for full time,  and viz mode while running draw swath
+--> for coverage (so colors can be looked at evenly) add no "image" option to 2D window
 -> radar fence? (maybe not until airplane like objects)
 
 
