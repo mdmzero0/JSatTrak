@@ -53,6 +53,15 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
     double[] latGridPoints;  // grid end points for latitude
     double[] lonGridPoints;  // grid end points for longitude 
     
+    // current maximum and minimum (NOT ZERO) values 
+    double minNotZeroVal = 1;
+    double maxVal = 100;
+    
+    ColorMap colorMap = new ColorMap();
+    
+    // settings
+    int alpha = 151; // tranparency, 0=can't see it, 255=solid
+    
     // default constructor
     public CoverageAnalyzer()
     {
@@ -62,7 +71,12 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
         Random rnd = new Random(System.currentTimeMillis());
         for(int i=0; i<40; i++) // fill in 20
         {
-            coverageCumTime[rnd.nextInt(latPanels)][rnd.nextInt(longPanels)] = 5.0;
+            coverageCumTime[rnd.nextInt(latPanels)][rnd.nextInt(longPanels)] = rnd.nextInt(99)+1;
+        }
+         for(int i=0; i<longPanels; i++) // fill in 20
+        {
+            coverageCumTime[latPanels-1][i] = i*2.7;
+            coverageCumTime[latPanels-3][i] = 100-i*2.7;
         }
         
     } // constructor
@@ -108,6 +122,13 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
     //  update the time
     public void updateTime(final Time currentJulianDate)
     {
+        // check time make sure this time is past when the last time update was
+        
+        // create temp array for time cumlation (so we don't double count sat coverage)
+        
+        // do coverage anaylsis
+        
+        // merge temp and timecumarray
         
     } // updateTime
     
@@ -165,16 +186,16 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
                 // dummy way for now black or white
                 if(coverageCumTime[i][j]>0)
                 {
-                    g2.setColor( new Color(0.0f,0.0f,1.0f,0.2f));
+                    g2.setColor( colorMap.getColor(coverageCumTime[i][j], minNotZeroVal, maxVal, alpha) );
+                    g2.fillRect(xmin, ymin, xmax-xmin,ymax-ymin);//xy_old[0]-xy[0], xy_old[1]-xy[1]);
                 }
                 else
                 {
-                    g2.setColor( new Color(0.0f,0.0f,0.0f,0.0f));
+                    // don't draw anything
                 }
                 
-                g2.fillRect(xmin, ymin, xmax-xmin,ymax-ymin);//xy_old[0]-xy[0], xy_old[1]-xy[1]);
-            }
-        }
+            } // for lon panels
+        } // for lat panels
         
         
     } // draw 2d
