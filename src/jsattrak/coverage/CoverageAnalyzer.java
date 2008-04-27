@@ -60,7 +60,7 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
         
         // debug testing fill in some points
         Random rnd = new Random(System.currentTimeMillis());
-        for(int i=0; i<20; i++) // fill in 20
+        for(int i=0; i<40; i++) // fill in 20
         {
             coverageCumTime[rnd.nextInt(latPanels)][rnd.nextInt(longPanels)] = 5.0;
         }
