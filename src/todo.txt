@@ -1,7 +1,14 @@
 Open Source Changes:
 - Remove WWJ from source, updates make in next WWJ version so this won't be needed
-- Add version number to source code posted on web site
 - Add source forge link to web site (and source forge logo?)
+
+ Ideas:  from World Wind take pics of ground (get imagery) - simulate ikonos or something, 3D annotations, clickable info
+ *         , 3D view centered on a sat or Ground station, gruond station radar fences
+-- other ideas:
+-> lifetime (of lifespan) estimator tool for satellite time to decay (de-orbit), plot ecentricity, hieght of apogee and perigee
+-> Coverage calculation and visualization (2 modes) - fixed step any # of satellites, grid up earth, scale by color, select time frame make sure all sats exsist for full time,  and viz mode while running draw swath
+-> radar fence? (maybe not until airplane like objects)
+
 
 ideas to maybe work on (x=done)
 

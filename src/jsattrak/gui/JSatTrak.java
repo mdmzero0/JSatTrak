@@ -65,9 +65,6 @@
  *                               from the command you can access jsattrak object to have access to all of its methods to change things on the fly
  *          3.1.1 - 20 April2008 - updated to swingx 0.9.2 compatibility -removed deleted features (table highlighters). Added Ground Station browser button to toolbar
  *          3.1.2 - 21 April08 - added polical boundaries layer for 3D globe,
- * 
- * Ideas:  from World Wind take pics of ground (get imagery) - simulate ikonos or something, 3D annotations, clickable info
- *         , 3D view centered on a sat or Ground station, gruond station radar fences
  *        
  */
 // notes: not good to use rk78 in a solver loop because direvatives inaccurate, because solution changes slightly near end.?
