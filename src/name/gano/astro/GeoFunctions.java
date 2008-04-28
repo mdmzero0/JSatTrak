@@ -121,4 +121,117 @@ public class GeoFunctions
     } // calculateGeodeticLLA
     
     
+     /**
+     * calculate the pointing information Azumuth, Elevation, and Range (AER) to 
+     * a satellite from a location on Earth (given Lat, Long, Alt)
+     * if elevation >=0 then sat is above local horizon
+      * @param currentJulianDate Julian Date for AER calculation (corresponds to ECI position)
+      * @param lla_deg_m lat long and alt of station in deg/deg/meters (Geodetic)
+      * @param eci_pos ECI position of object in meters (sat)
+     * @return Azumuth [deg], Elevation [deg], and Range vector [m]
+     */
+    public static double[] calculate_AER(double currentJulianDate,double[] lla_deg_m, double[] eci_pos)
+    {
+        double[] aer = new double[3];
+        
+        // 0th step get local mean Sidereal time
+        // first get mean sidereal time for this station - since we use it twice
+        double thetaDeg = Sidereal.Mean_Sidereal_Deg(currentJulianDate-AstroConst.JDminusMJD, lla_deg_m[1]);
+        
+        // first calculate ECI position of Station
+        double[] eciGS = calculateECIposition(lla_deg_m,thetaDeg);
+        
+        // find the vector between pos and GS
+        double[] rECI = MathUtils.sub(eci_pos, eciGS);
+        
+        // calculate range
+        aer[2] = MathUtils.norm(rECI);
+        
+        // now transform ECI to topocentric-horizon system (SEZ)  (use Geodetic Lat, not geocentric)
+        double[] rSEZ = eci2sez(rECI,thetaDeg,lla_deg_m[0]); // ECI vec, sidereal in Deg, latitude in deg
+        
+        // compute azimuth [radians] -> Deg
+        //aer[0] = Math.atan(-rSEZ[1]/rSEZ[0]) * 180.0/Math.PI;
+        aer[0] = Math.atan2(-rSEZ[0], rSEZ[1]) * 180.0/Math.PI;
+        
+        //System.out.println("aer[0]_0=" + aer[0] + ", rSEZ[-0,1]=" + (-rSEZ[0]) + ", " +rSEZ[1] );
+        
+        // do conversions so N=0, S=180, NW=270
+        if(aer[0] <= 0)
+        {
+            aer[0] = Math.abs(aer[0]) + 90;
+        }
+        else
+        {
+            if(aer[0]<= 90)  //(between 0 and 90)
+            {
+                aer[0] = -1.0*aer[0] + 90.0;
+            }
+            else // between 90 and 180
+            {
+                aer[0] = -1.0*aer[0] + 450.0; 
+            }
+        }
+        
+        // compute elevation [radians]
+        aer[1] = Math.asin(rSEZ[2] / aer[2]) * 180.0/Math.PI; 
+        
+        //System.out.println("SEZ: " + rSEZ[0] + ", " + rSEZ[1] + ", " + rSEZ[2]);
+        
+        return aer;
+    } // calculate_AER
+    
+    /**
+     * transform ECI to topocentric-horizon system (SEZ) (south-East-Zenith)
+     * @param rECI position in ECI coordinates (meters)
+     * @param thetaDeg local sidereal time (degrees)
+     * @param latDeg observer's latitude (degrees)
+     * @return topocentric-horizon system (SEZ) (south-East-Zenith)
+     */
+    public static double[] eci2sez(double[] rECI,double thetaDeg,double latDeg)
+    {
+        double[] rSEZ = new double[3]; // new postion in SEZ coorinates
+        
+        //? (the local sidereal time) -> (thetaDeg*Math.PI)
+        //? (the observer's latitude) - > (latDeg*Math.PI)
+        rSEZ[0] = Math.sin(latDeg*Math.PI/180.0) * Math.cos(thetaDeg*Math.PI/180.0) * rECI[0] + Math.sin(latDeg*Math.PI/180.0) * Math.sin(thetaDeg*Math.PI/180.0) * rECI[1] - Math.cos(latDeg*Math.PI/180.0) * rECI[2];
+        rSEZ[1] = -Math.sin(thetaDeg*Math.PI/180.0) * rECI[0] + Math.cos(thetaDeg*Math.PI/180.0) * rECI[1];
+        rSEZ[2] = Math.cos(latDeg*Math.PI/180.0) * Math.cos(thetaDeg*Math.PI/180.0) * rECI[0] + Math.cos(latDeg*Math.PI/180.0) * Math.sin(thetaDeg*Math.PI/180.0) * rECI[1] + Math.sin(latDeg*Math.PI/180.0) * rECI[2];
+        
+        return rSEZ;
+    }
+    
+
+    /**
+     * Calculate ECI position from local mean sidereal time and geodetic lat long alt
+     * @param lla_deg_m lat long and alt of station in deg/deg/meters (Geodetic)
+     * @param theta local mean sidereal time (Degrees)
+     * @return ECI position (meters)
+     */
+    public static double[] calculateECIposition(double[] lla_deg_m, double theta)
+    {
+        // calculate the ECI j2k position vector of the ground station at the current time
+        double [] eciVec = new double[3];
+        
+//        // calculate geocentric latitude - using non spherical earth (in radians)
+//        // http://celestrak.com/columns/v02n03/
+//        double  geocentricLat = Math.atan( Math.pow(1.0-AstroConst.f_Earth, 2.0) * Math.tan( lla_deg_m[0]*Math.PI/180.0 )  ); // (1-f)^2 tan(?).
+//        
+//        eciVec[2] = AstroConst.R_Earth * Math.sin( geocentricLat ); //lla_deg_m[0]*Math.PI/180.0 );
+//        double r = AstroConst.R_Earth * Math.cos( geocentricLat ); //lla_deg_m[0]*Math.PI/180.0 );
+//        eciVec[0] = r * Math.cos(theta*Math.PI/180.0);
+//        eciVec[1] = r * Math.sin(theta*Math.PI/180.0);
+        
+        // alternate way to calcuate ECI position - using earth flattening
+        // http://celestrak.com/columns/v02n03/
+        double C = 1.0 / Math.sqrt( 1.0+AstroConst.f_Earth*(AstroConst.f_Earth-2.0)*Math.pow(Math.sin(lla_deg_m[0]*Math.PI/180.0 ),2.0) );
+        double S = Math.pow(1.0-AstroConst.f_Earth, 2.0) * C;
+        
+        eciVec[0] = AstroConst.R_Earth * C * Math.cos(lla_deg_m[0]*Math.PI/180.0)*Math.cos(theta*Math.PI/180.0);
+        eciVec[1] = AstroConst.R_Earth * C * Math.cos(lla_deg_m[0]*Math.PI/180.0)*Math.sin(theta*Math.PI/180.0);
+        eciVec[2] = AstroConst.R_Earth * S * Math.sin(lla_deg_m[0]*Math.PI/180.0);
+        
+        return eciVec;
+        
+    } //calculateECIposition
 }

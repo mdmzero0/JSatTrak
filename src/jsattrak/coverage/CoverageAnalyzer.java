@@ -28,8 +28,12 @@ package jsattrak.coverage;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.util.Random;
+import java.util.Hashtable;
+import java.util.Vector;
 import jsattrak.gui.J2dEarthLabel2;
+import jsattrak.objects.AbstractSatellite;
+import jsattrak.objects.GroundStation;
+import name.gano.astro.GeoFunctions;
 import name.gano.astro.time.Time;
 
 /**
@@ -38,14 +42,14 @@ import name.gano.astro.time.Time;
  */
 public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependent
 {
-    int latPanels = 18; // number of divisons along lines of latitude (grid points -1)
-    int longPanels = 36;  // number of divisions along lines of longitude (grid points -1)
+    int latPanels = 72;//36; //18// number of divisons along lines of latitude (grid points -1)
+    int longPanels = 144;//72; //36 // number of divisions along lines of longitude (grid points -1)
     
     // in degrees
     double[] latBounds = {-90.0,90.0}; // minimum,maxium latitude to use in coverage anaylsis
     double[] longBounds = {-180.0,180.0}; // minimum,maxium longitude to use in coverage anaylsis
     
-    // in seconds
+    // in days
     double[][] coverageCumTime; // cumulative coverage time array [latPanels x longPanels]
     // in degrees
     double[] latPanelMidPoints; // middle point latitude of each division/panel
@@ -59,8 +63,16 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
     
     ColorMap colorMap = new ColorMap();
     
+    double lastMJD = -1; // last MJD update time
+    
     // settings
-    int alpha = 151; // tranparency, 0=can't see it, 255=solid
+    int alpha = 255;//151; // tranparency, 0=can't see it, 255=solid
+    
+    boolean dynamicUpdating = true; // if dynamic updating from GUI time stepping is enabled
+    
+    double elevationLimit = 15;//15; // elevation limit for ground coverage (must be higher for this to count as coverage
+    
+    Vector<String> satsUsedInCoverage = new Vector<String>(); // vector of satellites used in Coverage anaylsis
     
     // default constructor
     public CoverageAnalyzer()
@@ -68,16 +80,17 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
         iniParamters();
         
         // debug testing fill in some points
-        Random rnd = new Random(System.currentTimeMillis());
-        for(int i=0; i<80; i++) // fill in random
-        {
-            coverageCumTime[rnd.nextInt(latPanels)][rnd.nextInt(longPanels)] = rnd.nextInt(99)+1;
-        }
-         for(int i=0; i<longPanels; i++) // fill in 20
-        {
-            coverageCumTime[latPanels-1][i] = i*2.7;
-            coverageCumTime[latPanels-3][i] = 100-i*2.7;
-        }
+//        Random rnd = new Random(System.currentTimeMillis());
+//        for(int i=0; i<80; i++) // fill in random
+//        {
+//            coverageCumTime[rnd.nextInt(latPanels)][rnd.nextInt(longPanels)] = rnd.nextInt(99)+1;
+//        }
+//        // draw spectrum
+//         for(int i=0; i<longPanels; i++) // fill in 20
+//        {
+//            coverageCumTime[latPanels-1][i] = i*2.7+1;
+//            coverageCumTime[latPanels-3][i] = 100-i*2.7;
+//        }
         
     } // constructor
     
@@ -111,6 +124,9 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
             }
         }
         
+        // clear last mjd update
+        lastMJD = -1;
+        
     }// iniParamters
     
     // test main function
@@ -120,18 +136,285 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
     } // main
     
     //  update the time
-    public void updateTime(final Time currentJulianDate)
+    public void updateTime(final Time currentJulianDate, final Hashtable<String,AbstractSatellite> satHash, final Hashtable<String,GroundStation> gsHash)
     {
-        // check time make sure this time is past when the last time update was 
-        //(then cal time diff, and save time)
+        if(!dynamicUpdating)
+        {
+            return; // don't update converage anlysis from JSatTrack GUI
+        }
         
-        // create temp array for time cumlation (so we don't double count sat coverage)
-        
-        // do coverage anaylsis
-        
-        // merge temp and timecumarray
+        performCoverageAnalysis(currentJulianDate,satHash,gsHash); // do the analysis
         
     } // updateTime
+    
+    // internal function to actually perform the anaylsis - so it can be used by GUI update calls or coverage tool
+    private void performCoverageAnalysis(final Time currentJulianDate, final Hashtable<String,AbstractSatellite> satHash, final Hashtable<String,GroundStation> gsHash)
+    {
+        // if first time update, save time and quit (only start calc after first time step)
+        if(lastMJD == -1)
+        {
+            lastMJD = currentJulianDate.getMJD();
+            return;
+        }
+        
+        // check time make sure this time is past when the last time update was 
+        if(currentJulianDate.getMJD() <= lastMJD)
+        {
+            return; // do nothing as this time is later
+        }
+        // calc time diff, and save time
+        double timeDiffDays = currentJulianDate.getMJD() - lastMJD;
+        lastMJD = currentJulianDate.getMJD();
+        
+        // create temp array for time cumlation (so we don't double count sat coverage)
+        // each panel either has access or it doesn't for the current time step -- boolean 
+        boolean[][] tempAcessArray = new boolean[latPanels][longPanels];
+        
+        // === do coverage anaylsis, for each satellite ===
+        for(String satName : satsUsedInCoverage)
+        {
+            // get sat Object
+            AbstractSatellite currentSat = satHash.get(satName);
+            
+            // check to see if satellite is in lat/long AOI coverage box
+            if(currentSat.getLatitude()*180/Math.PI  >= latBounds[0]  && 
+               currentSat.getLatitude()*180/Math.PI  <= latBounds[1]  &&
+               currentSat.getLongitude()*180/Math.PI >= longBounds[0] &&
+               currentSat.getLongitude()*180/Math.PI <= longBounds[1]    )
+            {
+                
+                // find closest panel under satellite and the index of that panel
+                double latPercentile = (currentSat.getLatitude()*180/Math.PI-latBounds[0]) / (latBounds[1]-latBounds[0]);
+                int latIndex = (int)Math.floor(latPercentile*latPanels);
+                double longPercentile = (currentSat.getLongitude()*180/Math.PI-longBounds[0]) / (longBounds[1]-longBounds[0]);
+                int longIndex = (int)Math.floor(longPercentile*longPanels);
+                
+                // Coverage assumes sat doesn't have a shaped sensor and it can look straight down (nadir)
+                // debug for now mark point as access added
+                double[] aer = new double[3];
+//                aer = GeoFunctions.calculate_AER(currentJulianDate.getJulianDate(), 
+//                        new double[]{latPanelMidPoints[latIndex],lonPanelMidPoints[longIndex],0},  // sea level
+//                        currentSat.getPosMOD());
+//                
+//                // see if sat sub-point panel has access (otherwise nothing does)
+//                if(aer[1] >= elevationLimit)
+//                {
+//                    tempAcessArray[latIndex][longIndex] = true; // can't assume access here!
+//                }
+                
+                // Search up=====================================================
+                // search upwards until no access (careful of lat >90)
+                int i = latIndex; // includes satellite sub point
+                double tempElevation2=0; // used in searching to the left and right
+                do
+                {
+                    // take care of when i >= latPanels (reflection for longitude index and make lat go down instead of up (and stay at top one iter)
+                    
+                    aer = GeoFunctions.calculate_AER(currentJulianDate.getJulianDate(), 
+                        new double[]{latPanelMidPoints[i],lonPanelMidPoints[longIndex],0},  // sea level
+                        currentSat.getPosMOD());
+                    
+                    if(aer[1] >= elevationLimit)
+                    {
+                        tempAcessArray[i][longIndex] = true;
+                        // search to the left =============================
+                        int j=longIndex-1;
+                        int longSearchCount = 0;
+                        int jWrappedIndex = j; // updated so seach can wrap around map
+                        do
+                        {
+                            // take car of i and j with wrap arounds
+                            if(j < 0)
+                            {
+                                jWrappedIndex = longPanels + j;
+                            }
+                            else if(j >= longPanels)
+                            {
+                                jWrappedIndex = j - longPanels;
+                            }
+                            else
+                            {
+                                jWrappedIndex = j;
+                            }
+                            
+                            tempElevation2 = GeoFunctions.calculate_AER(currentJulianDate.getJulianDate(), 
+                                new double[]{latPanelMidPoints[i],lonPanelMidPoints[jWrappedIndex],0},  // sea level
+                                currentSat.getPosMOD())[1];
+                            if(tempElevation2 >= elevationLimit)
+                            {
+                                tempAcessArray[i][jWrappedIndex] = true;
+                            }
+                            
+                            j--;
+                            longSearchCount++; // make sure we don't get stuck on seaching a row over and over
+                        }while(tempElevation2 >= elevationLimit && longSearchCount < longPanels); 
+                        // search to the left =============================
+                        // search to the Right =============================
+                        j=longIndex+1;
+                        longSearchCount = 0;
+                        jWrappedIndex = j; // updated so seach can wrap around map
+                        do
+                        {
+                            // take car of i and j with wrap arounds
+                            if(j < 0)
+                            {
+                                jWrappedIndex = longPanels + j;
+                            }
+                            else if(j >= longPanels)
+                            {
+                                jWrappedIndex = j - longPanels;
+                            }
+                            else
+                            {
+                                jWrappedIndex = j;
+                            }
+                            
+                            tempElevation2 = GeoFunctions.calculate_AER(currentJulianDate.getJulianDate(), 
+                                new double[]{latPanelMidPoints[i],lonPanelMidPoints[jWrappedIndex],0},  // sea level
+                                currentSat.getPosMOD())[1];
+                            if(tempElevation2 >= elevationLimit)
+                            {
+                                tempAcessArray[i][jWrappedIndex] = true;
+                            }
+                            
+                            j++;
+                            longSearchCount++; // make sure we don't get stuck on seaching a row over and over
+                        }while(tempElevation2 >= elevationLimit && longSearchCount < longPanels); 
+                        // search to the Right =============================
+                        
+                    }
+                    
+                    i++;
+                }while(aer[1] >= elevationLimit && i < latPanels); // do while - only search up to top of panel
+                // Search up=====================================================
+                // Search down=====================================================
+                // search down until no access (careful of lat >90)
+                i = latIndex - 1; // includes satellite sub point
+                tempElevation2 = 0; // used in searching to the left and right
+                if (i >= 0) // avoid searching down if i is already 0
+                {
+                    do
+                    {
+                        // take care of when i >= latPanels (reflection for longitude index and make lat go down instead of up (and stay at top one iter)
+                        aer = GeoFunctions.calculate_AER(currentJulianDate.getJulianDate(),
+                                new double[]
+                                {
+                                    latPanelMidPoints[i], lonPanelMidPoints[longIndex], 0
+                                }, // sea level
+                                currentSat.getPosMOD());
+
+                        if (aer[1] >= elevationLimit)
+                        {
+                            tempAcessArray[i][longIndex] = true;
+                            // search to the left =============================
+                            int j = longIndex - 1;
+                            int longSearchCount = 0;
+                            int jWrappedIndex = j; // updated so seach can wrap around map
+
+                            do
+                            {
+                                // take car of i and j with wrap arounds
+                                if (j < 0)
+                                {
+                                    jWrappedIndex = longPanels + j;
+                                }
+                                else if (j >= longPanels)
+                                {
+                                    jWrappedIndex = j - longPanels;
+                                }
+                                else
+                                {
+                                    jWrappedIndex = j;
+                                }
+
+                                tempElevation2 = GeoFunctions.calculate_AER(currentJulianDate.getJulianDate(),
+                                        new double[] {latPanelMidPoints[i], lonPanelMidPoints[jWrappedIndex], 0}, // sea level
+                                        currentSat.getPosMOD())[1];
+                                if (tempElevation2 >= elevationLimit)
+                                {
+                                    tempAcessArray[i][jWrappedIndex] = true;
+                                }
+
+                                j--;
+                                longSearchCount++; // make sure we don't get stuck on seaching a row over and over
+                            }while (tempElevation2 >= elevationLimit && longSearchCount < longPanels);
+                            // search to the left =============================
+                            // search to the Right =============================
+                            j = longIndex + 1;
+                            longSearchCount = 0;
+                            jWrappedIndex = j; // updated so seach can wrap around map
+                            do
+                            {
+                                // take car of i and j with wrap arounds
+                                if (j < 0)
+                                {
+                                    jWrappedIndex = longPanels + j;
+                                }
+                                else if (j >= longPanels)
+                                {
+                                    jWrappedIndex = j - longPanels;
+                                }
+                                else
+                                {
+                                    jWrappedIndex = j;
+                                }
+                                
+                                tempElevation2 = GeoFunctions.calculate_AER(currentJulianDate.getJulianDate(),
+                                        new double[]{latPanelMidPoints[i], lonPanelMidPoints[jWrappedIndex], 0}, // sea level
+                                        currentSat.getPosMOD())[1];
+                                if (tempElevation2 >= elevationLimit)
+                                {
+                                    tempAcessArray[i][jWrappedIndex] = true;
+                                }
+
+                                j++;
+                                longSearchCount++; // make sure we don't get stuck on seaching a row over and over
+                            }
+                            while (tempElevation2 >= elevationLimit && longSearchCount < longPanels);
+                        // search to the Right =============================
+
+                        } // if in elecation limit
+
+                        i--;
+                    }while (aer[1] >= elevationLimit && i >= 0); // do while
+                } // if already at 0 no need to search down
+                // Search down=====================================================
+                
+                
+            }// sat is in coverage AOI           
+        } // for each satellite - Coverage anaylsis
+        
+        // merge temp and timecumarray // and update max and min values
+        minNotZeroVal = Double.MAX_VALUE; // really high to start
+        maxVal = -1; // really low to start
+        for(int i=0;i<latPanels;i++) 
+        {
+            for(int j=0;j<longPanels;j++)
+            {
+                // DEBUG CLEAR VALUE SO ONLY POINTS CURRENTLY IN VIEW SHOW UP
+                //coverageCumTime[i][j] = 0;
+                
+                if(tempAcessArray[i][j])
+                {
+                    coverageCumTime[i][j] += timeDiffDays;
+                } // if access at this point
+                
+                // update max and min
+                if(coverageCumTime[i][j] > maxVal)
+                {
+                    maxVal = coverageCumTime[i][j];
+                }
+                if(coverageCumTime[i][j] < minNotZeroVal && coverageCumTime[i][j] > 0)
+                {
+                   minNotZeroVal =  coverageCumTime[i][j];
+                }
+                
+            } // long panels (j)
+        } // lat panels (i) (merge data)
+        
+
+        
+    } // performCoverageAnalysis
     
     // draw 2d
     public void draw2d(Graphics2D g2, J2dEarthLabel2 earthLabel, int totWidth, int totHeight, int imgWidth, int imgHeight, double zoomFac, double cLat, double cLong)
@@ -198,6 +481,7 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
             } // for lon panels
         } // for lat panels
         
+        // Draw color bar if wanted!!
         
     } // draw 2d
     
@@ -206,5 +490,41 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
     {
         
     } // draw 3d
+    
+    // Settings ==================================
+    
+    public void addSatToCoverageAnaylsis(String satName)
+    {
+        // first check to make sure sat isn't already in list
+        for(String name : satsUsedInCoverage)
+        {
+            if(satName.equalsIgnoreCase(name))
+            {
+                return; // already in the list
+            }
+        }
+        
+        satsUsedInCoverage.add(satName);
+    } // addSatToCoverageAnaylsis
+    
+    public void clearSatCoverageVector()
+    {
+        satsUsedInCoverage.clear();
+    }
+    
+    public void removeSatFromCoverageAnaylsis(String satName)
+    {
+        // make sure name is in the Vector
+        int i=0; // counter
+        for(String name : satsUsedInCoverage)
+        {
+            if(satName.equalsIgnoreCase(name))
+            {
+                satsUsedInCoverage.remove(i);
+                return; // already in the list
+            }
+            i++;
+        }
+    } // removeSatFromCoverageAnaylsis
     
 } // CoverageAnalyzer

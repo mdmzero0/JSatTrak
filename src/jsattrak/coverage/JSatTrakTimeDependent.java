@@ -26,6 +26,9 @@
 
 package jsattrak.coverage;
 
+import java.util.Hashtable;
+import jsattrak.objects.AbstractSatellite;
+import jsattrak.objects.GroundStation;
 import name.gano.astro.time.Time;
 
 /**
@@ -35,6 +38,6 @@ import name.gano.astro.time.Time;
 public interface JSatTrakTimeDependent 
 {
     
-    public void updateTime(final Time currentJulianDate);
+    public void updateTime(final Time currentJulianDate, final Hashtable<String,AbstractSatellite> satHash, final Hashtable<String,GroundStation> gsHash);
 
 }

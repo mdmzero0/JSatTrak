@@ -149,6 +149,7 @@ import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 import jguiserver.GuiServer;
 import jsattrak.coverage.CoverageAnalyzer;
+import jsattrak.coverage.JSatTrakTimeDependent;
 import jsattrak.objects.AbstractSatellite;
 import jsattrak.objects.SatelliteTleSGP4;
 import jsattrak.utilities.ConsoleDialog;
@@ -251,6 +252,9 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
     // interpreter for bean shell
     JConsole commandConsole = new JConsole();
     Interpreter beanShellInterp = new Interpreter(commandConsole);
+    
+    // time dependent objects that should be update when time is updated
+    Vector<JSatTrakTimeDependent> timeDependentObjects = new Vector<JSatTrakTimeDependent>();
     
     
     /** Creates new form JSatTrak */
@@ -446,11 +450,19 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         
         
         // Debug for coverage module - for now create it and add it to 2D window
-        CoverageAnalyzer ca = new CoverageAnalyzer(); // default
-        twoDWindowVec.get(0).addRenderableObject(ca); // add it to the panel
+        if (true)
+        {
+            CoverageAnalyzer ca = new CoverageAnalyzer(); // default
+            twoDWindowVec.get(0).addRenderableObject(ca); // add it to the panel
+            ca.addSatToCoverageAnaylsis("ISS (ZARYA)             ");
+            //ca.addSatToCoverageAnaylsis("test");
+            timeDependentObjects.add(ca); // add object to time updates
+            twoDWindowVec.get(0).setShowLatLonLines(false);
+            twoDWindowVec.get(0).setDrawSun(false);
+        }
         
     } // constructor
-    
+        
     public void checkAndInstallPlugins()
     {
         // first clean out all current plugins displayed (in case it is refreshed)
@@ -1907,8 +1919,13 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         {
             threeDPanel.setMJD(currentJulianDate.getMJD());
         }
-                
         
+        // update any other time dependant objects
+        for(JSatTrakTimeDependent tdo : timeDependentObjects)
+        {
+            tdo.updateTime(currentJulianDate, satHash, gsHash);
+        }
+                
         forceRepainting(); // repaint 2d/3d earth
         
         // update any satellite property window that is open
