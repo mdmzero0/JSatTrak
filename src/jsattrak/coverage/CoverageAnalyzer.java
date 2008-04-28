@@ -69,7 +69,7 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
         
         // debug testing fill in some points
         Random rnd = new Random(System.currentTimeMillis());
-        for(int i=0; i<40; i++) // fill in 20
+        for(int i=0; i<80; i++) // fill in random
         {
             coverageCumTime[rnd.nextInt(latPanels)][rnd.nextInt(longPanels)] = rnd.nextInt(99)+1;
         }
@@ -122,7 +122,8 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
     //  update the time
     public void updateTime(final Time currentJulianDate)
     {
-        // check time make sure this time is past when the last time update was
+        // check time make sure this time is past when the last time update was 
+        //(then cal time diff, and save time)
         
         // create temp array for time cumlation (so we don't double count sat coverage)
         
