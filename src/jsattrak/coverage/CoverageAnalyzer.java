@@ -28,6 +28,8 @@ package jsattrak.coverage;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Hashtable;
 import java.util.Vector;
 import jsattrak.gui.J2dEarthLabel2;
@@ -66,13 +68,17 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
     double lastMJD = -1; // last MJD update time
     
     // settings
-    int alpha = 255;//151; // tranparency, 0=can't see it, 255=solid
+    int alpha = 150;//151; // tranparency, 0=can't see it, 255=solid
     
     boolean dynamicUpdating = true; // if dynamic updating from GUI time stepping is enabled
+    boolean plotCoverageGrid = false;
+    boolean showColorBar = true;
     
     double elevationLimit = 15;//15; // elevation limit for ground coverage (must be higher for this to count as coverage
     
     Vector<String> satsUsedInCoverage = new Vector<String>(); // vector of satellites used in Coverage anaylsis
+    
+    NumberFormat formatter = new DecimalFormat("0.00E0");
     
     // default constructor
     public CoverageAnalyzer()
@@ -423,34 +429,39 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
         int[] xy_old = new int[2];
         
         // draw in grid lines for lat and long of coverage area
-        g2.setColor( new Color(0.0f,1.0f,0.0f,0.2f));
-        for (double lat : latGridPoints)
+        if (plotCoverageGrid)
         {
-            xy = earthLabel.findXYfromLL(lat, longBounds[0],totWidth,totHeight,imgWidth,imgHeight,zoomFac,cLat,cLong);
-            xy_old = earthLabel.findXYfromLL(lat, longBounds[1],totWidth,totHeight,imgWidth,imgHeight,zoomFac,cLat,cLong);
-
-            g2.drawLine(xy_old[0], xy_old[1], xy[0], xy[1]); // draw a line across the map
-        }
-        g2.setColor( new Color(0.0f,1.0f,0.0f,0.2f));
-        for (double lon : lonGridPoints)
-        {
-            xy = earthLabel.findXYfromLL(latBounds[0], lon,totWidth,totHeight,imgWidth,imgHeight,zoomFac,cLat,cLong);
-            xy_old = earthLabel.findXYfromLL(latBounds[1], lon,totWidth,totHeight,imgWidth,imgHeight,zoomFac,cLat,cLong);
-
-            g2.drawLine(xy_old[0], xy_old[1], xy[0], xy[1]); // draw a line across the map
-        }
-        // draw center points
-        g2.setColor( new Color(0.0f,1.0f,0.0f,0.2f));
-        int dotSize = 1;
-        for(double lat : latPanelMidPoints)
-        {
-            for(double lon : lonPanelMidPoints)
+            g2.setColor(new Color(0.0f, 1.0f, 0.0f, 0.2f));
+            for (double lat : latGridPoints)
             {
-                xy = earthLabel.findXYfromLL(lat, lon,totWidth,totHeight,imgWidth,imgHeight,zoomFac,cLat,cLong);
-                
-                g2.drawRect(xy[0]-dotSize/2, xy[1]-dotSize/2, dotSize, dotSize);
+                xy = earthLabel.findXYfromLL(lat, longBounds[0], totWidth, totHeight, imgWidth, imgHeight, zoomFac, cLat, cLong);
+                xy_old = earthLabel.findXYfromLL(lat, longBounds[1], totWidth, totHeight, imgWidth, imgHeight, zoomFac, cLat, cLong);
+
+                g2.drawLine(xy_old[0], xy_old[1], xy[0], xy[1]); // draw a line across the map
+
             }
-        }
+            g2.setColor(new Color(0.0f, 1.0f, 0.0f, 0.2f));
+            for (double lon : lonGridPoints)
+            {
+                xy = earthLabel.findXYfromLL(latBounds[0], lon, totWidth, totHeight, imgWidth, imgHeight, zoomFac, cLat, cLong);
+                xy_old = earthLabel.findXYfromLL(latBounds[1], lon, totWidth, totHeight, imgWidth, imgHeight, zoomFac, cLat, cLong);
+
+                g2.drawLine(xy_old[0], xy_old[1], xy[0], xy[1]); // draw a line across the map
+
+            }
+            // draw center points
+            g2.setColor(new Color(0.0f, 1.0f, 0.0f, 0.2f));
+            int dotSize = 1;
+            for (double lat : latPanelMidPoints)
+            {
+                for (double lon : lonPanelMidPoints)
+                {
+                    xy = earthLabel.findXYfromLL(lat, lon, totWidth, totHeight, imgWidth, imgHeight, zoomFac, cLat, cLong);
+
+                    g2.drawRect(xy[0] - dotSize / 2, xy[1] - dotSize / 2, dotSize, dotSize);
+                }
+            }
+        } // graw grid and center points
         // fill in color scaled panels based on cumulative Coverage time
         // should combine with above... just use alpha =0.0 when panel is blank
         int xmax, xmin, ymax, ymin;
@@ -482,6 +493,34 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
         } // for lat panels
         
         // Draw color bar if wanted!!
+        if(showColorBar)
+        {
+            int pixelsFromBottom = 20;
+            int pixelsFromLeft = 20;
+            int colorBarLen = 100;
+            int colorBarHeight = 10;
+            int colorBarTextSpacing = 5; // pixels below bar where text is displayed
+            
+            // color bar specturm
+            for(int i=0;i<colorBarLen;i++)
+            {
+                g2.setColor( colorMap.getColor(i, 0, colorBarLen, 255) );
+                g2.drawLine(pixelsFromLeft+i, totHeight-pixelsFromBottom, pixelsFromLeft+i, totHeight-pixelsFromBottom-colorBarHeight);
+            }
+            
+            // color bar labeling
+            // 0 %
+            int textHeight = 10;
+            g2.setColor( Color.BLACK );
+            g2.drawLine(pixelsFromLeft-1, totHeight-pixelsFromBottom+colorBarTextSpacing, pixelsFromLeft-1,totHeight-pixelsFromBottom-colorBarHeight);
+            g2.drawString(formatter.format(minNotZeroVal*24*60*60) + " sec", pixelsFromLeft-1, totHeight-pixelsFromBottom+colorBarTextSpacing+textHeight);
+            
+            // at 100%
+            g2.setColor( Color.BLACK );
+            g2.drawLine(pixelsFromLeft+colorBarLen, totHeight-pixelsFromBottom+colorBarTextSpacing, pixelsFromLeft+colorBarLen,totHeight-pixelsFromBottom-colorBarHeight);
+            g2.drawString(formatter.format(maxVal*24*60*60), pixelsFromLeft+colorBarLen, totHeight-pixelsFromBottom+colorBarTextSpacing+textHeight);
+            
+        } // showColorBar
         
     } // draw 2d
     
