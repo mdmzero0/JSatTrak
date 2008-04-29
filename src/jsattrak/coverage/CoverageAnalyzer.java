@@ -64,30 +64,42 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
     
     Vector<String> satsUsedInCoverage = new Vector<String>(); // vector of satellites used in Coverage anaylsis
     
-    // settings ===========
-    // grid sizing >=1 
-    int latPanels = 144;//72;//36; //18// number of divisons along lines of latitude (grid points -1)
-    int longPanels = 288;//144;//72; //36 // number of divisions along lines of longitude (grid points -1)
     // in degrees
-    double[] latBounds = {-90.0,90.0}; // minimum,maxium latitude to use in coverage anaylsis
-    double[] longBounds = {-180.0,180.0}; // minimum,maxium longitude to use in coverage anaylsis
     
-    int alpha = 150;//151; // tranparency of colored panels, 0=can't see it, 255=solid 
-    boolean dynamicUpdating = true; // if dynamic updating from GUI time stepping is enabled
-    boolean plotCoverageGrid = false; // plot panel grid and center points of panels
-    double elevationLimit = 15;//15; // elevation limit for ground coverage [degrees] (must be higher for this to count as coverage
     
+    private // vector of satellites used in Coverage anaylsis
+    // settings ===========
+    // grid sizing >=1
+    int latPanels = 144;
+    private //72;//36; //18// number of divisons along lines of latitude (grid points -1)
+    int longPanels = 288;
+    private //144;//72; //36 // number of divisions along lines of longitude (grid points -1)
+    // in degrees
+    double[] latBounds = {-90.0, 90.0};
+    private // minimum,maxium latitude to use in coverage anaylsis
+    double[] longBounds = {-180.0, 180.0};
+    private // minimum,maxium longitude to use in coverage anaylsis
+    int alpha = 150;
+    private //151; // tranparency of colored panels, 0=can't see it, 255=solid
+    boolean dynamicUpdating = true;
+    private // if dynamic updating from GUI time stepping is enabled
+    boolean plotCoverageGrid = false;
+    private // plot panel grid and center points of panels
+    double elevationLimit = 15;
+    private //15; // elevation limit for ground coverage [degrees] (must be higher for this to count as coverage
     NumberFormat colorBarNumberFormat = new DecimalFormat("0.00E0");
-    
+    private
+
     // Color bar settings
     boolean showColorBar = true;
-    int pixelsFromBottom = 20;
-    int pixelsFromLeft = 20;
-    int colorBarLen = 100;
-    int colorBarHeight = 10;
-    int colorBarTextSpacing = 5; // pixels below bar where text is displayed
+    private int pixelsFromBottom = 20;
+    private int pixelsFromLeft = 20;
+    private int colorBarLen = 100;
+    private int colorBarHeight = 10;
+    private int colorBarTextSpacing = 5;
+    private // pixels below bar where text is displayed
     Color colorbarBGcolor = new Color(255, 255, 255, 180);
-    Color colorBarTextcolor = Color.BLACK;
+    private Color colorBarTextcolor = Color.BLACK;
     
     // default constructor
     public CoverageAnalyzer()
@@ -583,5 +595,187 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
             i++;
         }
     } // removeSatFromCoverageAnaylsis
+    
+    // ======================================================
+    
+    public void setColorMap(ColorMap colorMap)
+    {
+        this.colorMap = colorMap;
+    }
+    
+    public ColorMap getColorMap()
+    {
+        return colorMap;
+    }
+
+    public int getLatPanels()
+    {
+        return latPanels;
+    }
+
+    public void setLatPanels(int latPanels)
+    {
+        this.latPanels = latPanels;
+    }
+
+    public int getLongPanels()
+    {
+        return longPanels;
+    }
+
+    public void setLongPanels(int longPanels)
+    {
+        this.longPanels = longPanels;
+    }
+
+    public double[] getLatBounds()
+    {
+        return latBounds;
+    }
+
+    public void setLatBounds(double[] latBounds)
+    {
+        this.latBounds = latBounds;
+    }
+
+    public double[] getLongBounds()
+    {
+        return longBounds;
+    }
+
+    public void setLongBounds(double[] longBounds)
+    {
+        this.longBounds = longBounds;
+    }
+
+    public int getAlpha()
+    {
+        return alpha;
+    }
+
+    public void setAlpha(int alpha)
+    {
+        this.alpha = alpha;
+    }
+
+    public boolean isDynamicUpdating()
+    {
+        return dynamicUpdating;
+    }
+
+    public void setDynamicUpdating(boolean dynamicUpdating)
+    {
+        this.dynamicUpdating = dynamicUpdating;
+    }
+
+    public boolean isPlotCoverageGrid()
+    {
+        return plotCoverageGrid;
+    }
+
+    public void setPlotCoverageGrid(boolean plotCoverageGrid)
+    {
+        this.plotCoverageGrid = plotCoverageGrid;
+    }
+
+    public double getElevationLimit()
+    {
+        return elevationLimit;
+    }
+
+    public void setElevationLimit(double elevationLimit)
+    {
+        this.elevationLimit = elevationLimit;
+    }
+
+    public NumberFormat getColorBarNumberFormat()
+    {
+        return colorBarNumberFormat;
+    }
+
+    public void setColorBarNumberFormat(NumberFormat colorBarNumberFormat)
+    {
+        this.colorBarNumberFormat = colorBarNumberFormat;
+    }
+
+    public boolean isShowColorBar()
+    {
+        return showColorBar;
+    }
+
+    public void setShowColorBar(boolean showColorBar)
+    {
+        this.showColorBar = showColorBar;
+    }
+
+    public int getPixelsFromBottom()
+    {
+        return pixelsFromBottom;
+    }
+
+    public void setPixelsFromBottom(int pixelsFromBottom)
+    {
+        this.pixelsFromBottom = pixelsFromBottom;
+    }
+
+    public int getPixelsFromLeft()
+    {
+        return pixelsFromLeft;
+    }
+
+    public void setPixelsFromLeft(int pixelsFromLeft)
+    {
+        this.pixelsFromLeft = pixelsFromLeft;
+    }
+
+    public int getColorBarLen()
+    {
+        return colorBarLen;
+    }
+
+    public void setColorBarLen(int colorBarLen)
+    {
+        this.colorBarLen = colorBarLen;
+    }
+
+    public int getColorBarHeight()
+    {
+        return colorBarHeight;
+    }
+
+    public void setColorBarHeight(int colorBarHeight)
+    {
+        this.colorBarHeight = colorBarHeight;
+    }
+
+    public int getColorBarTextSpacing()
+    {
+        return colorBarTextSpacing;
+    }
+
+    public void setColorBarTextSpacing(int colorBarTextSpacing)
+    {
+        this.colorBarTextSpacing = colorBarTextSpacing;
+    }
+
+    public Color getColorbarBGcolor()
+    {
+        return colorbarBGcolor;
+    }
+
+    public void setColorbarBGcolor(Color colorbarBGcolor)
+    {
+        this.colorbarBGcolor = colorbarBGcolor;
+    }
+
+    public Color getColorBarTextcolor()
+    {
+        return colorBarTextcolor;
+    }
+
+    public void setColorBarTextcolor(Color colorBarTextcolor)
+    {
+        this.colorBarTextcolor = colorBarTextcolor;
+    }
     
 } // CoverageAnalyzer
