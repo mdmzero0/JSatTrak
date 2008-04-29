@@ -44,13 +44,7 @@ import name.gano.astro.time.Time;
  */
 public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependent
 {
-    int latPanels = 72;//36; //18// number of divisons along lines of latitude (grid points -1)
-    int longPanels = 144;//72; //36 // number of divisions along lines of longitude (grid points -1)
-    
-    // in degrees
-    double[] latBounds = {-90.0,90.0}; // minimum,maxium latitude to use in coverage anaylsis
-    double[] longBounds = {-180.0,180.0}; // minimum,maxium longitude to use in coverage anaylsis
-    
+    // data arrays
     // in days
     double[][] coverageCumTime; // cumulative coverage time array [latPanels x longPanels]
     // in degrees
@@ -63,42 +57,68 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
     double minNotZeroVal = 1;
     double maxVal = 100;
     
+    // color map for data
     ColorMap colorMap = new ColorMap();
     
     double lastMJD = -1; // last MJD update time
     
-    // settings
-    int alpha = 150;//151; // tranparency, 0=can't see it, 255=solid
-    
-    boolean dynamicUpdating = true; // if dynamic updating from GUI time stepping is enabled
-    boolean plotCoverageGrid = false;
-    boolean showColorBar = true;
-    
-    double elevationLimit = 15;//15; // elevation limit for ground coverage (must be higher for this to count as coverage
-    
     Vector<String> satsUsedInCoverage = new Vector<String>(); // vector of satellites used in Coverage anaylsis
     
-    NumberFormat formatter = new DecimalFormat("0.00E0");
+    // settings ===========
+    // grid sizing >=1 
+    int latPanels = 144;//72;//36; //18// number of divisons along lines of latitude (grid points -1)
+    int longPanels = 288;//144;//72; //36 // number of divisions along lines of longitude (grid points -1)
+    // in degrees
+    double[] latBounds = {-90.0,90.0}; // minimum,maxium latitude to use in coverage anaylsis
+    double[] longBounds = {-180.0,180.0}; // minimum,maxium longitude to use in coverage anaylsis
+    
+    int alpha = 150;//151; // tranparency of colored panels, 0=can't see it, 255=solid 
+    boolean dynamicUpdating = true; // if dynamic updating from GUI time stepping is enabled
+    boolean plotCoverageGrid = false; // plot panel grid and center points of panels
+    double elevationLimit = 15;//15; // elevation limit for ground coverage [degrees] (must be higher for this to count as coverage
+    
+    NumberFormat colorBarNumberFormat = new DecimalFormat("0.00E0");
+    
+    // Color bar settings
+    boolean showColorBar = true;
+    int pixelsFromBottom = 20;
+    int pixelsFromLeft = 20;
+    int colorBarLen = 100;
+    int colorBarHeight = 10;
+    int colorBarTextSpacing = 5; // pixels below bar where text is displayed
+    Color colorbarBGcolor = new Color(255, 255, 255, 180);
+    Color colorBarTextcolor = Color.BLACK;
     
     // default constructor
     public CoverageAnalyzer()
     {
         iniParamters();
-        
-        // debug testing fill in some points
-//        Random rnd = new Random(System.currentTimeMillis());
-//        for(int i=0; i<80; i++) // fill in random
-//        {
-//            coverageCumTime[rnd.nextInt(latPanels)][rnd.nextInt(longPanels)] = rnd.nextInt(99)+1;
-//        }
-//        // draw spectrum
-//         for(int i=0; i<longPanels; i++) // fill in 20
-//        {
-//            coverageCumTime[latPanels-1][i] = i*2.7+1;
-//            coverageCumTime[latPanels-3][i] = 100-i*2.7;
-//        }
-        
     } // constructor
+    
+    /**
+     * Constructor with current time - this will allow coverage to start on next time step
+     * @param currentJulianDate current Julian Date
+     */
+    public CoverageAnalyzer(final Time currentJulianDate)
+    {
+        iniParamters();
+        lastMJD = currentJulianDate.getMJD();
+    }
+    
+//    /**
+//     * NEEDS TO INCLUDE - SATS INTO VECTOR BEFORE THIS WILL WORK PROPERLY
+//     * Constructor with current time and current time step - this will allow coverage anaylsis to immediately start
+//     * @param currentJulianDate current Julian Date
+//     * @param timeStepDays time step to be used in days
+//     * @param satHash Hashtable of current satellites
+//     */
+//    public CoverageAnalyzer(final Time currentJulianDate, double timeStepDays, final Hashtable<String,AbstractSatellite> satHash)
+//    {
+//        iniParamters();
+//        lastMJD = currentJulianDate.getMJD()-timeStepDays;
+//        
+//        performCoverageAnalysis(currentJulianDate, satHash);
+//    }
     
     // initalized all parameters (used at class construction to create all arrays, etc)
     private void iniParamters()
@@ -149,12 +169,12 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
             return; // don't update converage anlysis from JSatTrack GUI
         }
         
-        performCoverageAnalysis(currentJulianDate,satHash,gsHash); // do the analysis
+        performCoverageAnalysis(currentJulianDate,satHash); // do the analysis
         
     } // updateTime
     
     // internal function to actually perform the anaylsis - so it can be used by GUI update calls or coverage tool
-    private void performCoverageAnalysis(final Time currentJulianDate, final Hashtable<String,AbstractSatellite> satHash, final Hashtable<String,GroundStation> gsHash)
+    private void performCoverageAnalysis(final Time currentJulianDate, final Hashtable<String,AbstractSatellite> satHash)
     {
         // if first time update, save time and quit (only start calc after first time step)
         if(lastMJD == -1)
@@ -495,11 +515,9 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
         // Draw color bar if wanted!!
         if(showColorBar)
         {
-            int pixelsFromBottom = 20;
-            int pixelsFromLeft = 20;
-            int colorBarLen = 100;
-            int colorBarHeight = 10;
-            int colorBarTextSpacing = 5; // pixels below bar where text is displayed
+            // colorbar background
+            g2.setColor( colorbarBGcolor );
+            g2.fillRect(pixelsFromLeft-5, totHeight-pixelsFromBottom-colorBarHeight-3, colorBarLen+12+30, colorBarHeight+colorBarTextSpacing+15);
             
             // color bar specturm
             for(int i=0;i<colorBarLen;i++)
@@ -511,14 +529,14 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
             // color bar labeling
             // 0 %
             int textHeight = 10;
-            g2.setColor( Color.BLACK );
+            g2.setColor( colorBarTextcolor );
             g2.drawLine(pixelsFromLeft-1, totHeight-pixelsFromBottom+colorBarTextSpacing, pixelsFromLeft-1,totHeight-pixelsFromBottom-colorBarHeight);
-            g2.drawString(formatter.format(minNotZeroVal*24*60*60) + " sec", pixelsFromLeft-1, totHeight-pixelsFromBottom+colorBarTextSpacing+textHeight);
+            g2.drawString(colorBarNumberFormat.format(minNotZeroVal*24*60*60) + " sec", pixelsFromLeft-1, totHeight-pixelsFromBottom+colorBarTextSpacing+textHeight);
             
             // at 100%
             g2.setColor( Color.BLACK );
             g2.drawLine(pixelsFromLeft+colorBarLen, totHeight-pixelsFromBottom+colorBarTextSpacing, pixelsFromLeft+colorBarLen,totHeight-pixelsFromBottom-colorBarHeight);
-            g2.drawString(formatter.format(maxVal*24*60*60), pixelsFromLeft+colorBarLen, totHeight-pixelsFromBottom+colorBarTextSpacing+textHeight);
+            g2.drawString(colorBarNumberFormat.format(maxVal*24*60*60), pixelsFromLeft+colorBarLen, totHeight-pixelsFromBottom+colorBarTextSpacing+textHeight);
             
         } // showColorBar
         

@@ -20,10 +20,15 @@
  * =====================================================================
  *
  * Created on October 25, 2007, 1:56 PM
+ * 
+ * update 29 April 2008: Shawn Gano
+ * - fixed to allow other types of windows besides just 3d WWJ, using a "mode" variable to allow 3dWWJ, 2D, or other
+ * 
  */
 
 package jsattrak.gui;
 
+import java.awt.Container;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Robot;
@@ -35,7 +40,6 @@ import java.util.TimeZone;
 import java.util.Vector;
 import javax.imageio.ImageIO;
 import javax.media.MediaLocator;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
@@ -50,7 +54,6 @@ import name.gano.astro.time.Time;
  */
 public class JCreateMovieDialog extends javax.swing.JDialog
 {
-    J3DEarthComponent threeDpanel;
     Time startTime, endTime;
     
     double timeStep = 1.0;
@@ -67,7 +70,19 @@ public class JCreateMovieDialog extends javax.swing.JDialog
     
     JSatTrak app;
     
-    /** Creates new form JCreateMovieDialog */
+    // mode for type of window being used to make a movie from
+    int movieMode = 0; // 0= 3dWWJ, 1=2D graphics, 2=other any JComponent
+    // types of windows to make movies from:
+    J3DEarthComponent threeDpanel;
+    J2DEarthPanel     twoDpanel;
+    Container         otherPanel;
+    
+    /** Creates new form JCreateMovieDialog for a 3D window
+     * @param parent
+     * @param modal
+     * @param threeDpanel
+     * @param app 
+     */
     public JCreateMovieDialog(java.awt.Frame parent, boolean modal, J3DEarthComponent threeDpanel, JSatTrak app)
     {
         super(parent, modal);
@@ -75,20 +90,66 @@ public class JCreateMovieDialog extends javax.swing.JDialog
         this.threeDpanel = threeDpanel;
         this.app = app;
         
-        initComponents();
+        movieMode = 0; // set 3D wwj window type
+        
+        iniGUI( threeDpanel.getDialogTitle() );
+        
+    } // 3d Window movie maker
+    
+    /** Creates new form JCreateMovieDialog for a 2D window
+     * @param parent
+     * @param modal
+     * @param twoDpanel 
+     * @param app 
+     */
+    public JCreateMovieDialog(java.awt.Frame parent, boolean modal, J2DEarthPanel twoDpanel, JSatTrak app)
+    {
+        super(parent, modal);
+        
+        this.twoDpanel = twoDpanel;
+        this.app = app;
+        
+        movieMode = 1; // set 3D wwj window type
+        
+        iniGUI(twoDpanel.getName());
+    } // 2d window movie Maker
+    
+    /** Creates new form JCreateMovieDialog for an generic Container
+     * @param parent
+     * @param modal
+     * @param otherPanel 
+     * @param app
+     * @param windowTitle Title of the window - to be shown in dialog so user knows which window movie will be made from
+     */
+    public JCreateMovieDialog(java.awt.Frame parent, boolean modal, Container otherPanel, JSatTrak app, String windowTitle)
+    {
+        super(parent, modal);
+        
+        this.otherPanel = otherPanel;
+        this.app = app;
+        
+        movieMode = 2; // set 3D wwj window type
+        
+        iniGUI(windowTitle);
+    } // 2d window movie Maker
+    
+    private void iniGUI(String windowTitle)
+    {
+         initComponents();
         
         // title name
-        windowNameLabel.setText(  threeDpanel.getDialogTitle() );
+        windowNameLabel.setText( windowTitle );
         
         // get current date
         // Start time
         startTime = new Time();
-        startTime.setDateFormat( (SimpleDateFormat)threeDpanel.getApp().getCurrentJulianDay().getDateFormat() ); 
-        startTime.set( threeDpanel.getApp().getCurrentJulianDay().getCurrentGregorianCalendar().getTimeInMillis()  );
+        
+        startTime.setDateFormat( (SimpleDateFormat)app.getCurrentJulianDay().getDateFormat());//threeDpanel.getApp().getCurrentJulianDay().getDateFormat() ); 
+        startTime.set( app.getCurrentJulianDay().getCurrentGregorianCalendar().getTimeInMillis()  );
         // End time
         endTime = new Time();
-        endTime.setDateFormat( (SimpleDateFormat)threeDpanel.getApp().getCurrentJulianDay().getDateFormat() ); 
-        endTime.set( threeDpanel.getApp().getCurrentJulianDay().getCurrentGregorianCalendar().getTimeInMillis()  );
+        endTime.setDateFormat( (SimpleDateFormat)app.getCurrentJulianDay().getDateFormat() ); 
+        endTime.set( app.getCurrentJulianDay().getCurrentGregorianCalendar().getTimeInMillis()  );
         endTime.addSeconds( 60.0*60.0*3.0 ); // default 3 hours + 
         
         startTimeField.setText( startTime.getDateTimeStr());
@@ -96,16 +157,15 @@ public class JCreateMovieDialog extends javax.swing.JDialog
         
         
         // time step
-        timeStepField.setText( ""+threeDpanel.getApp().getCurrentTimeStep() );
-        timeStep = threeDpanel.getApp().getCurrentTimeStep();
+        timeStepField.setText( ""+app.getCurrentTimeStep() );
+        timeStep = app.getCurrentTimeStep();
         
         // frames per sec default
         playBackRateSpinner.setValue(playbackFPS);
         
         // update other date
         updateDisplayData();
-        
-    }
+    } // ini GUI
     
     /** This method is called from within the constructor to
      * initialize the form.
@@ -416,8 +476,21 @@ public class JCreateMovieDialog extends javax.swing.JDialog
                         {
                             app.setTime(startTime.getCurrentGregorianCalendar().getTimeInMillis());
 
-                            // force wwd to update
-                            threeDpanel.getWwd().redrawNow();
+                            // force component to update
+                            if(movieMode == 0)
+                            {
+                                threeDpanel.getWwd().redrawNow(); // // force wwd to update
+                            }
+                            else if(movieMode == 1)
+                            {
+                                // is this needed, seems no; well seems to help remove some black flickering artifacts
+                                //twoDpanel.repaint();
+                            }
+                            else
+                            {
+                                // might not be needed either
+                                //otherPanel.repaint(); // does this work?
+                            }
 
 
                             // take screen shot
@@ -440,8 +513,25 @@ public class JCreateMovieDialog extends javax.swing.JDialog
                         // stuff to do afterwards
                         
                          // create movie =========
-                        int width = threeDpanel.getWwdWidth();
-                        int height = threeDpanel.getWwdHeight();
+                        // get size
+                        int width;
+                        int height;
+                        if(movieMode == 0)
+                        {
+                            width = threeDpanel.getWwdWidth();
+                            height = threeDpanel.getWwdHeight();
+                        }
+                        else if(movieMode == 1)
+                        {
+                            int[] twoDinfo = calculate2DMapSizeAndScreenLoc(twoDpanel);
+                            width = twoDinfo[0];
+                            height = twoDinfo[1];
+                        }
+                        else
+                        {
+                            width = otherPanel.getWidth();
+                            height = otherPanel.getHeight();
+                        }
 
                         // Generate the output media locators.
                         MediaLocator oml;
@@ -671,9 +761,25 @@ public class JCreateMovieDialog extends javax.swing.JDialog
             int height = 0;
 
             // get location on screen / width / height
-            pt = threeDpanel.getWwdLocationOnScreen();
-            width = threeDpanel.getWwdWidth();
-            height = threeDpanel.getWwdHeight();
+            if(movieMode == 0)
+            {
+                pt = threeDpanel.getWwdLocationOnScreen();
+                width = threeDpanel.getWwdWidth();
+                height = threeDpanel.getWwdHeight();
+            }
+            else if(movieMode == 1)
+            {
+                int[] twoDinfo = calculate2DMapSizeAndScreenLoc(twoDpanel);
+                pt.setLocation(twoDinfo[2], twoDinfo[3]);
+                width = twoDinfo[0];
+                height = twoDinfo[1];
+            }
+            else
+            {
+                pt = otherPanel.getLocationOnScreen();
+                width = otherPanel.getWidth();
+                height = otherPanel.getHeight();
+            }
 
 
             // not a possible size
@@ -732,5 +838,48 @@ public class JCreateMovieDialog extends javax.swing.JDialog
 
 	return null;
     } // createMediaLocator
+    
+    
+    // calculate actualy 2D map size and location on screen
+    // returns int[] {width,height,pt.x,pt.y} pt = point on screen
+    private int[] calculate2DMapSizeAndScreenLoc(J2DEarthPanel twoDmapPanel)
+    {
+        Point pt = twoDmapPanel.getLocationOnScreen();
+        int width = twoDmapPanel.getWidth();
+        int height = twoDmapPanel.getHeight();
+
+        //System.out.println("2D WINDOW");
+        double aspectRatio = 2.0; // width/height
+
+        int newWidth = 1, newHeight = 1;
+        if (height != 0)
+        {
+            if (width / height > aspectRatio)
+            {
+                // label has larger aspect ratio, constraint by height
+                newHeight = height;
+                newWidth = (int) (height * aspectRatio);
+            }
+            else
+            {
+                // label has lower aspect ratio
+                newWidth = width;
+                newHeight = (int) (width * 1.0 / aspectRatio);
+            }
+
+            // changes in size
+            int deltaW = width - newWidth;
+            int deltaH = height - newHeight;
+
+            pt.y = pt.y + (int) (deltaH / 2.0);
+            pt.x = pt.x + (int) (deltaW / 2.0);
+
+            width = newWidth;
+            height = newHeight;
+        }// find scale
+        
+        return new int[] {width,height,pt.x,pt.y};
+ 
+    } // calculate2DMapSizeAndScreenLoc
     
 }

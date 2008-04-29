@@ -26,7 +26,6 @@ import jsattrak.objects.GroundStation;
 import java.awt.event.*;
 import java.awt.*;
 
-import javax.swing.ImageIcon;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.PopupMenuEvent;
