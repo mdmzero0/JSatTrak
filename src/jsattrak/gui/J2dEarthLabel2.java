@@ -26,7 +26,6 @@ import jsattrak.objects.GroundStation;
 import java.awt.*;
 import java.util.Hashtable;
 import java.util.Vector;
-import javax.swing.ImageIcon;
 import javax.swing.*;
 import jsattrak.coverage.JSatTrakRenderable;
 import jsattrak.objects.AbstractSatellite;

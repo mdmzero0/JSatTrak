@@ -44,13 +44,13 @@ public class ColorMap
     
     public Color getColor(double val, double low, double high)
     {
-        return getColor(val, high, low, 0); // get color with no alpha
+        return getColor(val, low, high, 255); // get color with no alpha
     } // get color 
     
     // conviencent for using a double value for alpha instead of an integer
     public Color getColor(double val, double low, double high, double alpha)
     {
-        return getColor(val, high, low, Math.round(alpha*255)); // get color with no alpha
+        return getColor(val, low, high, (int)Math.round(alpha*255)); // get color with no alpha
     } // get color 
     
     public Color getColor(double val, double low, double high, int alpha)

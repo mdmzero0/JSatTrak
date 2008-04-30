@@ -189,6 +189,14 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="trackToolMenuItemActionPerformed"/>
               </Events>
             </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="coverageMenuItem">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Coverage Anaylsis"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="coverageMenuItemActionPerformed"/>
+              </Events>
+            </MenuItem>
             <MenuItem class="javax.swing.JSeparator" name="jSeparator10">
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="movieWholeAppMenuItem">

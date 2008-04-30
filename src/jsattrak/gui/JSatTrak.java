@@ -257,6 +257,9 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
     // time dependent objects that should be update when time is updated
     Vector<JSatTrakTimeDependent> timeDependentObjects = new Vector<JSatTrakTimeDependent>();
     
+     // coverage anaylzer tool (default null, until tool opened)
+     CoverageAnalyzer ca;
+    
     
     /** Creates new form JSatTrak */
     public JSatTrak()
@@ -448,13 +451,10 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         
         // check for plugin scripts
         checkAndInstallPlugins();
-        
-        // coverage anaylzer tool (default null, until tool opened)
-        CoverageAnalyzer ca;
-        
+               
         
         // Debug for coverage module - for now create it and add it to 2D window
-        if (true)
+        if (false)
         {
             ca = new CoverageAnalyzer(currentJulianDate); // start after first step
             //CoverageAnalyzer ca = new CoverageAnalyzer(currentJulianDate,timeStepSpeeds[currentTimeStepSpeedIndex]/(24.0*60*60),satHash);
@@ -583,6 +583,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         tleLoaderMenuItem = new javax.swing.JMenuItem();
         jSeparator6 = new javax.swing.JSeparator();
         trackToolMenuItem = new javax.swing.JMenuItem();
+        coverageMenuItem = new javax.swing.JMenuItem();
         jSeparator10 = new javax.swing.JSeparator();
         movieWholeAppMenuItem = new javax.swing.JMenuItem();
         jSeparator11 = new javax.swing.JSeparator();
@@ -1024,6 +1025,14 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
             }
         });
         utilitiesMenu.add(trackToolMenuItem);
+
+        coverageMenuItem.setText("Coverage Anaylsis");
+        coverageMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                coverageMenuItemActionPerformed(evt);
+            }
+        });
+        utilitiesMenu.add(coverageMenuItem);
         utilitiesMenu.add(jSeparator10);
 
         movieWholeAppMenuItem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/other/applications-multimedia.png"))); // NOI18N
@@ -2116,6 +2125,39 @@ private void movieWholeAppMenuItemActionPerformed(java.awt.event.ActionEvent evt
     panel.setLocation(p.x + 15, p.y + 55);
     panel.setVisible(true);
 }//GEN-LAST:event_movieWholeAppMenuItemActionPerformed
+
+private void coverageMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_coverageMenuItemActionPerformed
+        
+        // check if coverage anaylzer class is null -
+        if(ca == null)
+        {
+            ca = new CoverageAnalyzer(currentJulianDate); // setup new analyzer
+        }
+        
+        // show satellite browser window
+        //JTrackingToolSelector trackingBrowser = new JTrackingToolSelector(satHash, gsHash, this); // non-modal version
+        JCoverageDialog coverageBrowser = new JCoverageDialog(ca, satHash);
+        
+        // create new internal frame window
+        String windowName = "Coverage Analysis Options";
+        JInternalFrame iframe = new JInternalFrame(windowName,true,true,true,true);
+        
+        iframe.setContentPane(coverageBrowser );
+        iframe.setSize(500,330); // w,h
+        iframe.setLocation(10,10);
+        
+        // add close action listener -- to remove window from hash
+        iframe.addInternalFrameListener(this);
+                
+        iframe.setVisible(true);
+        mainDesktopPane.add(iframe);
+        try
+        {
+            iframe.setSelected(true);
+        }
+        catch (java.beans.PropertyVetoException e)
+        {}
+}//GEN-LAST:event_coverageMenuItemActionPerformed
     
     public void openTrackingToolSelectorWindow()
     {
@@ -2211,6 +2253,7 @@ private void movieWholeAppMenuItemActionPerformed(java.awt.event.ActionEvent evt
     private javax.swing.JMenuItem commandShellDesktopMenuItem;
     private javax.swing.JMenuItem commandShellMenuItem;
     private javax.swing.JMenuItem consoleMenuItem;
+    private javax.swing.JMenuItem coverageMenuItem;
     private javax.swing.JButton createMovieButton;
     private javax.swing.JTextField dateTextField;
     private javax.swing.JButton decementTimeStepButton;
