@@ -1147,4 +1147,9 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
     {
         renderableObjects.clear();
     }
+    
+    public Vector<JSatTrakRenderable> getRenderableObjects()
+    {
+        return renderableObjects;
+    }
 }

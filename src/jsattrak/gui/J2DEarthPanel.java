@@ -34,6 +34,7 @@ import javax.swing.event.PopupMenuListener;
 import java.awt.image.*;
 import java.util.Hashtable;
 import java.util.Vector;
+import jsattrak.coverage.CoverageAnalyzer;
 import jsattrak.coverage.JSatTrakRenderable;
 import jsattrak.objects.AbstractSatellite;
 import jsattrak.utilities.LandMassRegions;
@@ -1006,6 +1007,37 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
      */
     public void addRenderableObject(JSatTrakRenderable renderable)
     {
-        imageMap.addRenderableObject(renderable);
+        if(!checkIfIncludesRenderableObject(renderable))
+        {
+            imageMap.addRenderableObject(renderable);
+        }
+    }
+    
+    public boolean checkIfIncludesRenderableObject(JSatTrakRenderable renderable)
+    {
+        // check to see if object is in list
+        for(JSatTrakRenderable ren : imageMap.getRenderableObjects())
+        {
+            //if(ren instanceof CoverageAnalyzer)
+            if(ren.equals(renderable))
+            {   
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public void removeRenderableObject(JSatTrakRenderable renderable)
+    {
+        Vector<JSatTrakRenderable> renVec = imageMap.getRenderableObjects();
+        for(int i=0;i<renVec.size();i++)
+        {
+            //if(ren instanceof CoverageAnalyzer)
+            if(renVec.get(i).equals(renderable))
+            {   
+                // remove it
+                renVec.remove(renderable);
+            }
+        }
     }
 }

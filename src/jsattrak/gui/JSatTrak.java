@@ -467,6 +467,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
             twoDWindowVec.get(0).setShowDateTime(false);
         }
         
+        
     } // constructor
         
     public void checkAndInstallPlugins()
@@ -1690,6 +1691,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
 
         twoDWindowCount++;
         String windowName = "2D Earth Window - " + twoDWindowCount;
+        newPanel.setName(windowName);
         twoDWindowVec.add(newPanel);
 
         // create new internal frame window
@@ -1877,7 +1879,10 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         // update any other time dependant objects
         for(JSatTrakTimeDependent tdo : timeDependentObjects)
         {
-            tdo.updateTime(currentJulianDate, satHash, gsHash);
+            if(tdo != null)
+            {
+                tdo.updateTime(currentJulianDate, satHash, gsHash);
+            }
         }
                 
         forceRepainting(); // repaint 2d/3d earth
@@ -2132,11 +2137,13 @@ private void coverageMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         if(ca == null)
         {
             ca = new CoverageAnalyzer(currentJulianDate); // setup new analyzer
+            // add coverage analyzer to time update objects
+            timeDependentObjects.add(ca); // add object to time updates
         }
         
         // show satellite browser window
         //JTrackingToolSelector trackingBrowser = new JTrackingToolSelector(satHash, gsHash, this); // non-modal version
-        JCoverageDialog coverageBrowser = new JCoverageDialog(ca, satHash);
+        JCoverageDialog coverageBrowser = new JCoverageDialog(ca, currentJulianDate, this, satHash, twoDWindowVec);
         
         // create new internal frame window
         String windowName = "Coverage Analysis Options";
@@ -2145,6 +2152,8 @@ private void coverageMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         iframe.setContentPane(coverageBrowser );
         iframe.setSize(500,330); // w,h
         iframe.setLocation(10,10);
+        
+        coverageBrowser.setIframe(iframe);
         
         // add close action listener -- to remove window from hash
         iframe.addInternalFrameListener(this);

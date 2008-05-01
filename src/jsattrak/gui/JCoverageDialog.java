@@ -7,12 +7,17 @@
 package jsattrak.gui;
 
 import java.util.Hashtable;
+import java.util.Vector;
+import javax.swing.DefaultListModel;
+import javax.swing.JInternalFrame;
+import javax.swing.JOptionPane;
 import jsattrak.coverage.ColorMap;
 import jsattrak.coverage.CoolColorMap;
 import jsattrak.coverage.CoverageAnalyzer;
 import jsattrak.coverage.GrayColorMap;
 import jsattrak.coverage.HotColorMap;
 import jsattrak.objects.AbstractSatellite;
+import name.gano.astro.time.Time;
 
 /**
  *
@@ -22,17 +27,87 @@ public class JCoverageDialog extends javax.swing.JPanel
 {
     Hashtable<String,AbstractSatellite> satHash;
     CoverageAnalyzer ca;
+    Vector<J2DEarthPanel> twoDWindowVec;
+    Time currentJulianDate;
+    JSatTrak app;
+    private JInternalFrame iframe;
 
     /** Creates new form JCoverageDialog */
-    public JCoverageDialog(CoverageAnalyzer ca, Hashtable<String,AbstractSatellite> satHash) 
+    public JCoverageDialog(CoverageAnalyzer ca, final Time currentJulianDate, JSatTrak app, Hashtable<String,AbstractSatellite> satHash, Vector<J2DEarthPanel> twoDWindowVec) 
     {
         initComponents();
         
         this.ca = ca;
         this.satHash = satHash;
+        this.twoDWindowVec = twoDWindowVec;
+        this.currentJulianDate = currentJulianDate;
+        this.app = app;
         
         // display current settings in the dialog
         latLowerField.setText(ca.getLatBounds()[0]+"");
+        latUpperField.setText(ca.getLatBounds()[1]+"");
+        lonLowerField.setText(ca.getLongBounds()[0]+"");
+        lonUpperField.setText(ca.getLongBounds()[1]+"");
+        latSegTextField.setText(ca.getLatPanels()+"");
+        lonSegTextField.setText(ca.getLongPanels()+"");
+        minElevTextField.setText(ca.getElevationLimit()+"");
+        // current sats in use:
+        for(String name : ca.getSatVector())
+        {
+            ((DefaultListModel )satIncludedList.getModel()).addElement(name);
+        }
+        // add current sat list 
+        for(AbstractSatellite sat : satHash.values())
+        {
+            ((DefaultListModel )availSatList.getModel()).addElement(sat.getName());
+        }
+        dyanmicUpdateCheckBox.setSelected(ca.isDynamicUpdating());
+        
+        // viz options
+        alphaLabel.setText((int)Math.round(ca.getAlpha()*100.0/255)+"");
+        alphaSlider.setValue((int)Math.round(ca.getAlpha()*100.0/255));
+        showGridCheckBox.setSelected(ca.isPlotCoverageGrid());
+        showColorBarCheckBox.setSelected(ca.isShowColorBar());
+        ColorMap map = ca.getColorMap(); // jet cool hot gray
+        if(map instanceof CoolColorMap)
+        {
+            colorMapComboBox.setSelectedIndex(1);
+        }
+        else if(map instanceof HotColorMap)
+        {
+            colorMapComboBox.setSelectedIndex(2);
+        }
+        else if(map instanceof GrayColorMap)
+        {
+            colorMapComboBox.setSelectedIndex(3);
+        }
+        else //default
+        {
+            colorMapComboBox.setSelectedIndex(0);
+        }
+        
+        // 2D windows
+        Vector<Integer> selectedWindows = new Vector<Integer>();
+        int i=0;
+        for(J2DEarthPanel ep : twoDWindowVec)
+        {
+            ((DefaultListModel )twoDWindowList.getModel()).addElement(ep.getName());
+            // set if it should be selected?
+            if(ep.checkIfIncludesRenderableObject(ca))
+            {
+                selectedWindows.add(i);
+            }
+            i++;
+        } // for 2D windows
+        
+        int[] sel = new int[selectedWindows.size()];
+        for(int j=0;j<selectedWindows.size();j++)
+        {
+            sel[j] = selectedWindows.get(j);
+        }
+        
+        twoDWindowList.setSelectedIndices(sel);
+        
         
     } // JCoverageDialog
 
@@ -46,10 +121,10 @@ public class JCoverageDialog extends javax.swing.JPanel
     private void initComponents() {
 
         jPanel2 = new javax.swing.JPanel();
-        jCheckBox1 = new javax.swing.JCheckBox();
-        jButton1 = new javax.swing.JButton();
+        dyanmicUpdateCheckBox = new javax.swing.JCheckBox();
+        clearDataButton = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
+        okButton = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jTabbedPane1 = new javax.swing.JTabbedPane();
@@ -58,35 +133,41 @@ public class JCoverageDialog extends javax.swing.JPanel
         jPanel7 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         latLowerField = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
+        latUpperField = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
-        jTextField3 = new javax.swing.JTextField();
-        jTextField4 = new javax.swing.JTextField();
+        lonLowerField = new javax.swing.JTextField();
+        lonUpperField = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
-        jTextField5 = new javax.swing.JTextField();
-        jTextField6 = new javax.swing.JTextField();
+        latSegTextField = new javax.swing.JTextField();
+        lonSegTextField = new javax.swing.JTextField();
         jPanel8 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jList1 = new javax.swing.JList();
-        jButton5 = new javax.swing.JButton();
+        satIncludedList = new javax.swing.JList();
+        addSatButton = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jList2 = new javax.swing.JList();
-        jButton6 = new javax.swing.JButton();
+        availSatList = new javax.swing.JList();
+        removeSatButton = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
         jPanel9 = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
-        jTextField7 = new javax.swing.JTextField();
+        minElevTextField = new javax.swing.JTextField();
         jPanel4 = new javax.swing.JPanel();
         jPanel10 = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
         alphaSlider = new javax.swing.JSlider();
         alphaLabel = new javax.swing.JLabel();
-        jCheckBox2 = new javax.swing.JCheckBox();
-        jCheckBox3 = new javax.swing.JCheckBox();
+        showGridCheckBox = new javax.swing.JCheckBox();
+        showColorBarCheckBox = new javax.swing.JCheckBox();
         jLabel9 = new javax.swing.JLabel();
         colorMapComboBox = new javax.swing.JComboBox();
         colorMapLabel = new jsattrak.coverage.ColorMapLabel();
+        jPanel11 = new javax.swing.JPanel();
+        jLabel8 = new javax.swing.JLabel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        twoDWindowList = new javax.swing.JList();
+        none2DButton = new javax.swing.JButton();
+        all2DButton = new javax.swing.JButton();
         jPanel5 = new javax.swing.JPanel();
 
         setPreferredSize(new java.awt.Dimension(500, 300));
@@ -94,41 +175,61 @@ public class JCoverageDialog extends javax.swing.JPanel
 
         jPanel2.setBackground(new java.awt.Color(204, 204, 204));
 
-        jCheckBox1.setBackground(new java.awt.Color(204, 204, 204));
-        jCheckBox1.setText("Dynamic Coverage Updates");
-        jCheckBox1.setToolTipText("Update Coverage Data as Time is Animated Forward");
+        dyanmicUpdateCheckBox.setBackground(new java.awt.Color(204, 204, 204));
+        dyanmicUpdateCheckBox.setText("Dynamic Coverage Updates");
+        dyanmicUpdateCheckBox.setToolTipText("Update Coverage Data as Time is Animated Forward");
 
-        jButton1.setText("Clear Data");
-        jButton1.setToolTipText("Clear and reset coverage data");
+        clearDataButton.setText("Reset/Clear Data");
+        clearDataButton.setToolTipText("Clear and reset coverage data");
+        clearDataButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                clearDataButtonActionPerformed(evt);
+            }
+        });
 
         jButton2.setText("Cancel");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
-        jButton3.setText("Ok");
+        okButton.setText("Ok");
+        okButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                okButtonActionPerformed(evt);
+            }
+        });
 
         jButton4.setText("Apply");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(jCheckBox1)
+                .addComponent(dyanmicUpdateCheckBox)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 82, Short.MAX_VALUE)
+                .addComponent(clearDataButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 80, Short.MAX_VALUE)
                 .addComponent(jButton4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton3)
+                .addComponent(okButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton2))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                .addComponent(jCheckBox1)
-                .addComponent(jButton1)
+                .addComponent(dyanmicUpdateCheckBox)
+                .addComponent(clearDataButton)
                 .addComponent(jButton2)
-                .addComponent(jButton3)
+                .addComponent(okButton)
                 .addComponent(jButton4))
         );
 
@@ -153,19 +254,19 @@ public class JCoverageDialog extends javax.swing.JPanel
                         .addGap(10, 10, 10)
                         .addComponent(latLowerField, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(latUpperField, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jLabel4)
                     .addGroup(jPanel7Layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lonLowerField, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(lonUpperField, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jLabel5)
                     .addGroup(jPanel7Layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(latSegTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(lonSegTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel7Layout.setVerticalGroup(
@@ -175,33 +276,46 @@ public class JCoverageDialog extends javax.swing.JPanel
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(latLowerField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(latUpperField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(lonLowerField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lonUpperField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(latSegTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lonSegTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jPanel8.setBorder(javax.swing.BorderFactory.createTitledBorder("Satellite Selection:"));
 
-        jScrollPane1.setViewportView(jList1);
+        satIncludedList.setModel(new DefaultListModel());
+        jScrollPane1.setViewportView(satIncludedList);
 
-        jButton5.setText("<");
+        addSatButton.setText("<");
+        addSatButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addSatButtonActionPerformed(evt);
+            }
+        });
 
         jLabel1.setText("Satellites Included:");
 
-        jScrollPane2.setViewportView(jList2);
+        availSatList.setModel(new DefaultListModel());
+        jScrollPane2.setViewportView(availSatList);
 
-        jButton6.setText("<");
+        removeSatButton.setText(">");
+        removeSatButton.setToolTipText("Remove Satellites from Coverage Analysis");
+        removeSatButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                removeSatButtonActionPerformed(evt);
+            }
+        });
 
         jLabel2.setText("Available:");
 
@@ -210,40 +324,41 @@ public class JCoverageDialog extends javax.swing.JPanel
         jPanel8Layout.setHorizontalGroup(
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel8Layout.createSequentialGroup()
-                .addGap(2, 2, 2)
+                .addContainerGap()
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel8Layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 123, Short.MAX_VALUE)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 128, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButton5)
-                            .addComponent(jButton6)))
+                            .addComponent(addSatButton)
+                            .addComponent(removeSatButton)))
                     .addComponent(jLabel1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel8Layout.createSequentialGroup()
                         .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 123, Short.MAX_VALUE))
-                .addGap(2, 2, 2))
+                        .addGap(96, 96, 96))
+                    .addGroup(jPanel8Layout.createSequentialGroup()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 138, Short.MAX_VALUE)
+                        .addContainerGap())))
         );
         jPanel8Layout.setVerticalGroup(
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel8Layout.createSequentialGroup()
-                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel8Layout.createSequentialGroup()
                         .addGap(83, 83, 83)
-                        .addComponent(jButton5)
+                        .addComponent(addSatButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton6))
+                        .addComponent(removeSatButton))
                     .addGroup(jPanel8Layout.createSequentialGroup()
                         .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel2)
                             .addComponent(jLabel1))
                         .addGap(3, 3, 3)
-                        .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 187, Short.MAX_VALUE))))
+                        .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE))))
                 .addContainerGap())
         );
 
@@ -260,15 +375,15 @@ public class JCoverageDialog extends javax.swing.JPanel
                     .addComponent(jLabel6)
                     .addGroup(jPanel9Layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(45, Short.MAX_VALUE))
+                        .addComponent(minElevTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(39, Short.MAX_VALUE))
         );
         jPanel9Layout.setVerticalGroup(
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel9Layout.createSequentialGroup()
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(minElevTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
@@ -276,29 +391,31 @@ public class JCoverageDialog extends javax.swing.JPanel
         jPanel6Layout.setHorizontalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel6Layout.createSequentialGroup()
-                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jPanel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel6Layout.createSequentialGroup()
-                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jPanel8, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel6Layout.createSequentialGroup()
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel6Layout.createSequentialGroup()
                         .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(2, 2, 2)
-                        .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(28, 28, 28))
+                        .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(0, 0, 0))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -325,9 +442,9 @@ public class JCoverageDialog extends javax.swing.JPanel
 
         alphaLabel.setText("000");
 
-        jCheckBox2.setText("Show Grid");
+        showGridCheckBox.setText("Show Grid");
 
-        jCheckBox3.setText("Show Colorbar");
+        showColorBarCheckBox.setText("Show Colorbar");
 
         jLabel9.setText("Colormap:");
 
@@ -352,10 +469,10 @@ public class JCoverageDialog extends javax.swing.JPanel
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(alphaLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addGroup(jPanel10Layout.createSequentialGroup()
-                .addComponent(jCheckBox2)
+                .addComponent(showGridCheckBox)
                 .addContainerGap())
             .addGroup(jPanel10Layout.createSequentialGroup()
-                .addComponent(jCheckBox3)
+                .addComponent(showColorBarCheckBox)
                 .addContainerGap())
             .addGroup(jPanel10Layout.createSequentialGroup()
                 .addComponent(jLabel9)
@@ -376,9 +493,9 @@ public class JCoverageDialog extends javax.swing.JPanel
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(alphaSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jCheckBox2)
+                .addComponent(showGridCheckBox)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jCheckBox3)
+                .addComponent(showColorBarCheckBox)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel9)
@@ -387,19 +504,70 @@ public class JCoverageDialog extends javax.swing.JPanel
                 .addComponent(colorMapLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE))
         );
 
+        jPanel11.setBorder(javax.swing.BorderFactory.createTitledBorder("2D Windows"));
+
+        jLabel8.setText("Display Data In:");
+
+        twoDWindowList.setModel(new DefaultListModel());
+        jScrollPane3.setViewportView(twoDWindowList);
+
+        none2DButton.setText("None");
+        none2DButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                none2DButtonActionPerformed(evt);
+            }
+        });
+
+        all2DButton.setText("All");
+        all2DButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                all2DButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
+        jPanel11.setLayout(jPanel11Layout);
+        jPanel11Layout.setHorizontalGroup(
+            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel11Layout.createSequentialGroup()
+                .addComponent(jLabel8)
+                .addContainerGap(88, Short.MAX_VALUE))
+            .addGroup(jPanel11Layout.createSequentialGroup()
+                .addComponent(none2DButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(all2DButton)
+                .addGap(13, 13, 13))
+            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 165, Short.MAX_VALUE)
+        );
+        jPanel11Layout.setVerticalGroup(
+            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel11Layout.createSequentialGroup()
+                .addComponent(jLabel8)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 177, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(none2DButton)
+                    .addComponent(all2DButton)))
+        );
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(339, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(182, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
-                .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(48, Short.MAX_VALUE))
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(5, 5, 5))
         );
 
         jTabbedPane1.addTab("Data Visualization Options", jPanel4);
@@ -408,11 +576,11 @@ public class JCoverageDialog extends javax.swing.JPanel
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 506, Short.MAX_VALUE)
+            .addGap(0, 536, Short.MAX_VALUE)
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 256, Short.MAX_VALUE)
+            .addGap(0, 261, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab("Anaylsis Autorun", jPanel5);
@@ -421,11 +589,11 @@ public class JCoverageDialog extends javax.swing.JPanel
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1)
+            .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 541, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 284, Short.MAX_VALUE)
+            .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 289, Short.MAX_VALUE)
         );
 
         add(jPanel1, java.awt.BorderLayout.CENTER);
@@ -454,21 +622,128 @@ private void alphaSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-F
         alphaLabel.setText( alphaSlider.getValue()+"" );
 }//GEN-LAST:event_alphaSliderStateChanged
 
+private void removeSatButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeSatButtonActionPerformed
+     // remove elments from the list
+    int[] selected = satIncludedList.getSelectedIndices();
+    for(int i= selected.length-1 ; i>=0 ; i--)
+    {
+        ((DefaultListModel )satIncludedList.getModel()).remove(selected[i]);
+    }
+}//GEN-LAST:event_removeSatButtonActionPerformed
+
+private void addSatButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSatButtonActionPerformed
+    int[] selected = availSatList.getSelectedIndices();
+    for(int i=0; i<selected.length;i++)
+    {
+        String satName =  ((DefaultListModel )availSatList.getModel()).get(selected[i]).toString();
+        if( !checkIfStringInList(satName, ((DefaultListModel )satIncludedList.getModel()).toArray()) )
+        {
+            ((DefaultListModel )satIncludedList.getModel()).addElement(satName);
+        }
+    }
+}//GEN-LAST:event_addSatButtonActionPerformed
+
+private void none2DButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_none2DButtonActionPerformed
+    twoDWindowList.setSelectedIndices(new int[0]);
+}//GEN-LAST:event_none2DButtonActionPerformed
+
+private void all2DButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_all2DButtonActionPerformed
+    // select all
+    // Select all the items
+    int start = 0;
+    int end = twoDWindowList.getModel().getSize()-1;
+    if (end >= 0) {
+        twoDWindowList.setSelectionInterval(start, end);   
+    }
+}//GEN-LAST:event_all2DButtonActionPerformed
+
+private void clearDataButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearDataButtonActionPerformed
+    // ask to make sure user wants to do this
+    int n = JOptionPane.showConfirmDialog(
+            this,
+            "Are you sure you want to clear the coverage data?",
+            "Clear Data?",
+            JOptionPane.YES_NO_OPTION);
+    if(n > 0)
+    {
+        return; // don't do anything
+    }
+    // if so clear data
+    // if dynamic updating selected, save MJD to coverage analysis
+    clearCoverageData();
+    System.out.println("Coverage Data Cleared: New Panel Grid = " + ca.getLatPanels() + " x " + ca.getLongPanels());
+        
+    app.forceRepainting(false);
+}//GEN-LAST:event_clearDataButtonActionPerformed
+
+private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
+    saveSettings();
+    app.forceRepainting(false);
+
+    // close internal frame
+    try
+    {
+        iframe.dispose(); // could setClosed(true)
+
+    }
+    catch(Exception e)
+    {
+    }
+}//GEN-LAST:event_okButtonActionPerformed
+
+private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+    saveSettings();
+    app.forceRepainting(false);
+}//GEN-LAST:event_jButton4ActionPerformed
+
+private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    // close internal frame
+    try
+    {
+        iframe.dispose(); // could setClosed(true)
+
+    }
+    catch(Exception e)
+    {
+    }
+}//GEN-LAST:event_jButton2ActionPerformed
+
+    public void clearCoverageData()
+    {
+        if(ca.isDynamicUpdating()) 
+        {
+            ca.clearCoverageData(currentJulianDate);
+        }
+        else 
+        {
+            ca.clearCoverageData();
+        }
+    }
+
+    private boolean checkIfStringInList(String str, Object[] list)
+    {
+        for(Object o : list)
+        {
+            if(str.equalsIgnoreCase(o.toString()))
+            {
+                return true;
+            }
+        }
+        return false;
+    } // checkIfStringInList
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton addSatButton;
+    private javax.swing.JButton all2DButton;
     private javax.swing.JLabel alphaLabel;
     private javax.swing.JSlider alphaSlider;
+    private javax.swing.JList availSatList;
+    private javax.swing.JButton clearDataButton;
     private javax.swing.JComboBox colorMapComboBox;
     private jsattrak.coverage.ColorMapLabel colorMapLabel;
-    private javax.swing.JButton jButton1;
+    private javax.swing.JCheckBox dyanmicUpdateCheckBox;
     private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
-    private javax.swing.JButton jButton6;
-    private javax.swing.JCheckBox jCheckBox1;
-    private javax.swing.JCheckBox jCheckBox2;
-    private javax.swing.JCheckBox jCheckBox3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -476,11 +751,11 @@ private void alphaSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-F
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
-    private javax.swing.JList jList1;
-    private javax.swing.JList jList2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel10;
+    private javax.swing.JPanel jPanel11;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
@@ -491,14 +766,163 @@ private void alphaSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-F
     private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField5;
-    private javax.swing.JTextField jTextField6;
-    private javax.swing.JTextField jTextField7;
     private javax.swing.JTextField latLowerField;
+    private javax.swing.JTextField latSegTextField;
+    private javax.swing.JTextField latUpperField;
+    private javax.swing.JTextField lonLowerField;
+    private javax.swing.JTextField lonSegTextField;
+    private javax.swing.JTextField lonUpperField;
+    private javax.swing.JTextField minElevTextField;
+    private javax.swing.JButton none2DButton;
+    private javax.swing.JButton okButton;
+    private javax.swing.JButton removeSatButton;
+    private javax.swing.JList satIncludedList;
+    private javax.swing.JCheckBox showColorBarCheckBox;
+    private javax.swing.JCheckBox showGridCheckBox;
+    private javax.swing.JList twoDWindowList;
     // End of variables declaration//GEN-END:variables
 
+    private void saveSettings()
+    {
+        boolean requiresGridRegen = false; // if a a grid regen is needed
+        // save first tab
+        
+        try 
+        {
+            // display current settings in the dialog
+            double[] latBounds = new double[] {Double.parseDouble(latLowerField.getText()),Double.parseDouble(latUpperField.getText())};
+            double[] lonBounds = new double[] {Double.parseDouble(lonLowerField.getText()),Double.parseDouble(lonUpperField.getText())};
+            
+            // check if regen needed
+            if(latBounds[0] != ca.getLatBounds()[0] || latBounds[1] != ca.getLatBounds()[1])
+            {
+                requiresGridRegen = true;
+            }
+            if(lonBounds[0] != ca.getLongBounds()[0] || lonBounds[1] != ca.getLongBounds()[1])
+            {
+                requiresGridRegen = true;
+            }
+            
+            ca.setLatBounds(latBounds);
+            ca.setLongBounds(lonBounds);
+            
+            int latSeg = Integer.parseInt(latSegTextField.getText());
+            int lonSeg = Integer.parseInt(lonSegTextField.getText());
+            
+            if(latSeg != ca.getLatPanels() || lonSeg != ca.getLongPanels())
+            {
+                requiresGridRegen = true;
+            }
+            
+            ca.setLatPanels(latSeg);
+            ca.setLongPanels(lonSeg);
+            
+            double ele = Double.parseDouble(minElevTextField.getText());
+            if(ele != ca.getElevationLimit())
+            {
+                requiresGridRegen = true;
+            }
+            ca.setElevationLimit(ele);
+            
+            //-------------------------------------
+            
+            // for each element in satIncludedList
+            ca.clearSatCoverageVector(); // clear it first
+            for(Object i : ((DefaultListModel)satIncludedList.getModel()).toArray())
+            {
+                // only adds if isn't already in list
+                String satName = i.toString();//((DefaultListModel)satIncludedList.getModel()).get(i).toString();
+                ca.addSatToCoverageAnaylsis(satName);
+            }
+            
+            // dynamic updating
+            ca.setDynamicUpdating(dyanmicUpdateCheckBox.isSelected());
+            
+
+            // viz options ------------
+            ca.setAlpha( (int)Math.round( Integer.parseInt(alphaLabel.getText())/100.0*255 ) );
+            
+            ca.setPlotCoverageGrid(showGridCheckBox.isSelected());
+            ca.setShowColorBar(showColorBarCheckBox.isSelected());
+            
+            switch(colorMapComboBox.getSelectedIndex())
+            {
+                case 0:
+                    ca.setColorMap(new ColorMap());
+                    break;
+                case 1:
+                    ca.setColorMap(new CoolColorMap());
+                    break;
+                case 2:
+                    ca.setColorMap(new HotColorMap());
+                    break;
+                case 3:
+                    ca.setColorMap(new GrayColorMap());
+                    break;     
+            } // colormap switch
+            
+            // 2D windows save which one(s) to use as a display
+            // twoDWindowList
+            
+            for(J2DEarthPanel ep : twoDWindowVec)
+            {
+                String twoDWindowName = ep.getName();
+                
+                boolean windowFound = false;
+                
+                // find this window -- see if it contains ca, if not add ca to it
+                for(int i : twoDWindowList.getSelectedIndices())
+                {
+                    String windowName = ((DefaultListModel)twoDWindowList.getModel()).get(i).toString();
+                    
+                    if(ep.getName().equals(windowName))
+                    {
+                        windowFound = true;
+                        if(!ep.checkIfIncludesRenderableObject(ca))
+                        {
+                            ep.addRenderableObject(ca); // add it
+                        }
+                    }// match 
+                } // for windows
+                
+                // see if window was found in list, if not remove it if it includes the ca
+                if(!windowFound)
+                {
+                    if(ep.checkIfIncludesRenderableObject(ca))
+                        {
+                            ep.removeRenderableObject(ca);
+                        }
+                }
+                
+            } // for selected window names
+            
+        
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+        
+        // clear and redo grid?
+        if(requiresGridRegen)
+        {
+            this.clearCoverageData();
+        }
+        
+ 
+ 
+    } // saveSettings
+
+    public JInternalFrame getIframe()
+    {
+        return iframe;
+    }
+
+    public void setIframe(JInternalFrame iframe)
+    {
+        this.iframe = iframe;
+    }
+    
+    
 }

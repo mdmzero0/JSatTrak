@@ -64,34 +64,22 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
     
     Vector<String> satsUsedInCoverage = new Vector<String>(); // vector of satellites used in Coverage anaylsis
     
-    // in degrees
-    
-    
-    private // vector of satellites used in Coverage anaylsis
     // settings ===========
     // grid sizing >=1
-    int latPanels = 144;
-    private //72;//36; //18// number of divisons along lines of latitude (grid points -1)
-    int longPanels = 288;
-    private //144;//72; //36 // number of divisions along lines of longitude (grid points -1)
+    private int latPanels = 144; //72;//36; //18// number of divisons along lines of latitude (grid points -1)
+    private int longPanels = 288;  //144;//72; //36 // number of divisions along lines of longitude (grid points -1)
+    
     // in degrees
-    double[] latBounds = {-90.0, 90.0};
-    private // minimum,maxium latitude to use in coverage anaylsis
-    double[] longBounds = {-180.0, 180.0};
-    private // minimum,maxium longitude to use in coverage anaylsis
-    int alpha = 150;
-    private //151; // tranparency of colored panels, 0=can't see it, 255=solid
-    boolean dynamicUpdating = true;
-    private // if dynamic updating from GUI time stepping is enabled
-    boolean plotCoverageGrid = false;
-    private // plot panel grid and center points of panels
-    double elevationLimit = 15;
-    private //15; // elevation limit for ground coverage [degrees] (must be higher for this to count as coverage
-    NumberFormat colorBarNumberFormat = new DecimalFormat("0.00E0");
-    private
-
-    // Color bar settings
-    boolean showColorBar = true;
+    private double[] latBounds = {-90.0, 90.0}; // minimum,maxium latitude to use in coverage anaylsis
+    private double[] longBounds = {-180.0, 180.0}; // minimum,maxium longitude to use in coverage anaylsis
+    
+    private int alpha = 150; //151; // tranparency of colored panels, 0=can't see it, 255=solid
+    
+    private boolean dynamicUpdating = true; // if dynamic updating from GUI time stepping is enabled
+    private boolean plotCoverageGrid = false; // plot panel grid and center points of panels
+    private double elevationLimit = 15; //15; // elevation limit for ground coverage [degrees] (must be higher for this to count as coverage
+    private NumberFormat colorBarNumberFormat = new DecimalFormat("0.00E0");
+    private boolean showColorBar = true; // Color bar settings
     private int pixelsFromBottom = 20;
     private int pixelsFromLeft = 20;
     private int colorBarLen = 100;
@@ -131,6 +119,24 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
 //        
 //        performCoverageAnalysis(currentJulianDate, satHash);
 //    }
+    
+    /**
+     * Clear coverage data and initalizie update time for next simulation step
+     * @param currentJulianDate
+     */
+    public void clearCoverageData(final Time currentJulianDate)
+    {
+        iniParamters();
+        lastMJD = currentJulianDate.getMJD();
+    }
+    
+    /**
+     * Clears the coverage data and resets last update date
+     */
+    public void clearCoverageData()
+    {
+        iniParamters();
+    }
     
     // initalized all parameters (used at class construction to create all arrays, etc)
     private void iniParamters()
@@ -595,6 +601,11 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
             i++;
         }
     } // removeSatFromCoverageAnaylsis
+    
+    public Vector<String> getSatVector()
+    {
+        return satsUsedInCoverage;
+    }
     
     // ======================================================
     
