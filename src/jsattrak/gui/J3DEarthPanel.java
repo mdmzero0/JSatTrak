@@ -79,10 +79,13 @@ import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import jsattrak.coverage.CoverageAnalyzer;
 import jsattrak.objects.AbstractSatellite;
 import jsattrak.utilities.ECEFModelRenderable;
 import jsattrak.utilities.J3DEarthComponent;
 import jsattrak.utilities.OrbitModelRenderable;
+import name.gano.worldwind.geom.CoverageDataGeom;
+import name.gano.worldwind.layers.Earth.CoverageRenderableLayer;
 import name.gano.worldwind.layers.Earth.ECEFRenderableLayer;
 import name.gano.worldwind.layers.Earth.ECIRenderableLayer;
 
@@ -214,6 +217,15 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
 
 
         wwd.setModel(m);
+        
+        // TESTING -- ultimatly add whatever else to Internal Panel
+        // INLCUDES PASSING CoverageAnalyzer ca
+        CoverageRenderableLayer cel = new CoverageRenderableLayer();
+        CoverageDataGeom g = new CoverageDataGeom(app.ca);
+        cel.addRenderable(g);
+        m.getLayers().add(cel); // add Layer
+        
+        // END TESTING
 
         // add ECI Layer
         eciLayer = new ECIRenderableLayer(currentMJD); // create ECI layer

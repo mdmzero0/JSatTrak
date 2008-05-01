@@ -45,16 +45,14 @@ import name.gano.astro.time.Time;
 public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependent
 {
     // data arrays
-    // in days
-    double[][] coverageCumTime; // cumulative coverage time array [latPanels x longPanels]
-    // in degrees
-    double[] latPanelMidPoints; // middle point latitude of each division/panel
-    double[] lonPanelMidPoints; // middle point longitude of each division/panel
-    double[] latGridPoints;  // grid end points for latitude
-    double[] lonGridPoints;  // grid end points for longitude 
-    
-    // current maximum and minimum (NOT ZERO) values 
-    double minNotZeroVal = 1;
+    private  double[][] coverageCumTime;  // cumulative coverage time array [latPanels x longPanels] in days
+     // in degrees
+    private double[] latPanelMidPoints; // middle point latitude of each division/panel
+    private double[] lonPanelMidPoints; // middle point longitude of each division/panel
+    private double[] latGridPoints; // grid end points for latitude
+    private double[] lonGridPoints; // grid end points for longitude
+   
+    double minNotZeroVal = 1;  // current maximum and minimum (NOT ZERO) values 
     double maxVal = 100;
     
     // color map for data
@@ -66,8 +64,8 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
     
     // settings ===========
     // grid sizing >=1
-    private int latPanels = 144; //72;//36; //18// number of divisons along lines of latitude (grid points -1)
-    private int longPanels = 288;  //144;//72; //36 // number of divisions along lines of longitude (grid points -1)
+    private int latPanels = 36; //72;//36; //18// number of divisons along lines of latitude (grid points -1)
+    private int longPanels = 72;  //144;//72; //36 // number of divisions along lines of longitude (grid points -1)
     
     // in degrees
     private double[] latBounds = {-90.0, 90.0}; // minimum,maxium latitude to use in coverage anaylsis
@@ -156,7 +154,7 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
             latGridPoints[i] = i*(latBounds[1]-latBounds[0])/(latPanels)+latBounds[0];
             if(i>0)
             {
-                latPanelMidPoints[i-1] = (latGridPoints[i]+latGridPoints[i-1])/2.0;
+                latPanelMidPoints[i-1] = (getLatGridPoints()[i]+getLatGridPoints()[i-1])/2.0;
             }
         }
         for(int i=0;i<longPanels+1;i++)
@@ -164,7 +162,7 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
             lonGridPoints[i] = i*(longBounds[1]-longBounds[0])/(longPanels)+longBounds[0];
             if(i>0)
             {
-                lonPanelMidPoints[i-1] = (lonGridPoints[i]+lonGridPoints[i-1])/2.0;
+                lonPanelMidPoints[i-1] = (getLonGridPoints()[i]+getLonGridPoints()[i-1])/2.0;
             }
         }
         
@@ -255,7 +253,7 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
                     // take care of when i >= latPanels (reflection for longitude index and make lat go down instead of up (and stay at top one iter)
                     
                     aer = GeoFunctions.calculate_AER(currentJulianDate.getJulianDate(), 
-                        new double[]{latPanelMidPoints[i],lonPanelMidPoints[longIndex],0},  // sea level
+                        new double[]{getLatPanelMidPoints()[i],getLonPanelMidPoints()[longIndex],0},  // sea level
                         currentSat.getPosMOD());
                     
                     if(aer[1] >= elevationLimit)
@@ -282,7 +280,7 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
                             }
                             
                             tempElevation2 = GeoFunctions.calculate_AER(currentJulianDate.getJulianDate(), 
-                                new double[]{latPanelMidPoints[i],lonPanelMidPoints[jWrappedIndex],0},  // sea level
+                                new double[]{getLatPanelMidPoints()[i],getLonPanelMidPoints()[jWrappedIndex],0},  // sea level
                                 currentSat.getPosMOD())[1];
                             if(tempElevation2 >= elevationLimit)
                             {
@@ -314,7 +312,7 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
                             }
                             
                             tempElevation2 = GeoFunctions.calculate_AER(currentJulianDate.getJulianDate(), 
-                                new double[]{latPanelMidPoints[i],lonPanelMidPoints[jWrappedIndex],0},  // sea level
+                                new double[]{getLatPanelMidPoints()[i],getLonPanelMidPoints()[jWrappedIndex],0},  // sea level
                                 currentSat.getPosMOD())[1];
                             if(tempElevation2 >= elevationLimit)
                             {
@@ -343,7 +341,8 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
                         aer = GeoFunctions.calculate_AER(currentJulianDate.getJulianDate(),
                                 new double[]
                                 {
-                                    latPanelMidPoints[i], lonPanelMidPoints[longIndex], 0
+                                    getLatPanelMidPoints()[i], getLonPanelMidPoints()[longIndex], 0
+                                
                                 }, // sea level
                                 currentSat.getPosMOD());
 
@@ -372,7 +371,7 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
                                 }
 
                                 tempElevation2 = GeoFunctions.calculate_AER(currentJulianDate.getJulianDate(),
-                                        new double[] {latPanelMidPoints[i], lonPanelMidPoints[jWrappedIndex], 0}, // sea level
+                                        new double[] {getLatPanelMidPoints()[i], getLonPanelMidPoints()[jWrappedIndex], 0}, // sea level
                                         currentSat.getPosMOD())[1];
                                 if (tempElevation2 >= elevationLimit)
                                 {
@@ -404,7 +403,7 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
                                 }
                                 
                                 tempElevation2 = GeoFunctions.calculate_AER(currentJulianDate.getJulianDate(),
-                                        new double[]{latPanelMidPoints[i], lonPanelMidPoints[jWrappedIndex], 0}, // sea level
+                                        new double[]{getLatPanelMidPoints()[i], getLonPanelMidPoints()[jWrappedIndex], 0}, // sea level
                                         currentSat.getPosMOD())[1];
                                 if (tempElevation2 >= elevationLimit)
                                 {
@@ -444,13 +443,13 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
                 } // if access at this point
                 
                 // update max and min
-                if(coverageCumTime[i][j] > maxVal)
+                if(getCoverageCumTime()[i][j] > maxVal)
                 {
-                    maxVal = coverageCumTime[i][j];
+                    maxVal = getCoverageCumTime()[i][j];
                 }
-                if(coverageCumTime[i][j] < minNotZeroVal && coverageCumTime[i][j] > 0)
+                if(getCoverageCumTime()[i][j] < minNotZeroVal && getCoverageCumTime()[i][j] > 0)
                 {
-                   minNotZeroVal =  coverageCumTime[i][j];
+                   minNotZeroVal =  getCoverageCumTime()[i][j];
                 }
                 
             } // long panels (j)
@@ -470,7 +469,7 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
         if (plotCoverageGrid)
         {
             g2.setColor(new Color(0.0f, 1.0f, 0.0f, 0.2f));
-            for (double lat : latGridPoints)
+            for (double lat : getLatGridPoints())
             {
                 xy = earthLabel.findXYfromLL(lat, longBounds[0], totWidth, totHeight, imgWidth, imgHeight, zoomFac, cLat, cLong);
                 xy_old = earthLabel.findXYfromLL(lat, longBounds[1], totWidth, totHeight, imgWidth, imgHeight, zoomFac, cLat, cLong);
@@ -479,7 +478,7 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
 
             }
             g2.setColor(new Color(0.0f, 1.0f, 0.0f, 0.2f));
-            for (double lon : lonGridPoints)
+            for (double lon : getLonGridPoints())
             {
                 xy = earthLabel.findXYfromLL(latBounds[0], lon, totWidth, totHeight, imgWidth, imgHeight, zoomFac, cLat, cLong);
                 xy_old = earthLabel.findXYfromLL(latBounds[1], lon, totWidth, totHeight, imgWidth, imgHeight, zoomFac, cLat, cLong);
@@ -490,9 +489,9 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
             // draw center points
             g2.setColor(new Color(0.0f, 1.0f, 0.0f, 0.2f));
             int dotSize = 1;
-            for (double lat : latPanelMidPoints)
+            for (double lat : getLatPanelMidPoints())
             {
-                for (double lon : lonPanelMidPoints)
+                for (double lon : getLonPanelMidPoints())
                 {
                     xy = earthLabel.findXYfromLL(lat, lon, totWidth, totHeight, imgWidth, imgHeight, zoomFac, cLat, cLong);
 
@@ -503,12 +502,12 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
         // fill in color scaled panels based on cumulative Coverage time
         // should combine with above... just use alpha =0.0 when panel is blank
         int xmax, xmin, ymax, ymin;
-        for(int i=0;i<latPanelMidPoints.length;i++)
+        for(int i=0;i<getLatPanelMidPoints().length;i++)
         {
-            for(int j=0;j<lonPanelMidPoints.length;j++)
+            for(int j=0;j<getLonPanelMidPoints().length;j++)
             {
-                xy = earthLabel.findXYfromLL(latGridPoints[i], lonGridPoints[j],totWidth,totHeight,imgWidth,imgHeight,zoomFac,cLat,cLong);
-                xy_old = earthLabel.findXYfromLL(latGridPoints[i+1], lonGridPoints[j+1],totWidth,totHeight,imgWidth,imgHeight,zoomFac,cLat,cLong);
+                xy = earthLabel.findXYfromLL(getLatGridPoints()[i], getLonGridPoints()[j],totWidth,totHeight,imgWidth,imgHeight,zoomFac,cLat,cLong);
+                xy_old = earthLabel.findXYfromLL(getLatGridPoints()[i+1], getLonGridPoints()[j+1],totWidth,totHeight,imgWidth,imgHeight,zoomFac,cLat,cLong);
                 
                 xmax = Math.max(xy[0], xy_old[0]);
                 xmin = Math.min(xy[0], xy_old[0]);
@@ -517,9 +516,9 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
                 
                 // color based on: coverageCumTime[i][j]
                 // dummy way for now black or white
-                if(coverageCumTime[i][j]>0)
+                if(getCoverageCumTime()[i][j]>0)
                 {
-                    g2.setColor( colorMap.getColor(coverageCumTime[i][j], minNotZeroVal, maxVal, alpha) );
+                    g2.setColor( colorMap.getColor(getCoverageCumTime()[i][j], minNotZeroVal, maxVal, alpha)  );
                     g2.fillRect(xmin, ymin, xmax-xmin,ymax-ymin);//xy_old[0]-xy[0], xy_old[1]-xy[1]);
                 }
                 else
@@ -787,6 +786,36 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
     public void setColorBarTextcolor(Color colorBarTextcolor)
     {
         this.colorBarTextcolor = colorBarTextcolor;
+    }
+
+    public double[][] getCoverageCumTime()
+    {
+        return coverageCumTime;
+    }
+
+    public double[] getLatPanelMidPoints()
+    {
+        return latPanelMidPoints;
+    }
+
+    public double[] getLonPanelMidPoints()
+    {
+        return lonPanelMidPoints;
+    }
+
+    public double[] getLatGridPoints()
+    {
+        return latGridPoints;
+    }
+
+    public double[] getLonGridPoints()
+    {
+        return lonGridPoints;
+    }
+    
+    public Color getColorForIndex(int i, int j)
+    {
+        return colorMap.getColor(getCoverageCumTime()[i][j], minNotZeroVal, maxVal);
     }
     
 } // CoverageAnalyzer
