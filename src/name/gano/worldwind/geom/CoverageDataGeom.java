@@ -98,7 +98,7 @@ public class CoverageDataGeom implements Renderable
                             Angle.fromDegrees(ca.getLonGridPoints()[i + 1]), // lon
                             alt);
                     
-                    satColor = ca.getColorForIndex(i, j);
+                    satColor = ca.getColorForIndex(j, i);
                     gl.glColor4d(satColor.getRed()/255.0 , satColor.getGreen()/255.0 , satColor.getBlue()/255.0,alpha ); // COLOR
 
                     gl.glBegin(GL.GL_QUADS);  // counter clock wise?
