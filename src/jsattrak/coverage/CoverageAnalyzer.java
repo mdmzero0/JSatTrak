@@ -52,8 +52,8 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
     private double[] latGridPoints; // grid end points for latitude
     private double[] lonGridPoints; // grid end points for longitude
    
-    double minNotZeroVal = 1;  // current maximum and minimum (NOT ZERO) values 
-    double maxVal = 100;
+    private double minNotZeroVal = 1;  // current maximum and minimum (NOT ZERO) values 
+    private double maxVal = 100;
     
     // color map for data
     ColorMap colorMap = new ColorMap();
@@ -816,6 +816,26 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
     public Color getColorForIndex(int i, int j)
     {
         return colorMap.getColor(getCoverageCumTime()[i][j], minNotZeroVal, maxVal);
+    }
+
+    public double getMinNotZeroVal()
+    {
+        return minNotZeroVal;
+    }
+
+    public double getMaxVal()
+    {
+        return maxVal;
+    }
+    
+    public String getLowerBoundLabel()
+    {
+        return colorBarNumberFormat.format(minNotZeroVal*24*60*60) + " sec";
+    }
+    
+    public String getUpperBoundLabel()
+    {
+        return colorBarNumberFormat.format(maxVal*24*60*60);
     }
     
 } // CoverageAnalyzer

@@ -1922,7 +1922,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         }
         for(J3DEarthInternalPanel threeDPanel : threeDInternalWindowVec )
         {
-            threeDPanel.repaintWWJ();
+            threeDPanel.repaintWWJ();         
         }
         
     }// forceRepainting

@@ -852,7 +852,8 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
     
     public void repaintWWJ()
     {
-        wwd.redraw();
+        //wwd.redraw(); // may not force repaint when it is slow to repaint (thus skiped)
+        wwd.redrawNow(); //force it to happen now -- needed when plotting coverage data
     }
     
     // screen capture

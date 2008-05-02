@@ -21,6 +21,9 @@
 package name.gano.worldwind.layers.Earth;
 
 import gov.nasa.worldwind.layers.RenderableLayer;
+import jsattrak.coverage.CoverageAnalyzer;
+import name.gano.worldwind.geom.CoverageDataGeom;
+import name.gano.worldwind.geom.CoverageJoglColorBar;
 
 /**
  *
@@ -29,9 +32,23 @@ import gov.nasa.worldwind.layers.RenderableLayer;
 public class CoverageRenderableLayer extends RenderableLayer
 {
 
-    public CoverageRenderableLayer()
+    CoverageJoglColorBar cb;
+    CoverageDataGeom dataGeom;
+    
+    public CoverageRenderableLayer(CoverageAnalyzer ca)
     {
         super();
+        // create colorbar object
+        cb = new CoverageJoglColorBar(ca);
+        
+        // add geometry to layer
+        dataGeom = new CoverageDataGeom(ca);
+        this.addRenderable(dataGeom);
+        
+        if(ca.isShowColorBar())
+        {
+            this.addRenderable(cb);
+        }
     }
     
     @Override
@@ -39,6 +56,8 @@ public class CoverageRenderableLayer extends RenderableLayer
     {
         return "Coverage Data Layer";
     }
+    
+    
     
 }
 

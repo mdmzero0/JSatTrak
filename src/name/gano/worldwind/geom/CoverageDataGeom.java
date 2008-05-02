@@ -45,133 +45,133 @@ public class CoverageDataGeom implements Renderable
         this.ca = ca;
     }
     
-//    public CoverageDataGeom(Globe globe)
-//    {
-//        this.globe = globe;
-//    }
     
     public void render(DrawContext dc)
     {
-        if (dc == null)
+        if(dc == null)
         {
             String msg = Logging.getMessage("nullValue.DrawContextIsNull");
             Logging.logger().severe(msg);
             throw new IllegalArgumentException(msg);
         }
-        
+
         javax.media.opengl.GL gl = dc.getGL();
-        
-        gl.glEnable(GL.GL_TEXTURE_2D);        
+
+        gl.glEnable(GL.GL_TEXTURE_2D);
         gl.glPushAttrib(javax.media.opengl.GL.GL_TEXTURE_BIT | javax.media.opengl.GL.GL_ENABLE_BIT | javax.media.opengl.GL.GL_CURRENT_BIT);
         gl.glMatrixMode(javax.media.opengl.GL.GL_MODELVIEW);
-              
-      
-            Color satColor = Color.white;
-            double alpha = 0.1;
-            gl.glColor4d(satColor.getRed()/255.0 , satColor.getGreen()/255.0 , satColor.getBlue()/255.0,alpha ); // COLOR
-            
-            Double nanDbl = new Double(Double.NaN);
-            
-            double alt = 100000;
-            
-            if( ca != null)
+
+        // allow for transparency
+        gl.glEnable(GL.GL_BLEND);
+        gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+
+        Color satColor;
+
+        Double nanDbl = new Double(Double.NaN);
+
+        double alt = 100000;
+
+        if(ca != null)
+        {
+
+            for(int i = 0; i < ca.getLongPanels(); i++)
             {
-            
-            for(int i=0;i<ca.getLongPanels();i++)
-            {
-                for(int j=0;j<ca.getLatPanels();j++)
+                for(int j = 0; j < ca.getLatPanels(); j++)
                 {
-                    Vec4 pos1 = dc.getGlobe().computePointFromPosition(
-                            Angle.fromDegrees(ca.getLatGridPoints()[j]), // lat
-                            Angle.fromDegrees(ca.getLonGridPoints()[i]), // lon
-                            alt);
-                    Vec4 pos2 = dc.getGlobe().computePointFromPosition(
-                            Angle.fromDegrees(ca.getLatGridPoints()[j+1]), // lat
-                            Angle.fromDegrees(ca.getLonGridPoints()[i]), // lon
-                            alt);
-                    Vec4 pos3 = dc.getGlobe().computePointFromPosition(
-                            Angle.fromDegrees(ca.getLatGridPoints()[j+1]), // lat
-                            Angle.fromDegrees(ca.getLonGridPoints()[i+1]), // lon
-                            alt);
-                    Vec4 pos4 = dc.getGlobe().computePointFromPosition(
-                            Angle.fromDegrees(ca.getLatGridPoints()[j]), // lat
-                            Angle.fromDegrees(ca.getLonGridPoints()[i + 1]), // lon
-                            alt);
+
+                    if(ca.getCoverageCumTime()[j][i] > 0)
+                    {
+
+                        Vec4 pos1 = dc.getGlobe().computePointFromPosition(
+                                Angle.fromDegrees(ca.getLatGridPoints()[j]), // lat
+                                Angle.fromDegrees(ca.getLonGridPoints()[i]), // lon
+                                alt);
+                        Vec4 pos2 = dc.getGlobe().computePointFromPosition(
+                                Angle.fromDegrees(ca.getLatGridPoints()[j + 1]), // lat
+                                Angle.fromDegrees(ca.getLonGridPoints()[i]), // lon
+                                alt);
+                        Vec4 pos3 = dc.getGlobe().computePointFromPosition(
+                                Angle.fromDegrees(ca.getLatGridPoints()[j + 1]), // lat
+                                Angle.fromDegrees(ca.getLonGridPoints()[i + 1]), // lon
+                                alt);
+                        Vec4 pos4 = dc.getGlobe().computePointFromPosition(
+                                Angle.fromDegrees(ca.getLatGridPoints()[j]), // lat
+                                Angle.fromDegrees(ca.getLonGridPoints()[i + 1]), // lon
+                                alt);
+
+                        satColor = ca.getColorForIndex(j, i);
+                        gl.glColor4f(satColor.getRed() / 255.0f, satColor.getGreen() / 255.0f, satColor.getBlue() / 255.0f, ca.getAlpha() / 255.0f); // COLOR
+
+                        gl.glBegin(GL.GL_QUADS);  // counter clock wise?
+                        //gl.glTexCoord2f(0, 0);
+
+                        gl.glVertex3f((float)pos1.x, (float)pos1.y, (float)pos1.z);
+                        //gl.glTexCoord2f(0, 1);
+                        gl.glVertex3f((float)pos2.x, (float)pos2.y, (float)pos2.z);
+                        //gl.glTexCoord2f(1, 1);
+                        gl.glVertex3f((float)pos3.x, (float)pos3.y, (float)pos3.z);
+                        //gl.glTexCoord2f(1, 0);
+                        gl.glVertex3f((float)pos4.x, (float)pos4.y, (float)pos4.z);
+                        gl.glEnd();
+                        
+                        // if drawing grid
+                        if(ca.isPlotCoverageGrid())
+                        {
+                            gl.glColor4f(Color.GREEN.getRed() / 255.0f, Color.GREEN.getGreen() / 255.0f, Color.GREEN.getBlue() / 255.0f,0.2f);
+                            gl.glBegin(GL.GL_LINE_STRIP);
+                                gl.glVertex3f((float)pos1.x, (float)pos1.y, (float)pos1.z);
+                                gl.glVertex3f((float)pos2.x, (float)pos2.y, (float)pos2.z);
+                                gl.glVertex3f((float)pos3.x, (float)pos3.y, (float)pos3.z);
+                                gl.glVertex3f((float)pos4.x, (float)pos4.y, (float)pos4.z);
+                            gl.glEnd();
+                            
+                            // draw center?
+                            
+                        }// draw coverage grid with point in center
+                        
+                    } // time > 0
+                    else
+                    {
+                        // not, filled but still draw grid
+                        if(ca.isPlotCoverageGrid())
+                        {
+                            Vec4 pos1 = dc.getGlobe().computePointFromPosition(
+                                    Angle.fromDegrees(ca.getLatGridPoints()[j]), // lat
+                                    Angle.fromDegrees(ca.getLonGridPoints()[i]), // lon
+                                    alt);
+                            Vec4 pos2 = dc.getGlobe().computePointFromPosition(
+                                    Angle.fromDegrees(ca.getLatGridPoints()[j + 1]), // lat
+                                    Angle.fromDegrees(ca.getLonGridPoints()[i]), // lon
+                                    alt);
+                            Vec4 pos3 = dc.getGlobe().computePointFromPosition(
+                                    Angle.fromDegrees(ca.getLatGridPoints()[j + 1]), // lat
+                                    Angle.fromDegrees(ca.getLonGridPoints()[i + 1]), // lon
+                                    alt);
+                            Vec4 pos4 = dc.getGlobe().computePointFromPosition(
+                                    Angle.fromDegrees(ca.getLatGridPoints()[j]), // lat
+                                    Angle.fromDegrees(ca.getLonGridPoints()[i + 1]), // lon
+                                    alt);
+                            gl.glColor4f(Color.GREEN.getRed() / 255.0f, Color.GREEN.getGreen() / 255.0f, Color.GREEN.getBlue() / 255.0f,0.2f);
+                            gl.glBegin(GL.GL_LINE_STRIP);
+                                gl.glVertex3f((float)pos1.x, (float)pos1.y, (float)pos1.z);
+                                gl.glVertex3f((float)pos2.x, (float)pos2.y, (float)pos2.z);
+                                gl.glVertex3f((float)pos3.x, (float)pos3.y, (float)pos3.z);
+                                gl.glVertex3f((float)pos4.x, (float)pos4.y, (float)pos4.z);
+                            gl.glEnd();
+                        
+                            // draw center
+                            
+                        }// draw coverage grid with point in center
+                        
+                    }// else (time ==0)
                     
-                    satColor = ca.getColorForIndex(j, i);
-                    gl.glColor4d(satColor.getRed()/255.0 , satColor.getGreen()/255.0 , satColor.getBlue()/255.0,alpha ); // COLOR
+                    // 
 
-                    gl.glBegin(GL.GL_QUADS);  // counter clock wise?
-                    //gl.glTexCoord2f(0, 0);
+                } // for lat
 
-                    gl.glVertex3d(pos1.x, pos1.y, pos1.z);
-                    //gl.glTexCoord2f(0, 1);
-                    gl.glVertex3d(pos2.x, pos2.y, pos2.z);
-                    //gl.glTexCoord2f(1, 1);
-                    gl.glVertex3d(pos3.x, pos3.y, pos3.z);
-                    //gl.glTexCoord2f(1, 0);
-                    gl.glVertex3d(pos4.x, pos4.y, pos4.z);
-                    gl.glEnd();
-                }
-            }
-            }
-            
-            double latlon = 5;
-            //double alt = 100000;
-            
-           Vec4 pos1 = dc.getGlobe().computePointFromPosition(
-                Angle.fromDegrees(-latlon), // lat
-                Angle.fromDegrees(latlon), // lon
-                alt);
-           Vec4 pos2 = dc.getGlobe().computePointFromPosition(
-                Angle.fromDegrees(-latlon), // lat
-                Angle.fromDegrees(-latlon), // lon
-                alt);
-           Vec4 pos3 = dc.getGlobe().computePointFromPosition(
-                Angle.fromDegrees(latlon), // lat
-                Angle.fromDegrees(-latlon), // lon
-                alt);
-           Vec4 pos4 = dc.getGlobe().computePointFromPosition(
-                Angle.fromDegrees(latlon), // lat
-                Angle.fromDegrees(latlon), // lon
-                alt);
-           
-           gl.glBegin(GL.GL_QUADS);  // counter clock wise?
-        //gl.glTexCoord2f(0, 0);
-        gl.glVertex3d(pos1.x,pos1.y,pos1.z);
-        //gl.glTexCoord2f(0, 1);
-        gl.glVertex3d(pos2.x,pos2.y,pos2.z);
-        //gl.glTexCoord2f(1, 1);
-        gl.glVertex3d(pos3.x,pos3.y,pos3.z);
-        //gl.glTexCoord2f(1, 0);
-        gl.glVertex3d(pos4.x,pos4.y,pos4.z);
-        gl.glEnd();
-            
-         float SIZE = 12000000;
-        gl.glBegin(GL.GL_QUADS);  // counter clock wise?
-        gl.glTexCoord2f(0, 0);
-        gl.glVertex3f(-SIZE / 2, SIZE / 2, 0);
-        gl.glTexCoord2f(0, 1);
-        gl.glVertex3f(-SIZE / 2, -SIZE / 2, 0);
-        gl.glTexCoord2f(1, 1);
-        gl.glVertex3f(SIZE / 2, -SIZE / 2, 0);
-        gl.glTexCoord2f(1, 0);
-        gl.glVertex3f(SIZE / 2, SIZE / 2, 0);
-        gl.glEnd();
-            
-          
-//                // plot lag orbit
-//                gl.glBegin(GL.GL_LINE_STRIP); //GL_LINE_STRIP
-//                for (int i = 0; i < sat.getNumGroundTrackLagPts(); i++)
-//                {
-//                    // add next Mean of Date vertex
-//                    double[] xyz = sat.getGroundTrackXyzLagPt(i);
-//                    if(!nanDbl.equals(xyz[0])) // NaN check
-//                    {
-//                        gl.glVertex3d(-xyz[0], xyz[2], xyz[1]);
-//                    }
-//                }
-//                gl.glEnd();
+            } // for long
+
+        } // not null
 
 
         

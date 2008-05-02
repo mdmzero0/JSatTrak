@@ -79,12 +79,12 @@ import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import jsattrak.coverage.CoverageAnalyzer;
 import jsattrak.objects.AbstractSatellite;
 import jsattrak.utilities.ECEFModelRenderable;
 import jsattrak.utilities.J3DEarthComponent;
 import jsattrak.utilities.OrbitModelRenderable;
 import name.gano.worldwind.geom.CoverageDataGeom;
+import name.gano.worldwind.geom.CoverageJoglColorBar;
 import name.gano.worldwind.layers.Earth.CoverageRenderableLayer;
 import name.gano.worldwind.layers.Earth.ECEFRenderableLayer;
 import name.gano.worldwind.layers.Earth.ECIRenderableLayer;
@@ -220,11 +220,9 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         
         // TESTING -- ultimatly add whatever else to Internal Panel
         // INLCUDES PASSING CoverageAnalyzer ca
-        CoverageRenderableLayer cel = new CoverageRenderableLayer();
-        CoverageDataGeom g = new CoverageDataGeom(app.ca);
-        cel.addRenderable(g);
+        CoverageRenderableLayer cel = new CoverageRenderableLayer(app.ca);
         m.getLayers().add(cel); // add Layer
-        
+        //wwd.getInputHandler(). // hmm set quick mouse response... no use of iterators on earth spin?
         // END TESTING
 
         // add ECI Layer
@@ -854,7 +852,8 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
 
     public void repaintWWJ()
     {
-        wwd.redraw();
+        //wwd.redraw(); // may not force repaint when it is slow to repaint (thus skiped)
+        wwd.redrawNow(); //force it to happen now -- needed when plotting coverage data
     }
 
     // screen capture
