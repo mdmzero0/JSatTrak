@@ -30,25 +30,24 @@ import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
-import gov.nasa.worldwind.examples.StatusBar;
 import gov.nasa.worldwind.examples.WMSLayersPanel;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
-import gov.nasa.worldwind.geom.Quaternion;
 import gov.nasa.worldwind.layers.CompassLayer;
 import gov.nasa.worldwind.layers.Earth.CountryBoundariesLayer;
 import gov.nasa.worldwind.layers.Earth.LandsatI3;
-import gov.nasa.worldwind.layers.Earth.StarsLayer;
-import gov.nasa.worldwind.layers.Earth.TerrainProfileLayer;
 import gov.nasa.worldwind.layers.Earth.USGSUrbanAreaOrtho;
-import gov.nasa.worldwind.layers.Earth.WorldMapLayer;
 import gov.nasa.worldwind.layers.Layer;
 import gov.nasa.worldwind.layers.LayerList;
 import gov.nasa.worldwind.layers.RenderableLayer;
+import gov.nasa.worldwind.layers.StarsLayer;
+import gov.nasa.worldwind.layers.TerrainProfileLayer;
 import gov.nasa.worldwind.layers.TiledImageLayer;
+import gov.nasa.worldwind.layers.WorldMapLayer;
 import gov.nasa.worldwind.layers.placename.PlaceNameLayer;
 import gov.nasa.worldwind.render.Polyline;
+import gov.nasa.worldwind.util.StatusBar;
 import gov.nasa.worldwind.view.BasicOrbitView;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -83,8 +82,6 @@ import jsattrak.objects.AbstractSatellite;
 import jsattrak.utilities.ECEFModelRenderable;
 import jsattrak.utilities.J3DEarthComponent;
 import jsattrak.utilities.OrbitModelRenderable;
-import name.gano.worldwind.geom.CoverageDataGeom;
-import name.gano.worldwind.geom.CoverageJoglColorBar;
 import name.gano.worldwind.layers.Earth.CoverageRenderableLayer;
 import name.gano.worldwind.layers.Earth.ECEFRenderableLayer;
 import name.gano.worldwind.layers.Earth.ECIRenderableLayer;
@@ -266,6 +263,10 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
 //        {
             starsLayer.setLongitudeOffset(Angle.fromDegrees(-eciLayer.getRotateECIdeg()));
 //        }
+            
+        // correct clipping plane -- so entire orbits are shown - maybe make variable?
+        //wwd.getView().setFarClipDistance(10000000000d); // really slow
+        wwd.getView().setFarClipDistance(200000000d); // good out to geo, but slower than not setting it
     }
     
     private RenderableLayer createLatLongLinesLayer()
@@ -791,6 +792,7 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
             // seems to work after you click off globe after messing with it
             // this fixes the problem:
             wwd.getView().stopStateIterators();
+            wwd.getView().stopMovement(); //seems to fix prop in v0.5
             
             // update rotation of view and Stars
             double theta0 = eciLayer.getRotateECIdeg();
@@ -798,26 +800,35 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
             // UPDATE TIME
             eciLayer.setCurrentMJD(mjd);
 
-            double thetaf = eciLayer.getRotateECIdeg();
+            double thetaf = eciLayer.getRotateECIdeg(); // degrees
 
             // move view
 
-            Quaternion q0 = ((BasicOrbitView) wwd.getView()).getRotation();
-
+            //Quaternion q0 = ((BasicOrbitView) wwd.getView()).getRotation();
+            //Vec4 vec = ((BasicOrbitView) wwd.getView()).getEyePoint();
+            Position pos = ((BasicOrbitView) wwd.getView()).getCurrentEyePosition();
+            
             // amount to rotate the globe (degrees) around poles axis
-            double rotateEarthDelta = thetaf - theta0;
+            double rotateEarthDelta = thetaf - theta0; // deg
 
-            Quaternion q = Quaternion.fromRotationYPR(Angle.fromDegrees(0), Angle.fromDegrees(rotateEarthDelta), Angle.fromDegrees(0.0));
-
+            //Quaternion q = Quaternion.fromRotationYPR(Angle.fromDegrees(0), Angle.fromDegrees(rotateEarthDelta), Angle.fromDegrees(0.0));
+            // rotate the earth around z axis by rotateEarthDelta
+            //double[][] rz = MathUtils.R_z(rotateEarthDelta*Math.PI/180);
+            //double[] newEyePos = MathUtils.mult(rz, new double[] {vec.x,vec.y,vec.z});
+//            Angle newLon = pos.getLongitude().addDegrees(-rotateEarthDelta);
+//            Position newPos = new Position(pos.getLatitude(),newLon,pos.getElevation());
+            Position newPos = pos.add(new Position(Angle.fromDegrees(0),Angle.fromDegrees(-rotateEarthDelta),0.0));
+            
             // rotation in 3D space is "added" to the quaternion by quaternion multiplication
-            try // try around it to prevent problems when running the simulation and then opening a new 3D window (this is called before the wwj is initalized)
-            {
-                ((BasicOrbitView) wwd.getView()).setRotation(q0.multiply(q));
-            }
-            catch(Exception e)
-            {
-                // do nothing, it will catch up next update
-            }
+//            try // try around it to prevent problems when running the simulation and then opening a new 3D window (this is called before the wwj is initalized)
+//            {
+                //((BasicOrbitView) wwd.getView()).setRotation(q0.multiply(q));
+                ((BasicOrbitView) wwd.getView()).setEyePosition(newPos);
+//            }
+//            catch(Exception e)
+//            {
+//                // do nothing, it will catch up next update
+//            }
 
             // star layer
             starsLayer.setLongitudeOffset(Angle.fromDegrees(-eciLayer.getRotateECIdeg()));

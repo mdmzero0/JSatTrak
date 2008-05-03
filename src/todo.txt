@@ -10,6 +10,7 @@ Open Source Changes:
 --> for coverage (so colors can be looked at evenly) add no "image" option to 2D window
 -> radar fence? (maybe not until airplane like objects)
 
+!!!! SAVING OF 3D VIEW NOT WORKING!!!!! (inital position etc!)
 
 ideas to maybe work on (x=done)
 

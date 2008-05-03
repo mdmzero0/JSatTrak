@@ -27,8 +27,6 @@ package jsattrak.utilities;
 import gov.nasa.worldwind.Configuration;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.geom.Angle;
-import gov.nasa.worldwind.geom.Position;
-import gov.nasa.worldwind.geom.Quaternion;
 import gov.nasa.worldwind.layers.Layer;
 import gov.nasa.worldwind.view.OrbitView;
 import java.awt.Container;
@@ -61,11 +59,14 @@ public class J3DEarthlPanelSave implements Serializable
     // -- to get working
     
     // 3D view point
-   double viewLat;
-   double viewLon;
+   double eyePosLat;
+   double eyePosLon;
+   double eyePosElv; 
+   double viewCenterLat;
+   double viewCenterLon;
+   double viewCenterElv;
    double viewZoom; // working
    double viewPitch;
-   double viewAlt;
    double viewHeading;
    
    // title of frame
@@ -108,13 +109,17 @@ public class J3DEarthlPanelSave implements Serializable
         // 3D view camera location and 
 //        viewLat = ((OrbitView) panel.getWwd().getView()).getLatitude().getDegrees();
 //        viewLon = ((OrbitView) panel.getWwd().getView()).getLongitude().getDegrees();
-        viewLat = ((OrbitView) panel.getWwd().getView()).getLookAtLatitude().getDegrees();
-        viewLon = ((OrbitView) panel.getWwd().getView()).getLookAtLongitude().getDegrees();
-        viewAlt = ((OrbitView) panel.getWwd().getView()).getAltitude();
+        // NEED TO UPDATE using v0.5
+        eyePosLat = ((OrbitView) panel.getWwd().getView()).getCurrentEyePosition().getLatitude().getDegrees();
+        eyePosLon = ((OrbitView) panel.getWwd().getView()).getCurrentEyePosition().getLongitude().getDegrees();
+        eyePosElv = ((OrbitView) panel.getWwd().getView()).getCurrentEyePosition().getElevation();
 
+        viewCenterLat = ((OrbitView) panel.getWwd().getView()).getCenterPosition().getLatitude().getDegrees();
+        viewCenterLon = ((OrbitView) panel.getWwd().getView()).getCenterPosition().getLongitude().getDegrees();
+        viewCenterElv = ((OrbitView) panel.getWwd().getView()).getCenterPosition().getElevation();
+        
         viewPitch = ((OrbitView) panel.getWwd().getView()).getPitch().getDegrees();
         viewHeading = ((OrbitView) panel.getWwd().getView()).getHeading().getDegrees();
-
         viewZoom = ((OrbitView)panel.getWwd().getView()).getZoom();
         
        
@@ -161,7 +166,9 @@ public class J3DEarthlPanelSave implements Serializable
         
         // Stop iterators first
         ((OrbitView)newPanel.getWwd().getView()).stopStateIterators();
-                
+        ((OrbitView)newPanel.getWwd().getView()).stopMovement();
+        ((OrbitView)newPanel.getWwd().getView()).stopMovementOnCenter();// ??
+        
         // set panel options
         //newPanel.setBackgroundColor(backgroundColor);
         //((OrbitView)newPanel.getWwd().getView()).setRotation(viewQuat);
@@ -180,9 +187,10 @@ public class J3DEarthlPanelSave implements Serializable
 //        System.out.println("head" + Configuration.getDoubleValue(AVKey.INITIAL_HEADING));
 //        System.out.println("pitch" + Configuration.getDoubleValue(AVKey.INITIAL_PITCH));
         
-        Configuration.setValue(AVKey.INITIAL_LATITUDE, viewLat);
-        Configuration.setValue(AVKey.INITIAL_LONGITUDE, viewLon);
-        Configuration.setValue(AVKey.INITIAL_ALTITUDE, viewAlt);
+        // does this work?
+        Configuration.setValue(AVKey.INITIAL_LATITUDE, eyePosLat);
+        Configuration.setValue(AVKey.INITIAL_LONGITUDE, eyePosLon);
+        Configuration.setValue(AVKey.INITIAL_ALTITUDE, eyePosElv);
         
         Configuration.setValue(AVKey.INITIAL_PITCH, viewPitch);
         Configuration.setValue(AVKey.INITIAL_HEADING, viewHeading);
