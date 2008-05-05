@@ -45,7 +45,7 @@ import javax.media.opengl.GL;
  * <p>Shawn E. Gano
  * <br>Created on October 12, 2007
  *
- * <p> Based on RenderableLayer.java (3044 2007-09-26 02:08:22Z tgaskins)
+ * <p> Based on RenderableLayer.java ($Id: RenderableLayer.java 4045 2007-12-22 00:23:29Z dcollins $)
  * 
  * @author Shawn E. Gano (shawn@gano.name), tag (orginal author of RenderableLayer.java)
  * @version $id$
@@ -54,6 +54,7 @@ public class ECIRenderableLayer extends AbstractLayer
 {
     
     private Collection<Renderable> renderables = new ArrayList<Renderable>();
+    private Iterable<Renderable> renderablesOverride;
     private final PickSupport pickSupport = new PickSupport();
     private final Layer delegateOwner;
     
@@ -95,16 +96,26 @@ public class ECIRenderableLayer extends AbstractLayer
         setCurrentMJD(iniMJD);
     } // ECIRenderableLayer - constructor
 
-    public void addRenderables(Iterable<Renderable> shapeIterator)
+    public void addRenderables(Iterable<Renderable> renderables)
     {
-        this.renderables = new ArrayList<Renderable>();
-
-        if (shapeIterator == null)
-            return;
-
-        for (Renderable renderable : shapeIterator)
+        if (renderables == null)
         {
-            this.renderables.add(renderable);
+            String msg = Logging.getMessage("nullValue.IterableIsNull");
+            Logging.logger().severe(msg);
+            throw new IllegalArgumentException(msg);
+        }
+        if (this.renderablesOverride != null)
+        {
+            String msg = Logging.getMessage("generic.LayerIsUsingCustomIterable");
+            Logging.logger().severe(msg);
+            throw new IllegalStateException(msg);
+        }
+
+        for (Renderable renderable : renderables)
+        {
+            // Internal list of renderables does not accept null values.
+            if (renderable != null)
+                this.renderables.add(renderable);
         }
     }
 
@@ -112,9 +123,15 @@ public class ECIRenderableLayer extends AbstractLayer
     {
         if (renderable == null)
         {
-            String msg = Logging.getMessage("nullValue.Shape");
+            String msg = Logging.getMessage("nullValue.RenderableIsNull");
             Logging.logger().severe(msg);
             throw new IllegalArgumentException(msg);
+        }
+        if (this.renderablesOverride != null)
+        {
+            String msg = Logging.getMessage("generic.LayerIsUsingCustomIterable");
+            Logging.logger().severe(msg);
+            throw new IllegalStateException(msg);
         }
 
         this.renderables.add(renderable);
@@ -123,56 +140,84 @@ public class ECIRenderableLayer extends AbstractLayer
     private void clearRenderables()
     {
         if (this.renderables != null && this.renderables.size() > 0)
+            this.renderables.clear();
+    }
+
+    public void setRenderables(Iterable<Renderable> renderableIterable)
+    {
+        this.renderablesOverride = renderableIterable;
+        // Dispose of the internal collection of Renderables.
+        disposeRenderables();
+        // Clear the internal collection of Renderables.
+        clearRenderables();
+    }
+    
+     private void disposeRenderables()
+    {
+        if (this.renderables != null && this.renderables.size() > 0)
         {
             for (Renderable renderable : this.renderables)
             {
                 if (renderable instanceof Disposable)
                     ((Disposable) renderable).dispose();
             }
-            this.renderables.clear();
         }
     }
 
-    public void setRenderables(Iterable<Renderable> shapeIterator)
-    {
-        this.renderables = new ArrayList<Renderable>();
-
-        this.clearRenderables();
-        if (shapeIterator == null)
-            this.addRenderables(shapeIterator);
-    }
-
-    public void setRenderable(final Renderable renderable)
-    {
-        this.clearRenderables();
-        if (renderable != null)
-            this.addRenderable(renderable);
-    }
+//    public void setRenderable(final Renderable renderable)
+//    {
+//        this.clearRenderables();
+//        if (renderable != null)
+//            this.addRenderable(renderable);
+//    }
 
     public void removeRenderable(Renderable renderable)
     {
         if (renderable == null)
         {
-            String msg = Logging.getMessage("nullValue.Shape");
+            String msg = Logging.getMessage("nullValue.RenderableIsNull");
             Logging.logger().severe(msg);
             throw new IllegalArgumentException(msg);
+        }
+        if (this.renderablesOverride != null)
+        {
+            String msg = Logging.getMessage("generic.LayerIsUsingCustomIterable");
+            Logging.logger().severe(msg);
+            throw new IllegalStateException(msg);
         }
 
         this.renderables.remove(renderable);
     }
 
-    public Collection<Renderable> getRenderables()
+    public Iterable<Renderable> getRenderables()
     {
-        return this.renderables;
+        return getActiveRenderables();
+    }
+    
+    private Iterable<Renderable> getActiveRenderables()
+    {
+        if (this.renderablesOverride != null)
+        {
+            return this.renderablesOverride;
+        }
+        else
+        {
+            // Return an unmodifiable reference to the internal list of renderables.
+            // This prevents callers from changing this list and invalidating any invariants we have established.
+            return java.util.Collections.unmodifiableCollection(this.renderables);
+        }
     }
 
     public void dispose()
     {
-        for (Renderable renderable : this.renderables)
+        if (this.renderablesOverride != null)
         {
-            if (renderable instanceof Disposable)
-                ((Disposable) renderable).dispose();
+            String msg = Logging.getMessage("generic.LayerIsUsingCustomIterable");
+            Logging.logger().severe(msg);
+            throw new IllegalStateException(msg);
         }
+
+        disposeRenderables();
     }
 
     @Override
@@ -181,25 +226,30 @@ public class ECIRenderableLayer extends AbstractLayer
         this.pickSupport.clearPickList();
         this.pickSupport.beginPicking(dc);
 
-        for (Renderable renderable : this.renderables)
+        for (Renderable renderable : getActiveRenderables())
         {
-            float[] inColor = new float[4];
-            dc.getGL().glGetFloatv(GL.GL_CURRENT_COLOR, inColor, 0);
-            Color color = dc.getUniquePickColor();
-            dc.getGL().glColor3ub((byte) color.getRed(), (byte) color.getGreen(), (byte) color.getBlue());
-
-            renderable.render(dc);
-
-            dc.getGL().glColor4fv(inColor, 0);
-
-            if (renderable instanceof Locatable)
+            // If the caller has specified their own Iterable,
+            // then we cannot make any guarantees about its contents.
+            if (renderable != null)
             {
-                this.pickSupport.addPickableObject(color.getRGB(), renderable,
-                    ((Locatable) renderable).getPosition(), false);
-            }
-            else
-            {
-                this.pickSupport.addPickableObject(color.getRGB(), renderable);
+                float[] inColor = new float[4];
+                dc.getGL().glGetFloatv(GL.GL_CURRENT_COLOR, inColor, 0);
+                java.awt.Color color = dc.getUniquePickColor();
+                dc.getGL().glColor3ub((byte) color.getRed(), (byte) color.getGreen(), (byte) color.getBlue());
+
+                renderable.render(dc);
+
+                dc.getGL().glColor4fv(inColor, 0);
+
+                if (renderable instanceof Locatable)
+                {
+                    this.pickSupport.addPickableObject(color.getRGB(), renderable,
+                        ((Locatable) renderable).getPosition(), false);
+                }
+                else
+                {
+                    this.pickSupport.addPickableObject(color.getRGB(), renderable);
+                }
             }
         }
 
@@ -217,9 +267,14 @@ public class ECIRenderableLayer extends AbstractLayer
         gl.glPushMatrix();   // push for ECI roation
         gl.glRotated(-rotateECIdeg, 0.0, 1.0, 0.0); // rotate about Earth's spin axis (z-coordinate in J2K, y-coordinate in JOGL)
          
-        for (Renderable renderable : this.renderables)
+        for (Renderable renderable : getActiveRenderables())
         {
-            renderable.render(dc);
+            // If the caller has specified their own Iterable,
+            // then we cannot make any guarantees about its contents.
+            if (renderable != null)
+            {
+                renderable.render(dc);
+            }
         }
         
         gl.glPopMatrix(); // pop matrix rotatex for ECI

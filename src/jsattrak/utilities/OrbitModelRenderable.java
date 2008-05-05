@@ -107,7 +107,7 @@ public class OrbitModelRenderable implements Renderable
         {
             // set color
             Color satColor = sat.getSatColor();
-            gl.glColor3d( satColor.getRed()/255.0 , satColor.getGreen()/255.0 , satColor.getBlue()/255.0 ); // COLOR
+            gl.glColor3f( satColor.getRed()/255.0f , satColor.getGreen()/255.0f , satColor.getBlue()/255.0f ); // COLOR
             
             Double nanDbl = new Double(Double.NaN);
             
@@ -121,7 +121,7 @@ public class OrbitModelRenderable implements Renderable
                     double[] xyz = sat.getGroundTrackXyzLagPt(i);
                     if(!nanDbl.equals(xyz[0])) // NaN check
                     {
-                        gl.glVertex3d(-xyz[0], xyz[2], xyz[1]);
+                        gl.glVertex3f((float)-xyz[0], (float)xyz[2], (float)xyz[1]);
                     }
                 }
                 gl.glEnd();
@@ -134,7 +134,7 @@ public class OrbitModelRenderable implements Renderable
                     double[] xyz = sat.getGroundTrackXyzLeadPt(i);
                     if(!nanDbl.equals(xyz[0])) // NaN check
                     {
-                        gl.glVertex3d(-xyz[0], xyz[2], xyz[1]);
+                        gl.glVertex3f((float)-xyz[0], (float)xyz[2], (float)xyz[1]);
                     }
                 }
                 gl.glEnd();

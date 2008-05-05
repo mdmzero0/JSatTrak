@@ -217,8 +217,8 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         
         // TESTING -- ultimatly add whatever else to Internal Panel
         // INLCUDES PASSING CoverageAnalyzer ca
-        CoverageRenderableLayer cel = new CoverageRenderableLayer(app.ca);
-        m.getLayers().add(cel); // add Layer
+//        CoverageRenderableLayer cel = new CoverageRenderableLayer(app.ca);
+//        m.getLayers().add(cel); // add Layer
         //wwd.getInputHandler(). // hmm set quick mouse response... no use of iterators on earth spin?
         // END TESTING
 
@@ -233,6 +233,12 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         ecefModel = new ECEFModelRenderable(satHash, gsHash, wwd.getModel().getGlobe());
         ecefLayer.addRenderable(ecefModel); // add renderable object
         m.getLayers().add(ecefLayer); // add ECI Layer
+        
+//        // add ECI Layer
+//        eciLayer = new ECIRenderableLayer(currentMJD); // create ECI layer
+//        orbitModel = new OrbitModelRenderable(satHash, wwd.getModel().getGlobe());
+//        eciLayer.addRenderable(orbitModel); // add renderable object
+//        m.getLayers().add(eciLayer); // add ECI Layer
         
         // add terrain profile layer
         terrainProfileLayer = new TerrainProfileLayer();
@@ -806,6 +812,7 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
 
             //Quaternion q0 = ((BasicOrbitView) wwd.getView()).getRotation();
             //Vec4 vec = ((BasicOrbitView) wwd.getView()).getEyePoint();
+            
             Position pos = ((BasicOrbitView) wwd.getView()).getCurrentEyePosition();
             
             // amount to rotate the globe (degrees) around poles axis
@@ -817,6 +824,7 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
             //double[] newEyePos = MathUtils.mult(rz, new double[] {vec.x,vec.y,vec.z});
 //            Angle newLon = pos.getLongitude().addDegrees(-rotateEarthDelta);
 //            Position newPos = new Position(pos.getLatitude(),newLon,pos.getElevation());
+            
             Position newPos = pos.add(new Position(Angle.fromDegrees(0),Angle.fromDegrees(-rotateEarthDelta),0.0));
             
             // rotation in 3D space is "added" to the quaternion by quaternion multiplication

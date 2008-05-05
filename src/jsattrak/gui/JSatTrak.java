@@ -2826,6 +2826,7 @@ private void coverageMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
     public void openFile()
     {
         
+        
 //        boolean closed = closeScenario(true); // first close scenario
 //        
 //        if(!closed)
@@ -2959,6 +2960,11 @@ private void coverageMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
                         addInternalFrame(iframe, propPan.getXPos(), propPan.getYPos() );
                     }
                     
+                    // PUT BEFORE 3D windows so they load correctly though data in them might be funny?
+                    // update GUI -- this is messing up the 3D views.. they need some time to render
+                    forceRepainting(true); // force repaint and regeneration of data
+                    
+                    
                     // create all needed 3D windos:
                     for( J3DEarthlPanelSave j3dp : openClass.getThreeDWindowSaveVec() )
                     {
@@ -2976,13 +2982,8 @@ private void coverageMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
                         
                         j3dp.copySettings2PanelAndFrame(newPanel,iframe); // copy settings to this window
                     }
-
-                     
-                    
-                    
-                    // update GUI
-                    forceRepainting(true); // force repaint and regeneration of data
-                    
+                   
+              
                     setStatusMessage("Opened file: " + file.getAbsolutePath());
                     
                 }

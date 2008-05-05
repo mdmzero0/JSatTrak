@@ -59,15 +59,16 @@ public class J3DEarthlPanelSave implements Serializable
     // -- to get working
     
     // 3D view point
-   double eyePosLat;
-   double eyePosLon;
-   double eyePosElv; 
-   double viewCenterLat;
-   double viewCenterLon;
-   double viewCenterElv;
-   double viewZoom; // working
-   double viewPitch;
-   double viewHeading;
+    String viewStateInXml;
+//   double eyePosLat;viewStateInXml = view.getRestorableState();
+//   double eyePosLon;
+//   double eyePosElv; 
+//   double viewCenterLat;
+//   double viewCenterLon;
+//   double viewCenterElv;
+//   double viewZoom; // working
+//   double viewPitch;
+//   double viewHeading;
    
    // title of frame
    String frameTitle = "";
@@ -109,18 +110,19 @@ public class J3DEarthlPanelSave implements Serializable
         // 3D view camera location and 
 //        viewLat = ((OrbitView) panel.getWwd().getView()).getLatitude().getDegrees();
 //        viewLon = ((OrbitView) panel.getWwd().getView()).getLongitude().getDegrees();
-        // NEED TO UPDATE using v0.5
-        eyePosLat = ((OrbitView) panel.getWwd().getView()).getCurrentEyePosition().getLatitude().getDegrees();
-        eyePosLon = ((OrbitView) panel.getWwd().getView()).getCurrentEyePosition().getLongitude().getDegrees();
-        eyePosElv = ((OrbitView) panel.getWwd().getView()).getCurrentEyePosition().getElevation();
-
-        viewCenterLat = ((OrbitView) panel.getWwd().getView()).getCenterPosition().getLatitude().getDegrees();
-        viewCenterLon = ((OrbitView) panel.getWwd().getView()).getCenterPosition().getLongitude().getDegrees();
-        viewCenterElv = ((OrbitView) panel.getWwd().getView()).getCenterPosition().getElevation();
-        
-        viewPitch = ((OrbitView) panel.getWwd().getView()).getPitch().getDegrees();
-        viewHeading = ((OrbitView) panel.getWwd().getView()).getHeading().getDegrees();
-        viewZoom = ((OrbitView)panel.getWwd().getView()).getZoom();
+        // UPDATE using v0.5
+          viewStateInXml = ((OrbitView) panel.getWwd().getView()).getRestorableState();
+//        eyePosLat = ((OrbitView) panel.getWwd().getView()).getCurrentEyePosition().getLatitude().getDegrees();
+//        eyePosLon = ((OrbitView) panel.getWwd().getView()).getCurrentEyePosition().getLongitude().getDegrees();
+//        eyePosElv = ((OrbitView) panel.getWwd().getView()).getCurrentEyePosition().getElevation();
+//
+//        viewCenterLat = ((OrbitView) panel.getWwd().getView()).getCenterPosition().getLatitude().getDegrees();
+//        viewCenterLon = ((OrbitView) panel.getWwd().getView()).getCenterPosition().getLongitude().getDegrees();
+//        viewCenterElv = ((OrbitView) panel.getWwd().getView()).getCenterPosition().getElevation();
+//        
+//        viewPitch = ((OrbitView) panel.getWwd().getView()).getPitch().getDegrees();
+//        viewHeading = ((OrbitView) panel.getWwd().getView()).getHeading().getDegrees();
+//        viewZoom = ((OrbitView)panel.getWwd().getView()).getZoom();
         
        
         
@@ -165,49 +167,23 @@ public class J3DEarthlPanelSave implements Serializable
         
         
         // Stop iterators first
-        ((OrbitView)newPanel.getWwd().getView()).stopStateIterators();
-        ((OrbitView)newPanel.getWwd().getView()).stopMovement();
-        ((OrbitView)newPanel.getWwd().getView()).stopMovementOnCenter();// ??
+//        ((OrbitView)newPanel.getWwd().getView()).stopStateIterators();
+//        ((OrbitView)newPanel.getWwd().getView()).stopMovement();
+//        ((OrbitView)newPanel.getWwd().getView()).stopMovementOnCenter();// ??
         
         // set panel options
-        //newPanel.setBackgroundColor(backgroundColor);
-        //((OrbitView)newPanel.getWwd().getView()).setRotation(viewQuat);
-//        ((OrbitView)newPanel.getWwd().getView()).setZoom(viewZoom);
-//        ((OrbitView)newPanel.getWwd().getView()).setLatitude(Angle.fromDegrees(viewLat));
-//        ((OrbitView)newPanel.getWwd().getView()).setLongitude(Angle.fromDegrees(viewLon));
-        //eyePos
-//        ((OrbitView)newPanel.getWwd().getView()).setLatLonAltitude(eyePos);
-//        
-//        ((OrbitView)newPanel.getWwd().getView()).setLatitude(Angle.fromDegrees(-45));
+
+        // restor view using xml state
+        try
+        {
+            ((OrbitView)newPanel.getWwd().getView()).restoreState(viewStateInXml);
+        }
+        catch(Exception e)
+        {
+            System.out.println("Error loading 3D view State: " + e.toString());
+        }
         
-        // setup inital view
-//        System.out.println("lat" + Configuration.getDoubleValue(AVKey.INITIAL_LATITUDE));
-//        System.out.println("lon" + Configuration.getDoubleValue(AVKey.INITIAL_LONGITUDE));
-//        System.out.println("alt" + Configuration.getDoubleValue(AVKey.INITIAL_ALTITUDE));
-//        System.out.println("head" + Configuration.getDoubleValue(AVKey.INITIAL_HEADING));
-//        System.out.println("pitch" + Configuration.getDoubleValue(AVKey.INITIAL_PITCH));
-        
-        // does this work?
-        Configuration.setValue(AVKey.INITIAL_LATITUDE, eyePosLat);
-        Configuration.setValue(AVKey.INITIAL_LONGITUDE, eyePosLon);
-        Configuration.setValue(AVKey.INITIAL_ALTITUDE, eyePosElv);
-        
-        Configuration.setValue(AVKey.INITIAL_PITCH, viewPitch);
-        Configuration.setValue(AVKey.INITIAL_HEADING, viewHeading);
-        
-        //((OrbitView)newPanel.getWwd().getView()).setZoom(viewZoom); // set zoom
-        
-        
-//        System.out.println("lat" + Configuration.getDoubleValue(AVKey.INITIAL_LATITUDE));
-//        System.out.println("lon" + Configuration.getDoubleValue(AVKey.INITIAL_LONGITUDE));
-//        System.out.println("alt" + Configuration.getDoubleValue(AVKey.INITIAL_ALTITUDE));
-//        System.out.println("head" + Configuration.getDoubleValue(AVKey.INITIAL_HEADING));
-//        System.out.println("pitch" + Configuration.getDoubleValue(AVKey.INITIAL_PITCH));
-//        
-//        System.out.println("Eye pos: lat: deg:" + eyePos.getLatitude().getDegrees());
-//        
-//        System.out.println("Eye pos: lat: deg:" + ((OrbitView)newPanel.getWwd().getView()).getLatitude().getDegrees());
-        
+   
         newPanel.getWwd().redraw();
         
         // set TITLE

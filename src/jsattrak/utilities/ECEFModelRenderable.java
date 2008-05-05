@@ -38,7 +38,6 @@ import java.util.Hashtable;
 import javax.media.opengl.GL;
 import jsattrak.objects.AbstractSatellite;
 import jsattrak.objects.GroundStation;
-import jsattrak.objects.SatelliteTleSGP4;
 import name.gano.worldwind.geom.SphereObject;
 
 
@@ -102,7 +101,7 @@ public class ECEFModelRenderable implements Renderable
         {
             // set color
             Color satColor = sat.getSatColor();
-            gl.glColor3d( satColor.getRed()/255.0 , satColor.getGreen()/255.0 , satColor.getBlue()/255.0 ); // COLOR
+            gl.glColor3f( satColor.getRed()/255.0f , satColor.getGreen()/255.0f , satColor.getBlue()/255.0f ); // COLOR
             
             // GROUND TRACK
             if (sat.isShowGroundTrack3d())
@@ -122,7 +121,7 @@ public class ECEFModelRenderable implements Renderable
                     Angle.fromRadiansLatitude(lla[0]), 
                     Angle.fromRadiansLongitude(lla[1]), groundTrackAlt);
                     
-                    gl.glVertex3d( ptLoc.x, ptLoc.y , ptLoc.z);
+                    gl.glVertex3f( (float)ptLoc.x, (float)ptLoc.y , (float)ptLoc.z);
                     
                 }
                 gl.glEnd();
@@ -138,7 +137,7 @@ public class ECEFModelRenderable implements Renderable
                     Angle.fromRadiansLatitude(lla[0]), 
                     Angle.fromRadiansLongitude(lla[1]), groundTrackAlt);
                     
-                    gl.glVertex3d( ptLoc.x, ptLoc.y , ptLoc.z);
+                    gl.glVertex3f( (float)ptLoc.x, (float)ptLoc.y , (float)ptLoc.z);
                 }
                 gl.glEnd();
             } // show ground trace
@@ -158,7 +157,7 @@ public class ECEFModelRenderable implements Renderable
                     Angle.fromRadiansLatitude(lla[0]), 
                     Angle.fromRadiansLongitude(lla[1]), lla[2]);
                     
-                    gl.glVertex3d( ptLoc.x, ptLoc.y , ptLoc.z);
+                    gl.glVertex3f( (float)ptLoc.x, (float)ptLoc.y , (float)ptLoc.z);
                     
                 }
                 gl.glEnd();
@@ -174,7 +173,7 @@ public class ECEFModelRenderable implements Renderable
                     Angle.fromRadiansLatitude(lla[0]), 
                     Angle.fromRadiansLongitude(lla[1]), lla[2]);
                     
-                    gl.glVertex3d( ptLoc.x, ptLoc.y , ptLoc.z);
+                    gl.glVertex3f( (float)ptLoc.x, (float)ptLoc.y , (float)ptLoc.z);
                 }
                 gl.glEnd();
                 
