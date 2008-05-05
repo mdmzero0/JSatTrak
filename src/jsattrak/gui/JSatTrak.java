@@ -65,7 +65,7 @@
  *                               from the command you can access jsattrak object to have access to all of its methods to change things on the fly
  *          3.1.1 - 20 April2008 - updated to swingx 0.9.2 compatibility -removed deleted features (table highlighters). Added Ground Station browser button to toolbar
  *          3.1.2 - 21 April08 - added polical boundaries layer for 3D globe
- *          3.2   - Earth Coverage anylsis, added ability to create movies of any window or entire app, update to WWJ 0.5 (removed WWJ source)
+ *          3.2   - Earth Coverage anylsis, added ability to create movies of any window or entire app, update to WWJ 0.5 (removed WWJ source), set custom clippin plane distances (sim properties)
  *        
  */
 // notes: not good to use rk78 in a solver loop because direvatives inaccurate, because solution changes slightly near end.?
@@ -254,11 +254,15 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
     JConsole commandConsole = new JConsole();
     Interpreter beanShellInterp = new Interpreter(commandConsole);
     
-    // time dependent objects that should be update when time is updated
+    // time dependent objects that should be update when time is updated -- NEED TO BE SAVED?
     Vector<JSatTrakTimeDependent> timeDependentObjects = new Vector<JSatTrakTimeDependent>();
     
      // coverage anaylzer tool (default null, until tool opened)
      CoverageAnalyzer ca;
+     
+     // near/far clipping plane distances for 3d windows (can effect render speed and if full orbit is shown)
+     private double farClippingPlaneDist = 200000000d; // good out to geo, but slow for LEO
+     private double nearClippingPlaneDist = -1; // -1 value Means auto adjusting
     
     
     /** Creates new form JSatTrak */
@@ -1329,7 +1333,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         JInternalFrame iframe = new JInternalFrame("Simulation Properties",true,true,true,true);
         
         iframe.setContentPane( propPanel );
-        iframe.setSize(280,290); // w, h
+        iframe.setSize(305,335); // w, h
         iframe.setLocation(15, 20);
         
         // save frame
@@ -2964,6 +2968,10 @@ private void coverageMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
                     // update GUI -- this is messing up the 3D views.. they need some time to render
                     forceRepainting(true); // force repaint and regeneration of data
                     
+                    // clipping plane distances
+                    this.farClippingPlaneDist = openClass.getFarClippingPlaneDist();
+                    this.nearClippingPlaneDist = openClass.getNearClippingPlaneDist();
+                    
                     
                     // create all needed 3D windos:
                     for( J3DEarthlPanelSave j3dp : openClass.getThreeDWindowSaveVec() )
@@ -3312,6 +3320,44 @@ private void coverageMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         {
             System.out.println("Error running plugin script: " + ee.toString());
             JOptionPane.showMessageDialog(this, "Error running plugin script: \n" + ee.toString(), "Pluging Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    public double getFarClippingPlaneDist()
+    {
+        return farClippingPlaneDist;
+    }
+
+    public void setFarClippingPlaneDist(double farClippingPlaneDist)
+    {
+        this.farClippingPlaneDist = farClippingPlaneDist;
+        // now set all 3d windows:
+        for(J3DEarthInternalPanel panel : threeDInternalWindowVec)
+        {
+            panel.setFarClipDistance(farClippingPlaneDist);
+        }
+        for(J3DEarthPanel panel : threeDWindowVec)
+        {
+            panel.setFarClipDistance(farClippingPlaneDist);
+        }
+    }
+
+    public double getNearClippingPlaneDist()
+    {
+        return nearClippingPlaneDist;
+    }
+
+    public void setNearClippingPlaneDist(double nearClippingPlaneDist)
+    {
+        this.nearClippingPlaneDist = nearClippingPlaneDist;
+        // now set all 3d windows:
+        for(J3DEarthInternalPanel panel : threeDInternalWindowVec)
+        {
+            panel.setNearClipDistance(nearClippingPlaneDist);
+        }
+        for(J3DEarthPanel panel : threeDWindowVec)
+        {
+            panel.setNearClipDistance(nearClippingPlaneDist);
         }
     }
     

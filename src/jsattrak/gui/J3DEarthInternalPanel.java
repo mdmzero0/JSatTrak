@@ -267,7 +267,8 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
         
         // correct clipping plane -- so entire orbits are shown - maybe make variable?
         //wwd.getView().setFarClipDistance(10000000000d);
-          wwd.getView().setFarClipDistance(200000000d); 
+        wwd.getView().setFarClipDistance(app.getFarClippingPlaneDist()); // 200000000d good out to geo, but slower than not setting it
+        wwd.getView().setNearClipDistance(app.getNearClippingPlaneDist()); // -1 for auto adjust
              
     } // constructor
     
@@ -1030,5 +1031,15 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
     public LayerList getLayerList()
     {
         return wwd.getModel().getLayers();
+    }
+    
+    public void setFarClipDistance(double clipDist)
+    {
+        wwd.getView().setFarClipDistance(clipDist);
+    }
+    
+    public void setNearClipDistance(double clipDist)
+    {
+        wwd.getView().setNearClipDistance(clipDist);
     }
 }

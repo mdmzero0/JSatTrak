@@ -20,18 +20,9 @@
  */
 package name.gano.worldwind.layers.Earth;
 
-import gov.nasa.worldwind.Disposable;
-import gov.nasa.worldwind.Locatable;
-import gov.nasa.worldwind.layers.AbstractLayer;
-import gov.nasa.worldwind.layers.Layer;
-import gov.nasa.worldwind.pick.PickSupport;
+import gov.nasa.worldwind.layers.RenderableLayer;
 import gov.nasa.worldwind.render.DrawContext;
 import gov.nasa.worldwind.render.Renderable;
-import gov.nasa.worldwind.util.Logging;
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.Collection;
-import javax.media.opengl.GL;
 
 /**
  * This layer automatically rotates its collection of renderables so that their 
@@ -43,30 +34,21 @@ import javax.media.opengl.GL;
  * <p><b>!!Precession and Nutation are not yet accouted for.</b>
  *
  * <p>Shawn E. Gano
- * <br>Created on October 12, 2007
+ * <br>Created on October 12, 2007 - update May 5 2008
  *
- * <p> Based on RenderableLayer.java ($Id: RenderableLayer.java 4045 2007-12-22 00:23:29Z dcollins $)
  * 
- * @author Shawn E. Gano (shawn@gano.name), tag (orginal author of RenderableLayer.java)
+ * @author Shawn E. Gano (shawn@gano.name)
  * @version $id$
  */
-public class ECIRenderableLayer extends AbstractLayer
+public class ECIRenderableLayer extends RenderableLayer
 {
     
-    private Collection<Renderable> renderables = new ArrayList<Renderable>();
-    private Iterable<Renderable> renderablesOverride;
-    private final PickSupport pickSupport = new PickSupport();
-    private final Layer delegateOwner;
     
     // ECI rotation variable
     private final double offsetRotdeg = -90.0; // jogl coordinate Greenwich to ECI x-axis offset 
     private double rotateECIdeg = 280.46061837+offsetRotdeg; // rotation in degrees (default j2k)
     private double currentMJD = 51544.5; // current modified julian date, universal time (default J2k)
 
-    public ECIRenderableLayer()
-    {
-        this.delegateOwner = null;
-    }
     
     // SEG added -------------
     /**
@@ -75,187 +57,27 @@ public class ECIRenderableLayer extends AbstractLayer
      */
     public ECIRenderableLayer(double iniMJD)
     {
-        this.delegateOwner = null;
+        super();
+        //this.delegateOwner = null;
         setCurrentMJD(iniMJD);
     } // ECIRenderableLayer - constructor
 
-    public ECIRenderableLayer(Layer delegateOwner)
-    {
-        this.delegateOwner = delegateOwner;
-    }
-    
-    // SEG added -------------
-    /**
-     * Creates layer with delagate layer owner and initial time
-     * @param delegateOwner delegate owner
-     * @param iniMJD inital Modified Julian Date
-     */
-    public ECIRenderableLayer(Layer delegateOwner, double iniMJD)
-    {
-        this.delegateOwner = delegateOwner;
-        setCurrentMJD(iniMJD);
-    } // ECIRenderableLayer - constructor
-
-    public void addRenderables(Iterable<Renderable> renderables)
-    {
-        if (renderables == null)
-        {
-            String msg = Logging.getMessage("nullValue.IterableIsNull");
-            Logging.logger().severe(msg);
-            throw new IllegalArgumentException(msg);
-        }
-        if (this.renderablesOverride != null)
-        {
-            String msg = Logging.getMessage("generic.LayerIsUsingCustomIterable");
-            Logging.logger().severe(msg);
-            throw new IllegalStateException(msg);
-        }
-
-        for (Renderable renderable : renderables)
-        {
-            // Internal list of renderables does not accept null values.
-            if (renderable != null)
-                this.renderables.add(renderable);
-        }
-    }
-
-    public void addRenderable(Renderable renderable)
-    {
-        if (renderable == null)
-        {
-            String msg = Logging.getMessage("nullValue.RenderableIsNull");
-            Logging.logger().severe(msg);
-            throw new IllegalArgumentException(msg);
-        }
-        if (this.renderablesOverride != null)
-        {
-            String msg = Logging.getMessage("generic.LayerIsUsingCustomIterable");
-            Logging.logger().severe(msg);
-            throw new IllegalStateException(msg);
-        }
-
-        this.renderables.add(renderable);
-    }
-
-    private void clearRenderables()
-    {
-        if (this.renderables != null && this.renderables.size() > 0)
-            this.renderables.clear();
-    }
-
-    public void setRenderables(Iterable<Renderable> renderableIterable)
-    {
-        this.renderablesOverride = renderableIterable;
-        // Dispose of the internal collection of Renderables.
-        disposeRenderables();
-        // Clear the internal collection of Renderables.
-        clearRenderables();
-    }
-    
-     private void disposeRenderables()
-    {
-        if (this.renderables != null && this.renderables.size() > 0)
-        {
-            for (Renderable renderable : this.renderables)
-            {
-                if (renderable instanceof Disposable)
-                    ((Disposable) renderable).dispose();
-            }
-        }
-    }
-
-//    public void setRenderable(final Renderable renderable)
+//    public ECIRenderableLayer(Layer delegateOwner)
 //    {
-//        this.clearRenderables();
-//        if (renderable != null)
-//            this.addRenderable(renderable);
+//        this.delegateOwner = delegateOwner;
 //    }
-
-    public void removeRenderable(Renderable renderable)
-    {
-        if (renderable == null)
-        {
-            String msg = Logging.getMessage("nullValue.RenderableIsNull");
-            Logging.logger().severe(msg);
-            throw new IllegalArgumentException(msg);
-        }
-        if (this.renderablesOverride != null)
-        {
-            String msg = Logging.getMessage("generic.LayerIsUsingCustomIterable");
-            Logging.logger().severe(msg);
-            throw new IllegalStateException(msg);
-        }
-
-        this.renderables.remove(renderable);
-    }
-
-    public Iterable<Renderable> getRenderables()
-    {
-        return getActiveRenderables();
-    }
     
-    private Iterable<Renderable> getActiveRenderables()
-    {
-        if (this.renderablesOverride != null)
-        {
-            return this.renderablesOverride;
-        }
-        else
-        {
-            // Return an unmodifiable reference to the internal list of renderables.
-            // This prevents callers from changing this list and invalidating any invariants we have established.
-            return java.util.Collections.unmodifiableCollection(this.renderables);
-        }
-    }
-
-    public void dispose()
-    {
-        if (this.renderablesOverride != null)
-        {
-            String msg = Logging.getMessage("generic.LayerIsUsingCustomIterable");
-            Logging.logger().severe(msg);
-            throw new IllegalStateException(msg);
-        }
-
-        disposeRenderables();
-    }
-
-    @Override
-    protected void doPick(DrawContext dc, java.awt.Point pickPoint)
-    {
-        this.pickSupport.clearPickList();
-        this.pickSupport.beginPicking(dc);
-
-        for (Renderable renderable : getActiveRenderables())
-        {
-            // If the caller has specified their own Iterable,
-            // then we cannot make any guarantees about its contents.
-            if (renderable != null)
-            {
-                float[] inColor = new float[4];
-                dc.getGL().glGetFloatv(GL.GL_CURRENT_COLOR, inColor, 0);
-                java.awt.Color color = dc.getUniquePickColor();
-                dc.getGL().glColor3ub((byte) color.getRed(), (byte) color.getGreen(), (byte) color.getBlue());
-
-                renderable.render(dc);
-
-                dc.getGL().glColor4fv(inColor, 0);
-
-                if (renderable instanceof Locatable)
-                {
-                    this.pickSupport.addPickableObject(color.getRGB(), renderable,
-                        ((Locatable) renderable).getPosition(), false);
-                }
-                else
-                {
-                    this.pickSupport.addPickableObject(color.getRGB(), renderable);
-                }
-            }
-        }
-
-        this.pickSupport.resolvePick(dc, pickPoint, this.delegateOwner != null ? this.delegateOwner : this);
-        this.pickSupport.endPicking(dc);
-    }
+//    // SEG added -------------
+//    /**
+//     * Creates layer with delagate layer owner and initial time
+//     * @param delegateOwner delegate owner
+//     * @param iniMJD inital Modified Julian Date
+//     */
+//    public ECIRenderableLayer(Layer delegateOwner, double iniMJD)
+//    {
+//        this.delegateOwner = delegateOwner;
+//        setCurrentMJD(iniMJD);
+//    } // ECIRenderableLayer - constructor
 
     // SEG modified -------------
     @Override
@@ -264,11 +86,16 @@ public class ECIRenderableLayer extends AbstractLayer
     {
         javax.media.opengl.GL gl = dc.getGL();
         
+        // this line must be before matrix push - otherwise when coverage is off, an ECI is on EFEF lines don't show
+        gl.glMatrixMode(javax.media.opengl.GL.GL_MODELVIEW); // add to prevent interatction with star layer // MUST INCLUDE THIS -- 5 May 2008 SEG
+        
         gl.glPushMatrix();   // push for ECI roation
         gl.glRotated(-rotateECIdeg, 0.0, 1.0, 0.0); // rotate about Earth's spin axis (z-coordinate in J2K, y-coordinate in JOGL)
          
-        for (Renderable renderable : getActiveRenderables())
+        int i=0;
+        for (Renderable renderable : super.getRenderables())
         {
+            i++;
             // If the caller has specified their own Iterable,
             // then we cannot make any guarantees about its contents.
             if (renderable != null)
@@ -276,14 +103,12 @@ public class ECIRenderableLayer extends AbstractLayer
                 renderable.render(dc);
             }
         }
+        System.out.println("i="+i);
         
         gl.glPopMatrix(); // pop matrix rotatex for ECI
-    }
+        
+    } // do Render
 
-    public Layer getDelegateOwner()
-    {
-        return delegateOwner;
-    }
 
     @Override
     public String toString()

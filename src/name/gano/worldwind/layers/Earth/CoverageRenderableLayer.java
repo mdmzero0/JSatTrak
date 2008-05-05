@@ -45,9 +45,12 @@ public class CoverageRenderableLayer extends RenderableLayer
         dataGeom = new CoverageDataGeom(ca);
         this.addRenderable(dataGeom);
         
-        if(ca.isShowColorBar())
+        if(ca != null)
         {
-            this.addRenderable(cb);
+            if(ca.isShowColorBar())
+            {
+                this.addRenderable(cb);
+            }
         }
     }
     

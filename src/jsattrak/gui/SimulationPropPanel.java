@@ -73,6 +73,10 @@ public class SimulationPropPanel extends javax.swing.JPanel implements Serializa
         
         // get wwj online mode
         wwjOnlineModeCheckBox.setSelected( !app.isWwjOfflineMode() );
+        
+        // clip planes
+        nearClipTextField.setText(app.getNearClippingPlaneDist() + "");
+        farClipTextField.setText(app.getFarClippingPlaneDist() + "");
     }
      
      public void setInternalFrame(JInternalFrame iframe)
@@ -102,6 +106,10 @@ public class SimulationPropPanel extends javax.swing.JPanel implements Serializa
         timeTextField = new javax.swing.JTextField();
         jPanel3 = new javax.swing.JPanel();
         wwjOnlineModeCheckBox = new javax.swing.JCheckBox();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        nearClipTextField = new javax.swing.JTextField();
+        farClipTextField = new javax.swing.JTextField();
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Refresh Rates"));
 
@@ -127,7 +135,7 @@ public class SimulationPropPanel extends javax.swing.JPanel implements Serializa
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(nonRealTimeTextField, 0, 0, Short.MAX_VALUE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(104, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -192,7 +200,7 @@ public class SimulationPropPanel extends javax.swing.JPanel implements Serializa
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGap(24, 24, 24)
                         .addComponent(timeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(82, Short.MAX_VALUE))
+                .addContainerGap(116, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -210,19 +218,42 @@ public class SimulationPropPanel extends javax.swing.JPanel implements Serializa
         wwjOnlineModeCheckBox.setSelected(true);
         wwjOnlineModeCheckBox.setText("Stream Globe Imagery/Terrain");
 
+        jLabel3.setText("Near Clipping Plane (Auto = -1):");
+
+        jLabel4.setText("Far Clipping Plane (Auto = -1):");
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addComponent(wwjOnlineModeCheckBox)
-                .addContainerGap(70, Short.MAX_VALUE))
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel4)
+                        .addGap(18, 18, 18)
+                        .addComponent(farClipTextField))
+                    .addComponent(wwjOnlineModeCheckBox)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel3)
+                        .addGap(9, 9, 9)
+                        .addComponent(nearClipTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(43, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addComponent(wwjOnlineModeCheckBox)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(nearClipTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(farClipTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -247,8 +278,8 @@ public class SimulationPropPanel extends javax.swing.JPanel implements Serializa
                 .addGap(2, 2, 2)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(2, 2, 2)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cancelButton)
                     .addComponent(okButton)
@@ -302,11 +333,15 @@ public class SimulationPropPanel extends javax.swing.JPanel implements Serializa
     private javax.swing.JButton applyButton;
     private javax.swing.JButton cancelButton;
     private javax.swing.JRadioButton currentTimeRadioButton;
+    private javax.swing.JTextField farClipTextField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JTextField nearClipTextField;
     private javax.swing.JTextField nonRealTimeTextField;
     private javax.swing.JButton okButton;
     private javax.swing.JTextField realTimeTextField;
@@ -392,6 +427,12 @@ public class SimulationPropPanel extends javax.swing.JPanel implements Serializa
 
             } // if date accepted
         } // save time if needed
+        
+        // clipping planes:
+        // clip planes
+        app.setNearClippingPlaneDist(Double.parseDouble(nearClipTextField.getText()) );
+        app.setFarClippingPlaneDist(Double.parseDouble(farClipTextField.getText()));
+        
                 
     } // saveSettings
     

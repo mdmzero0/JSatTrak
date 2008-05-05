@@ -48,4 +48,6 @@ public interface  J3DEarthComponent
     public int getWwdHeight();
     public Point getWwdLocationOnScreen();
     public LayerList getLayerList();
+    public void setFarClipDistance(double clipDist);
+    public void setNearClipDistance(double clipDist);
 }

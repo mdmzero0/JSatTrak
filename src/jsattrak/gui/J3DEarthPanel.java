@@ -217,12 +217,13 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         
         // TESTING -- ultimatly add whatever else to Internal Panel
         // INLCUDES PASSING CoverageAnalyzer ca
-//        CoverageRenderableLayer cel = new CoverageRenderableLayer(app.ca);
-//        m.getLayers().add(cel); // add Layer
+        // should pass null... default not on for a 3D view until selected in coverage anaylsis
+        CoverageRenderableLayer cel = new CoverageRenderableLayer(app.ca);
+        m.getLayers().add(cel); // add Layer
         //wwd.getInputHandler(). // hmm set quick mouse response... no use of iterators on earth spin?
         // END TESTING
 
-        // add ECI Layer
+        // add ECI Layer -- FOR SOME REASON IF BEFORE EFEF and turned off ECEF Orbits don't show up!! Coverage effecting this too, strange
         eciLayer = new ECIRenderableLayer(currentMJD); // create ECI layer
         orbitModel = new OrbitModelRenderable(satHash, wwd.getModel().getGlobe());
         eciLayer.addRenderable(orbitModel); // add renderable object
@@ -272,7 +273,8 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
             
         // correct clipping plane -- so entire orbits are shown - maybe make variable?
         //wwd.getView().setFarClipDistance(10000000000d); // really slow
-        wwd.getView().setFarClipDistance(200000000d); // good out to geo, but slower than not setting it
+        wwd.getView().setFarClipDistance(app.getFarClippingPlaneDist()); // 200000000d good out to geo, but slower than not setting it
+        wwd.getView().setNearClipDistance(app.getNearClippingPlaneDist()); // -1 for auto adjust
     }
     
     private RenderableLayer createLatLongLinesLayer()
@@ -1027,5 +1029,15 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
     public LayerList getLayerList()
     {
         return wwd.getModel().getLayers();
+    }
+    
+    public void setFarClipDistance(double clipDist)
+    {
+        wwd.getView().setFarClipDistance(clipDist);
+    }
+    
+    public void setNearClipDistance(double clipDist)
+    {
+        wwd.getView().setNearClipDistance(clipDist);
     }
 }

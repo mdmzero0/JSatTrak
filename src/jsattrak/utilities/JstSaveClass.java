@@ -79,6 +79,10 @@ public class JstSaveClass implements Serializable
     // wwj offline mode
     private boolean wwjOfflineMode;
     
+    // clipping planes
+    private double farClippingPlaneDist; // good out to geo, but slow for LEO
+    private double nearClippingPlaneDist;
+    
             
     /** Creates a new instance of JstSaveClass */
     public JstSaveClass(JSatTrak app)
@@ -142,6 +146,10 @@ public class JstSaveClass implements Serializable
             Point p = pan.getParentDialog().getLocationOnScreen(); // get size/shape of entire dialog
             threeDExtWindowSaveVec.add( new J3DEarthlPanelSave(pan, p.x, p.y, pan.getParentDialog().getSize() )  );
         }
+        
+        // clipping plane
+        farClippingPlaneDist = app.getFarClippingPlaneDist();
+        nearClippingPlaneDist = app.getNearClippingPlaneDist();
         
     } // JstSaveClass  constructor
 
@@ -341,6 +349,16 @@ public class JstSaveClass implements Serializable
 
     public void setWwjOfflineMode(boolean wwjOfflineMode) {
         this.wwjOfflineMode = wwjOfflineMode;
+    }
+
+    public double getFarClippingPlaneDist()
+    {
+        return farClippingPlaneDist;
+    }
+
+    public double getNearClippingPlaneDist()
+    {
+        return nearClippingPlaneDist;
     }
     
 } // JstSaveClass
