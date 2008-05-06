@@ -92,10 +92,8 @@ public class ECIRenderableLayer extends RenderableLayer
         gl.glPushMatrix();   // push for ECI roation
         gl.glRotated(-rotateECIdeg, 0.0, 1.0, 0.0); // rotate about Earth's spin axis (z-coordinate in J2K, y-coordinate in JOGL)
          
-        int i=0;
         for (Renderable renderable : super.getRenderables())
         {
-            i++;
             // If the caller has specified their own Iterable,
             // then we cannot make any guarantees about its contents.
             if (renderable != null)
@@ -103,7 +101,6 @@ public class ECIRenderableLayer extends RenderableLayer
                 renderable.render(dc);
             }
         }
-        System.out.println("i="+i);
         
         gl.glPopMatrix(); // pop matrix rotatex for ECI
         
