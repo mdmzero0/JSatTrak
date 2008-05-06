@@ -78,6 +78,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import jsattrak.coverage.CoverageAnalyzer;
 import jsattrak.objects.AbstractSatellite;
 import jsattrak.utilities.ECEFModelRenderable;
 import jsattrak.utilities.J3DEarthComponent;
@@ -102,6 +103,8 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
     ECEFModelRenderable ecefModel;
     // terrain profile layer
     TerrainProfileLayer terrainProfileLayer;
+    
+    CoverageRenderableLayer cel;
     
     private boolean viewModeECI = true; // view mode - ECI (true) or ECEF (false)
     
@@ -215,14 +218,11 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
 
         wwd.setModel(m);
         
-        // TESTING -- ultimatly add whatever else to Internal Panel
-        // INLCUDES PASSING CoverageAnalyzer ca
-        // should pass null... default not on for a 3D view until selected in coverage anaylsis
-        CoverageRenderableLayer cel = new CoverageRenderableLayer(app.ca);
+        // Coverage Data Layer
+        cel = new CoverageRenderableLayer(app.ca);
+        //cel.setEnabled(false); // off by default
         m.getLayers().add(cel); // add Layer
-        //wwd.getInputHandler(). // hmm set quick mouse response... no use of iterators on earth spin?
-        // END TESTING
-
+        
         // add ECI Layer -- FOR SOME REASON IF BEFORE EFEF and turned off ECEF Orbits don't show up!! Coverage effecting this too, strange
         eciLayer = new ECIRenderableLayer(currentMJD); // create ECI layer
         orbitModel = new OrbitModelRenderable(satHash, wwd.getModel().getGlobe());
@@ -869,12 +869,15 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
             }
         } // terrain profil layer
         
+        // debug - reset view to follow sat
+        //setViewCenter(15000000); // set this only if user has picked a satellite to follow!
+        
     } // set MJD
 
     public void repaintWWJ()
     {
         //wwd.redraw(); // may not force repaint when it is slow to repaint (thus skiped)
-        wwd.redrawNow(); //force it to happen now -- needed when plotting coverage data
+        wwd.redrawNow(); //force it to happen now -- needed when plotting coverage data 
     }
 
     // screen capture
@@ -1040,4 +1043,36 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
     {
         wwd.getView().setNearClipDistance(clipDist);
     }
+    
+    public void updateCoverageLayerObject(CoverageAnalyzer ca)
+    {
+        cel.updateNewCoverageObject(ca);
+    }
+    
+    // debug method called from the command line
+    public void setViewCenter(int zoomDist)
+    {
+//        Open 3D view
+//        open command shell 
+//        enter:  jsattrak.getThreeDWindowVec().get(0).setViewCenter(1500000);
+//        see result and text output in log console
+        System.out.println("Test setting view center position");
+        
+        AbstractSatellite sat = app.getSatHash().get("ISS (ZARYA)             ");
+        
+        ((BasicOrbitView)wwd.getView()).setCenterPosition(Position.fromRadians(sat.getLatitude(),sat.getLongitude() ,sat.getAltitude() ));
+        
+        // calculate heading of satellite (for a model to face or for camera as here)
+        //double[] lla = sat.getGroundTrackLlaLeadPt(0); // NEED NEXT POINT OR Velcity?
+        //Angle heading = LatLon.greatCircleAzimuth(LatLon.fromRadians(sat.getLatitude(), sat.getLongitude()), LatLon.fromRadians(lla[0], lla[1]));
+        // COULD CALCULATE ABOVE using MOD position and MOD Velocity and:
+        // lla = GeoFunctions.GeodeticLLA(posMOD,julDate-AstroConst.JDminusMJD); // posMOD+deltaTime*velMOD, julDate_deltaTime
+        
+        ((BasicOrbitView)wwd.getView()).setZoom(zoomDist);
+        ((BasicOrbitView)wwd.getView()).setHeading(Angle.fromDegrees(0.0));
+        ((BasicOrbitView)wwd.getView()).setPitch(Angle.fromDegrees(45.0));
+        wwd.redraw();
+        
+    } // setViewCenter
+    
 }

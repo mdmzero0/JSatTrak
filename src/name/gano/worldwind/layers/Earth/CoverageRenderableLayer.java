@@ -54,6 +54,26 @@ public class CoverageRenderableLayer extends RenderableLayer
         }
     }
     
+    
+    public void updateNewCoverageObject(CoverageAnalyzer ca)
+    {
+        this.removeAllRenderables();
+        
+        cb = new CoverageJoglColorBar(ca);
+        
+        // add geometry to layer
+        dataGeom = new CoverageDataGeom(ca);
+        this.addRenderable(dataGeom);
+        
+        if(ca != null)
+        {
+            if(ca.isShowColorBar())
+            {
+                this.addRenderable(cb);
+            }
+        }
+    } // updateNewCoverageObject
+    
     @Override
     public String toString()
     {

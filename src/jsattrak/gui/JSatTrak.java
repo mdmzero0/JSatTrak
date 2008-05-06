@@ -65,7 +65,7 @@
  *                               from the command you can access jsattrak object to have access to all of its methods to change things on the fly
  *          3.1.1 - 20 April2008 - updated to swingx 0.9.2 compatibility -removed deleted features (table highlighters). Added Ground Station browser button to toolbar
  *          3.1.2 - 21 April08 - added polical boundaries layer for 3D globe
- *          3.2   - Earth Coverage anylsis, added ability to create movies of any window or entire app, update to WWJ 0.5 (removed WWJ source), set custom clippin plane distances (sim properties)
+ *          3.2   - Earth Coverage anylsis, added ability to create movies of any window or entire app, update to WWJ 0.5 (removed WWJ source), set custom clipping plane distances (sim properties)
  *        
  */
 // notes: not good to use rk78 in a solver loop because direvatives inaccurate, because solution changes slightly near end.?
@@ -171,7 +171,7 @@ import name.gano.file.FileTypeFilter;
  */
 public class JSatTrak extends javax.swing.JFrame implements InternalFrameListener, WindowListener, Serializable
 {
-    private String versionString = "Version 3.2b (3 May 2008)"; // Version of app
+    private String versionString = "Version 3.2c (6 May 2008)"; // Version of app
     
     // hastable to store all the statelites currently being processed
     private Hashtable<String,AbstractSatellite> satHash = new Hashtable<String,AbstractSatellite>();
@@ -2143,6 +2143,16 @@ private void coverageMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
             ca = new CoverageAnalyzer(currentJulianDate); // setup new analyzer
             // add coverage analyzer to time update objects
             timeDependentObjects.add(ca); // add object to time updates
+            
+            // update the CA object in any 3D window currently opened
+            for(J3DEarthInternalPanel panel: threeDInternalWindowVec)
+            {
+                panel.updateCoverageLayerObject(ca);
+            }
+            for(J3DEarthPanel panel: threeDWindowVec)
+            {
+                panel.updateCoverageLayerObject(ca);
+            }
         }
         
         // show satellite browser window

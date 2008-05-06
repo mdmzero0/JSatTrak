@@ -79,6 +79,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import jsattrak.coverage.CoverageAnalyzer;
 import jsattrak.objects.AbstractSatellite;
 import jsattrak.utilities.ECEFModelRenderable;
 import jsattrak.utilities.J3DEarthComponent;
@@ -103,6 +104,8 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
     ECEFModelRenderable ecefModel;
     // terrain profile layer
     TerrainProfileLayer terrainProfileLayer;
+    
+    CoverageRenderableLayer cel;
     
     private boolean viewModeECI = true; // view mode - ECI (true) or ECEF (false)
     
@@ -214,13 +217,10 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
         
         wwd.setModel(m);
         
-        // TESTING -- ultimatly add whatever else to Internal Panel
-        // INLCUDES PASSING CoverageAnalyzer ca
-        CoverageRenderableLayer cel = new CoverageRenderableLayer(app.ca);
-        m.getLayers().add(cel); // add Layer
-        //wwd.getInputHandler(). // hmm set quick mouse response... no use of iterators on earth spin?
-        // END TESTING
-        
+        // Coverage Data Layer
+        cel = new CoverageRenderableLayer(app.ca);
+        //cel.setEnabled(false); // off by default
+        m.getLayers().add(cel); // add Layer        
         
         // add ECI Layer
         eciLayer = new ECIRenderableLayer(currentMJD); // create ECI layer
@@ -1041,5 +1041,10 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
     public void setNearClipDistance(double clipDist)
     {
         wwd.getView().setNearClipDistance(clipDist);
+    }
+    
+    public void updateCoverageLayerObject(CoverageAnalyzer ca)
+    {
+        cel.updateNewCoverageObject(ca);
     }
 }
