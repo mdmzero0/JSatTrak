@@ -218,7 +218,7 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
         wwd.setModel(m);
         
         // Coverage Data Layer
-        cel = new CoverageRenderableLayer(app.ca);
+        cel = new CoverageRenderableLayer(app.getCoverageAnalyzer());
         //cel.setEnabled(false); // off by default
         m.getLayers().add(cel); // add Layer        
         

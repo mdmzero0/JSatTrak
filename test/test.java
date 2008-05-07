@@ -3,10 +3,11 @@
  *
  * Created on February 12, 2008, 10:47 PM
  *
- * toolshed - http://forum.worldwindcentral.com/showthread.php?t=15222&page=6
+ * To change this template, choose Tools | Template Manager
+ * and open the template in the editor.
  */
 
-package name.gano.worldwind.modelloader;
+package test;
 
 import gov.nasa.worldwind.examples.ApplicationTemplate;
 import gov.nasa.worldwind.geom.Angle;
@@ -34,26 +35,21 @@ public class test extends ApplicationTemplate
                 layer.setSize(300000);
                 
                 Random generator = new Random();
-//                Model modelOBJ = ModelFactory.createModel("test/data/penguin.obj");
-//                for (int i=0; i<100; i++) {
-//                    layer.addModel(new WWModel3D(modelOBJ,
-//                            new Position(Angle.fromDegrees(generator.nextInt()%80),
-//                                         Angle.fromDegrees(generator.nextInt()%180),
-//                                         500000)));
-//                }
+                Model modelOBJ = ModelFactory.createModel("test/data/penguin.obj");
+                for (int i=0; i<100; i++) {
+                    layer.addModel(new WWModel3D(modelOBJ,
+                            new Position(Angle.fromDegrees(generator.nextInt()%80),
+                                         Angle.fromDegrees(generator.nextInt()%180),
+                                         500000)));
+                }
                 
                 Model model3DS = ModelFactory.createModel("test/data/globalstar/Globalstar.3ds");
-                model3DS.setUseLighting(false); // turn off lighting!
-//                for (int i=0; i<100; i++) {
-//                    layer.addModel(new WWModel3D(model3DS,
-//                            new Position(Angle.fromDegrees(generator.nextInt()%80),
-//                                         Angle.fromDegrees(generator.nextInt()%180),
-//                                         750000)));
-//                }
-                layer.addModel(new WWModel3D(model3DS,
-                            new Position(Angle.fromDegrees(0),
-                                         Angle.fromDegrees(0),
+                for (int i=0; i<100; i++) {
+                    layer.addModel(new WWModel3D(model3DS,
+                            new Position(Angle.fromDegrees(generator.nextInt()%80),
+                                         Angle.fromDegrees(generator.nextInt()%180),
                                          750000)));
+                }
                 
                 insertBeforeCompass(this.getWwd(), layer);
                 this.getLayerPanel().update(this.getWwd());

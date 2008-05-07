@@ -36,6 +36,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
+import jsattrak.coverage.CoverageAnalyzer;
 import jsattrak.gui.J3DEarthInternalPanel;
 import jsattrak.gui.J3DEarthPanel;
 import jsattrak.objects.AbstractSatellite;
@@ -82,6 +83,9 @@ public class JstSaveClass implements Serializable
     // clipping planes
     private double farClippingPlaneDist; // good out to geo, but slow for LEO
     private double nearClippingPlaneDist;
+    
+    // coverage data
+    private CoverageAnalyzer ca;
     
             
     /** Creates a new instance of JstSaveClass */
@@ -150,6 +154,9 @@ public class JstSaveClass implements Serializable
         // clipping plane
         farClippingPlaneDist = app.getFarClippingPlaneDist();
         nearClippingPlaneDist = app.getNearClippingPlaneDist();
+        
+        // coverage anaylzer
+        ca = app.getCoverageAnalyzer();
         
     } // JstSaveClass  constructor
 
@@ -359,6 +366,16 @@ public class JstSaveClass implements Serializable
     public double getNearClippingPlaneDist()
     {
         return nearClippingPlaneDist;
+    }
+
+    public CoverageAnalyzer getCa()
+    {
+        return ca;
+    }
+
+    public void setCa(CoverageAnalyzer ca)
+    {
+        this.ca = ca;
     }
     
 } // JstSaveClass

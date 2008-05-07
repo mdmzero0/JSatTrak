@@ -66,7 +66,8 @@
  *          3.1.1 - 20 April2008 - updated to swingx 0.9.2 compatibility -removed deleted features (table highlighters). Added Ground Station browser button to toolbar
  *          3.1.2 - 21 April08 - added polical boundaries layer for 3D globe
  *          3.2   - Earth Coverage anylsis, added ability to create movies of any window or entire app, update to WWJ 0.5 (removed WWJ source), set custom clipping plane distances (sim properties)
- *        
+ *                  ? view following sat (very preliminary) and 3D models?
+ *             // bug - does CoverageAnalyzer save and open in 2d window correctly?? use dialog maybe to fix this?
  */
 // notes: not good to use rk78 in a solver loop because direvatives inaccurate, because solution changes slightly near end.?
 //
@@ -258,7 +259,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
     Vector<JSatTrakTimeDependent> timeDependentObjects = new Vector<JSatTrakTimeDependent>();
     
      // coverage anaylzer tool (default null, until tool opened)
-     CoverageAnalyzer ca;
+     private CoverageAnalyzer coverageAnalyzer;
      
      // near/far clipping plane distances for 3d windows (can effect render speed and if full orbit is shown)
      private double farClippingPlaneDist = 200000000d; // good out to geo, but slow for LEO
@@ -460,12 +461,12 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         // Debug for coverage module - for now create it and add it to 2D window
         if (false)
         {
-            ca = new CoverageAnalyzer(currentJulianDate); // start after first step
-            //CoverageAnalyzer ca = new CoverageAnalyzer(currentJulianDate,timeStepSpeeds[currentTimeStepSpeedIndex]/(24.0*60*60),satHash);
-            twoDWindowVec.get(0).addRenderableObject(ca); // add it to the panel
-            ca.addSatToCoverageAnaylsis("ISS (ZARYA)             ");
-            //ca.addSatToCoverageAnaylsis("test");
-            timeDependentObjects.add(ca); // add object to time updates
+            coverageAnalyzer = new CoverageAnalyzer(currentJulianDate); // start after first step
+            //CoverageAnalyzer coverageAnalyzer = new CoverageAnalyzer(currentJulianDate,timeStepSpeeds[currentTimeStepSpeedIndex]/(24.0*60*60),satHash);
+            twoDWindowVec.get(0).addRenderableObject(coverageAnalyzer); // add it to the panel
+            coverageAnalyzer.addSatToCoverageAnaylsis("ISS (ZARYA)             ");
+            //coverageAnalyzer.addSatToCoverageAnaylsis("test");
+            timeDependentObjects.add(coverageAnalyzer); // add object to time updates
             twoDWindowVec.get(0).setShowLatLonLines(false);
             twoDWindowVec.get(0).setDrawSun(false);
             twoDWindowVec.get(0).setShowDateTime(false);
@@ -1268,6 +1269,10 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         // other default settings
         realTimeAnimationRefreshRateMs = 1000; // refresh rate for real time animation
         nonRealTimeAnimationRefreshRateMs = 50;
+        
+        // reset other options 
+        farClippingPlaneDist = 200000000d; // good out to geo, but slow for LEO
+        nearClippingPlaneDist = -1; // auto
         
     }//GEN-LAST:event_newMenuItemActionPerformed
 
@@ -2138,26 +2143,26 @@ private void movieWholeAppMenuItemActionPerformed(java.awt.event.ActionEvent evt
 private void coverageMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_coverageMenuItemActionPerformed
         
         // check if coverage anaylzer class is null -
-        if(ca == null)
+        if(coverageAnalyzer == null)
         {
-            ca = new CoverageAnalyzer(currentJulianDate); // setup new analyzer
+            coverageAnalyzer = new CoverageAnalyzer(currentJulianDate); // setup new analyzer
             // add coverage analyzer to time update objects
-            timeDependentObjects.add(ca); // add object to time updates
+            timeDependentObjects.add(coverageAnalyzer); // add object to time updates
             
             // update the CA object in any 3D window currently opened
             for(J3DEarthInternalPanel panel: threeDInternalWindowVec)
             {
-                panel.updateCoverageLayerObject(ca);
+                panel.updateCoverageLayerObject(coverageAnalyzer);
             }
             for(J3DEarthPanel panel: threeDWindowVec)
             {
-                panel.updateCoverageLayerObject(ca);
+                panel.updateCoverageLayerObject(coverageAnalyzer);
             }
         }
         
         // show satellite browser window
         //JTrackingToolSelector trackingBrowser = new JTrackingToolSelector(satHash, gsHash, this); // non-modal version
-        JCoverageDialog coverageBrowser = new JCoverageDialog(ca, currentJulianDate, this, satHash, twoDWindowVec);
+        JCoverageDialog coverageBrowser = new JCoverageDialog(coverageAnalyzer, currentJulianDate, this, satHash, twoDWindowVec);
         
         // create new internal frame window
         String windowName = "Coverage Analysis Options";
@@ -2830,6 +2835,12 @@ private void coverageMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         threeDWindowCount = 0;
         threeDInternalWindowCount = 0;
         
+        // clear time dependant objects
+        timeDependentObjects.clear();
+        
+        // reset coverage analysis
+        coverageAnalyzer = null;
+        
         System.gc(); // clean up
         
         return true;
@@ -2943,6 +2954,13 @@ private void coverageMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
                     try{
                         gov.nasa.worldwind.WorldWind.getNetworkStatus().setOfflineMode(wwjOfflineMode);
                     }catch(Exception ee){}
+                    
+                    // coverage analyzer
+                    this.coverageAnalyzer = openClass.getCa();
+                    if(coverageAnalyzer != null)
+                    {
+                        timeDependentObjects.add(coverageAnalyzer); // add object to time updates
+                    }
                     
                     // create all the needed 2D windows:
                     for( J2DEarthPanelSave j2dp : openClass.getTwoDWindowSaveVec() )
@@ -3370,11 +3388,11 @@ private void coverageMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
             panel.setNearClipDistance(nearClippingPlaneDist);
         }
     }
+
+    public CoverageAnalyzer getCoverageAnalyzer()
+    {
+        return coverageAnalyzer;
+    }
     
-//    // executes plugin given the file
-//    protected void runPlugin(File pluginFile) 
-//    {
-//        
-//    }
     
 }

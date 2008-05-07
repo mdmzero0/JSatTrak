@@ -13,28 +13,71 @@ import net.java.joglutils.model.geometry.Model;
 
 /**
  *
- * @author RodgersGB
+ * @author RodgersGB, Shawn Gano
  */
-public class WWModel3D {
+public class WWModel3D
+{
     private Position position;
     private Model model;
     
-    /** Creates a new instance of WWModel3D */
-    public WWModel3D(Model model, Position pos) {
+    private double yawDeg = 0; // in degrees
+    private double pitchDeg = 0; //in degrees
+    private double rollDeg = 0; // in degrees
+
+    // STK - model - Nadir Alignment with ECF velocity constraint
+    
+    /** Creates a new instance of WWModel3D
+     * @param model
+     * @param pos 
+     */
+    public WWModel3D(Model model, Position pos)
+    {
         this.model = model;
         this.setPosition(pos);
     }
 
-    public Position getPosition() {
+    public Position getPosition()
+    {
         return position;
     }
 
-    public void setPosition(Position position) {
+    public void setPosition(Position position)
+    {
         this.position = position;
     }
 
-    public Model getModel() {
+    public Model getModel()
+    {
         return model;
     }
 
+    public double getYawDeg()
+    {
+        return yawDeg;
+    }
+
+    public void setYawDeg(double yawDeg)
+    {
+        this.yawDeg = yawDeg;
+    }
+
+    public double getPitchDeg()
+    {
+        return pitchDeg;
+    }
+
+    public void setPitchDeg(double pitchDeg)
+    {
+        this.pitchDeg = pitchDeg;
+    }
+
+    public double getRollDeg()
+    {
+        return rollDeg;
+    }
+
+    public void setRollDeg(double rollDeg)
+    {
+        this.rollDeg = rollDeg;
+    }
 }

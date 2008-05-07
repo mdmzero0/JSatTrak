@@ -3,10 +3,11 @@
  *
  * Created on February 12, 2008, 10:49 PM
  *
- * toolshed - http://forum.worldwindcentral.com/showthread.php?t=15222&page=6
+ * To change this template, choose Tools | Template Manager
+ * and open the template in the editor.
  */
 
-package name.gano.worldwind.modelloader;
+package test;
 
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Vec4;
@@ -20,16 +21,16 @@ import net.java.joglutils.model.iModel3DRenderer;
 
 /**
  *
- * @author RodgersGB, Shawn Gano
+ * @author RodgersGB
  */
 public class Model3DLayer extends AbstractLayer {
-    private Vector<WWModel3D> list;
-    private boolean maitainConstantSize = true; // default true
+    private Vector list;
+    private boolean maitainConstantSize = false;
     private double size = 1;
     
     /** Creates a new instance of Model3DLayer */
     public Model3DLayer() {
-        list = new Vector<WWModel3D>();
+        list = new Vector();
     }
 
     public void addModel(WWModel3D model) {
@@ -66,21 +67,11 @@ public class Model3DLayer extends AbstractLayer {
         Vec4 loc = dc.getGlobe().computePointFromPosition(pos);
         double localSize = this.computeSize(dc, loc);
         
-        if (dc.getView().getFrustumInModelCoordinates().contains(loc)) 
-        {
+        if (dc.getView().getFrustumInModelCoordinates().contains(loc)) {
             dc.getView().pushReferenceCenter(dc, loc);
-//            gl.glRotated(pos.getLongitude().degrees, 0,1,0);
-//            gl.glRotated(-pos.getLatitude().degrees, 1,0,0);
-            gl.glScaled(localSize, localSize, localSize);  /// can change the scale of the model here!!
-            
-            model.setRollDeg(pos.getLongitude().degrees);
-            model.setPitchDeg(-pos.getLatitude().degrees);
-            
-            // attitude
-            //if the base of the model is parallel to the x-y plane and the up vector is in the positive z direction it would be...
-            gl.glRotated(model.getYawDeg(), 0,0,1);
-            gl.glRotated(model.getPitchDeg(), 1,0,0);
-            gl.glRotated(model.getRollDeg(), 0,1,0);
+            gl.glRotated(pos.getLongitude().degrees, 0,1,0);
+            gl.glRotated(-pos.getLatitude().degrees, 1,0,0);
+            gl.glScaled(localSize, localSize, localSize);
             
             // Get an instance of the display list renderer
             iModel3DRenderer renderer = DisplayListRenderer.getInstance();
@@ -93,9 +84,7 @@ public class Model3DLayer extends AbstractLayer {
     protected void beginDraw(DrawContext dc) {
         GL gl = dc.getGL();
         
-        // SEG - MAYBE USE LIGHTING TO SIMULATE SUN ON SPACE CRAFT??
-        
-//        Vec4 cameraPosition = dc.getView().getEyePoint();
+        Vec4 cameraPosition = dc.getView().getEyePoint();
         
         gl.glPushAttrib(
             GL.GL_TEXTURE_BIT |
@@ -107,38 +96,30 @@ public class Model3DLayer extends AbstractLayer {
             GL.GL_CURRENT_BIT | 
             GL.GL_LIGHTING_BIT | 
             GL.GL_TRANSFORM_BIT);
-        
-//
-//        float[] lightPosition = {0F, 100000000f, 0f, 0f};
-//        //float[] lightPosition = {(float) (cameraPosition.x + 1000), (float) (cameraPosition.y + 1000), (float) (cameraPosition.z + 1000), 1.0f};
-//        //float[] lightPosition = new float[] {0,0,0,0};
-//        
-//        /** Ambient light array */
-//        float lightAmb = 1.0f;
-//        float[] lightAmbient = {lightAmb, lightAmb, lightAmb, lightAmb}; // was 0.4f (all)
-//        /** Diffuse light array */
-//        float diff = 1.0f;
-//        float[] lightDiffuse = {diff, diff, diff, diff}; // was 1.0f (all)
-//        /** Specular light array */
-//        float spec = 1.0f;
-//        float[] lightSpecular = {spec, spec, spec, spec}; // was 1.0f (all)
-//        
-//        float ambient = 0.0f;
-//        float[] model_ambient = {ambient, ambient, ambient, ambient}; // was 0.5f (all)
-//        
-//        gl.glLightModelfv(GL.GL_LIGHT_MODEL_AMBIENT, model_ambient, 0);
-//        gl.glLightfv(GL.GL_LIGHT1, GL.GL_POSITION, lightPosition, 0);
-//        gl.glLightfv(GL.GL_LIGHT1, GL.GL_DIFFUSE, lightDiffuse, 0);
-//        gl.glLightfv(GL.GL_LIGHT1, GL.GL_AMBIENT, lightAmbient, 0);
-//        gl.glLightfv(GL.GL_LIGHT1, GL.GL_SPECULAR, lightSpecular, 0);
 
-//        gl.glDisable(GL.GL_LIGHT0);
-//        //gl.glEnable(GL.GL_LIGHT0);
-//        gl.glEnable(GL.GL_LIGHT1);
-//        gl.glEnable(GL.GL_LIGHTING);
-//        gl.glDisable(GL.GL_LIGHTING);
-//        gl.glEnable(GL.GL_NORMALIZE);
+        //float[] lightPosition = {0F, 100000000f, 0f, 0f};
+        float[] lightPosition =
+            {(float) (cameraPosition.x + 1000), (float) (cameraPosition.y + 1000), (float) (cameraPosition.z + 1000), 1.0f};
         
+        /** Ambient light array */
+        float[] lightAmbient = {0.4f, 0.4f, 0.4f, 0.4f};
+        /** Diffuse light array */
+        float[] lightDiffuse = {1.0f, 1.0f, 1.0f, 1.0f};
+        /** Specular light array */
+        float[] lightSpecular = {1.0f, 1.0f, 1.0f, 1.0f};
+        
+        float[] model_ambient = {0.5f, 0.5f, 0.5f, 1.0f};
+        
+        gl.glLightModelfv(GL.GL_LIGHT_MODEL_AMBIENT, model_ambient, 0);
+        gl.glLightfv(GL.GL_LIGHT1, GL.GL_POSITION, lightPosition, 0);
+        gl.glLightfv(GL.GL_LIGHT1, GL.GL_DIFFUSE, lightDiffuse, 0);
+        gl.glLightfv(GL.GL_LIGHT1, GL.GL_AMBIENT, lightAmbient, 0);
+        gl.glLightfv(GL.GL_LIGHT1, GL.GL_SPECULAR, lightSpecular, 0);
+
+        gl.glDisable(GL.GL_LIGHT0);
+        gl.glEnable(GL.GL_LIGHT1);
+        gl.glEnable(GL.GL_LIGHTING);
+        gl.glEnable(GL.GL_NORMALIZE);
         
         gl.glMatrixMode(GL.GL_MODELVIEW);
         gl.glPushMatrix();
@@ -184,11 +165,5 @@ public class Model3DLayer extends AbstractLayer {
 
     public void setSize(double size) {
         this.size = size;
-    }
-    
-     @Override
-    public String toString()
-    {
-        return "3D Model Layer";
     }
 }
