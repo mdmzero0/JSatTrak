@@ -6,26 +6,31 @@
 
 package jsattrak.gui;
 
+import java.text.SimpleDateFormat;
+import java.util.GregorianCalendar;
 import java.util.Hashtable;
+import java.util.TimeZone;
 import java.util.Vector;
 import javax.swing.DefaultListModel;
 import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
 import jsattrak.coverage.ColorMap;
 import jsattrak.coverage.CoolColorMap;
 import jsattrak.coverage.CoverageAnalyzer;
 import jsattrak.coverage.GrayColorMap;
 import jsattrak.coverage.HotColorMap;
 import jsattrak.objects.AbstractSatellite;
+import jsattrak.utilities.UnoptimizedDeepCopy;
 import name.gano.astro.time.Time;
 
 /**
  *
  * @author  sgano
  */
-public class JCoverageDialog extends javax.swing.JPanel 
+public class JCoverageDialog extends javax.swing.JPanel
 {
-    Hashtable<String,AbstractSatellite> satHash;
+    Hashtable<String, AbstractSatellite> satHash;
     CoverageAnalyzer ca;
     Vector<J2DEarthPanel> twoDWindowVec;
     Time currentJulianDate;
@@ -33,42 +38,43 @@ public class JCoverageDialog extends javax.swing.JPanel
     private JInternalFrame iframe;
 
     /** Creates new form JCoverageDialog */
-    public JCoverageDialog(CoverageAnalyzer ca, final Time currentJulianDate, JSatTrak app, Hashtable<String,AbstractSatellite> satHash, Vector<J2DEarthPanel> twoDWindowVec) 
+    public JCoverageDialog(CoverageAnalyzer ca, final Time currentJulianDate, JSatTrak app, Hashtable<String, AbstractSatellite> satHash, Vector<J2DEarthPanel> twoDWindowVec)
     {
         initComponents();
-        
+
         this.ca = ca;
         this.satHash = satHash;
         this.twoDWindowVec = twoDWindowVec;
         this.currentJulianDate = currentJulianDate;
         this.app = app;
-        
+
         // display current settings in the dialog
-        latLowerField.setText(ca.getLatBounds()[0]+"");
-        latUpperField.setText(ca.getLatBounds()[1]+"");
-        lonLowerField.setText(ca.getLongBounds()[0]+"");
-        lonUpperField.setText(ca.getLongBounds()[1]+"");
-        latSegTextField.setText(ca.getLatPanels()+"");
-        lonSegTextField.setText(ca.getLongPanels()+"");
-        minElevTextField.setText(ca.getElevationLimit()+"");
+        latLowerField.setText(ca.getLatBounds()[0] + "");
+        latUpperField.setText(ca.getLatBounds()[1] + "");
+        lonLowerField.setText(ca.getLongBounds()[0] + "");
+        lonUpperField.setText(ca.getLongBounds()[1] + "");
+        latSegTextField.setText(ca.getLatPanels() + "");
+        lonSegTextField.setText(ca.getLongPanels() + "");
+        minElevTextField.setText(ca.getElevationLimit() + "");
         // current sats in use:
         for(String name : ca.getSatVector())
         {
-            ((DefaultListModel )satIncludedList.getModel()).addElement(name);
+            ((DefaultListModel)satIncludedList.getModel()).addElement(name);
         }
         // add current sat list 
         for(AbstractSatellite sat : satHash.values())
         {
-            ((DefaultListModel )availSatList.getModel()).addElement(sat.getName());
+            ((DefaultListModel)availSatList.getModel()).addElement(sat.getName());
         }
         dyanmicUpdateCheckBox.setSelected(ca.isDynamicUpdating());
-        
+
         // viz options
-        alphaLabel.setText((int)Math.round(ca.getAlpha()*100.0/255)+"");
-        alphaSlider.setValue((int)Math.round(ca.getAlpha()*100.0/255));
+        alphaLabel.setText((int)Math.round(ca.getAlpha() * 100.0 / 255) + "");
+        alphaSlider.setValue((int)Math.round(ca.getAlpha() * 100.0 / 255));
         showGridCheckBox.setSelected(ca.isPlotCoverageGrid());
         showColorBarCheckBox.setSelected(ca.isShowColorBar());
         ColorMap map = ca.getColorMap(); // jet cool hot gray
+
         if(map instanceof CoolColorMap)
         {
             colorMapComboBox.setSelectedIndex(1);
@@ -82,16 +88,17 @@ public class JCoverageDialog extends javax.swing.JPanel
             colorMapComboBox.setSelectedIndex(3);
         }
         else //default
+
         {
             colorMapComboBox.setSelectedIndex(0);
         }
-        
+
         // 2D windows
         Vector<Integer> selectedWindows = new Vector<Integer>();
-        int i=0;
+        int i = 0;
         for(J2DEarthPanel ep : twoDWindowVec)
         {
-            ((DefaultListModel )twoDWindowList.getModel()).addElement(ep.getName());
+            ((DefaultListModel)twoDWindowList.getModel()).addElement(ep.getName());
             // set if it should be selected?
             if(ep.checkIfIncludesRenderableObject(ca))
             {
@@ -99,17 +106,18 @@ public class JCoverageDialog extends javax.swing.JPanel
             }
             i++;
         } // for 2D windows
-        
+
         int[] sel = new int[selectedWindows.size()];
-        for(int j=0;j<selectedWindows.size();j++)
+        for(int j = 0; j < selectedWindows.size(); j++)
         {
             sel[j] = selectedWindows.get(j);
         }
-        
+
         twoDWindowList.setSelectedIndices(sel);
-        
-        
+
+
     } // JCoverageDialog
+
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -174,12 +182,12 @@ public class JCoverageDialog extends javax.swing.JPanel
         jPanel12 = new javax.swing.JPanel();
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
+        startTextField = new javax.swing.JTextField();
+        stopTextField = new javax.swing.JTextField();
+        runButton = new javax.swing.JButton();
         jScrollPane5 = new javax.swing.JScrollPane();
         jTextArea2 = new javax.swing.JTextArea();
-        jProgressBar1 = new javax.swing.JProgressBar();
+        runProgressBar = new javax.swing.JProgressBar();
 
         setPreferredSize(new java.awt.Dimension(500, 300));
         setLayout(new java.awt.BorderLayout());
@@ -566,7 +574,7 @@ public class JCoverageDialog extends javax.swing.JPanel
         jTextArea1.setBackground(new java.awt.Color(255, 255, 204));
         jTextArea1.setColumns(20);
         jTextArea1.setEditable(false);
-        jTextArea1.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
+        jTextArea1.setFont(new java.awt.Font("Arial", 0, 10));
         jTextArea1.setLineWrap(true);
         jTextArea1.setRows(5);
         jTextArea1.setText("Note: Coverage Data in 3D windows is controlled by that window's Globe Layer options.");
@@ -604,19 +612,24 @@ public class JCoverageDialog extends javax.swing.JPanel
 
         jLabel11.setText("Stop Time:");
 
-        jButton1.setText("Run");
+        runButton.setText("Run");
+        runButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                runButtonActionPerformed(evt);
+            }
+        });
 
         jTextArea2.setBackground(new java.awt.Color(255, 255, 204));
         jTextArea2.setColumns(20);
         jTextArea2.setEditable(false);
-        jTextArea2.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
+        jTextArea2.setFont(new java.awt.Font("Arial", 0, 10));
         jTextArea2.setLineWrap(true);
         jTextArea2.setRows(5);
         jTextArea2.setText("Run: atomatically clears the current data, turns off dynamic updates, saves any changes made in this dialog, and runs a coverage anylsis between the above times using the current timestep.");
         jTextArea2.setWrapStyleWord(true);
         jScrollPane5.setViewportView(jTextArea2);
 
-        jProgressBar1.setStringPainted(true);
+        runProgressBar.setStringPainted(true);
 
         javax.swing.GroupLayout jPanel12Layout = new javax.swing.GroupLayout(jPanel12);
         jPanel12.setLayout(jPanel12Layout);
@@ -632,12 +645,12 @@ public class JCoverageDialog extends javax.swing.JPanel
                             .addComponent(jLabel11))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jTextField1)
-                            .addComponent(jTextField2, javax.swing.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)))
+                            .addComponent(startTextField)
+                            .addComponent(stopTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)))
                     .addGroup(jPanel12Layout.createSequentialGroup()
-                        .addComponent(jButton1)
+                        .addComponent(runButton)
                         .addGap(30, 30, 30)
-                        .addComponent(jProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(runProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(232, Short.MAX_VALUE))
         );
         jPanel12Layout.setVerticalGroup(
@@ -646,15 +659,15 @@ public class JCoverageDialog extends javax.swing.JPanel
                 .addContainerGap()
                 .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel10)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(startTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel11)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(stopTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton1)
-                    .addComponent(jProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(runButton)
+                    .addComponent(runProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(77, Short.MAX_VALUE))
@@ -699,40 +712,44 @@ private void colorMapComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//
     {
         case 0:
             colorMapLabel.setColorMap(new ColorMap()); //jet
+
             break;
         case 1:
             colorMapLabel.setColorMap(new CoolColorMap()); // cool
+
             break;
         case 2:
             colorMapLabel.setColorMap(new HotColorMap()); // hot
+
             break;
         case 3:
             colorMapLabel.setColorMap(new GrayColorMap()); // gray
+
             break;
     }// switch
 }//GEN-LAST:event_colorMapComboBoxActionPerformed
 
 private void alphaSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_alphaSliderStateChanged
-        alphaLabel.setText( alphaSlider.getValue()+"" );
+    alphaLabel.setText(alphaSlider.getValue() + "");
 }//GEN-LAST:event_alphaSliderStateChanged
 
 private void removeSatButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeSatButtonActionPerformed
-     // remove elments from the list
+    // remove elments from the list
     int[] selected = satIncludedList.getSelectedIndices();
-    for(int i= selected.length-1 ; i>=0 ; i--)
+    for(int i = selected.length - 1; i >= 0; i--)
     {
-        ((DefaultListModel )satIncludedList.getModel()).remove(selected[i]);
+        ((DefaultListModel)satIncludedList.getModel()).remove(selected[i]);
     }
 }//GEN-LAST:event_removeSatButtonActionPerformed
 
 private void addSatButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSatButtonActionPerformed
     int[] selected = availSatList.getSelectedIndices();
-    for(int i=0; i<selected.length;i++)
+    for(int i = 0; i < selected.length; i++)
     {
-        String satName =  ((DefaultListModel )availSatList.getModel()).get(selected[i]).toString();
-        if( !checkIfStringInList(satName, ((DefaultListModel )satIncludedList.getModel()).toArray()) )
+        String satName = ((DefaultListModel)availSatList.getModel()).get(selected[i]).toString();
+        if(!checkIfStringInList(satName, ((DefaultListModel)satIncludedList.getModel()).toArray()))
         {
-            ((DefaultListModel )satIncludedList.getModel()).addElement(satName);
+            ((DefaultListModel)satIncludedList.getModel()).addElement(satName);
         }
     }
 }//GEN-LAST:event_addSatButtonActionPerformed
@@ -745,9 +762,10 @@ private void all2DButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     // select all
     // Select all the items
     int start = 0;
-    int end = twoDWindowList.getModel().getSize()-1;
-    if (end >= 0) {
-        twoDWindowList.setSelectionInterval(start, end);   
+    int end = twoDWindowList.getModel().getSize() - 1;
+    if(end >= 0)
+    {
+        twoDWindowList.setSelectionInterval(start, end);
     }
 }//GEN-LAST:event_all2DButtonActionPerformed
 
@@ -761,12 +779,13 @@ private void clearDataButtonActionPerformed(java.awt.event.ActionEvent evt) {//G
     if(n > 0)
     {
         return; // don't do anything
+
     }
     // if so clear data
     // if dynamic updating selected, save MJD to coverage analysis
     clearCoverageData();
     System.out.println("Coverage Data Cleared: New Panel Grid = " + ca.getLatPanels() + " x " + ca.getLongPanels());
-        
+
     app.forceRepainting(false);
 }//GEN-LAST:event_clearDataButtonActionPerformed
 
@@ -802,13 +821,91 @@ private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     }
 }//GEN-LAST:event_jButton2ActionPerformed
 
+private void runButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runButtonActionPerformed
+    // first get dates from text fields
+    GregorianCalendar startCal = getDateFromText(startTextField.getText());
+    if(startCal == null)
+    {
+        JOptionPane.showMessageDialog(app, "Start Date is invalid", "Invalid Date", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+    final Time startJulianDate = new Time();
+    startJulianDate.set(startCal.getTimeInMillis());
+
+    GregorianCalendar stopCal = getDateFromText(stopTextField.getText());
+    if(stopCal == null)
+    {
+        JOptionPane.showMessageDialog(app, "Stop Date is invalid", "Invalid Date", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+    final Time stopJulianDate = new Time();
+    stopJulianDate.set(stopCal.getTimeInMillis());
+
+    // make sure stop is after start
+    if(stopJulianDate.getMJD() <= startJulianDate.getMJD())
+    {
+        JOptionPane.showMessageDialog(app, "Stop Date must be after Start Date", "Invalid Date", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    final Hashtable<String, AbstractSatellite> tempSatHash = (Hashtable<String, AbstractSatellite>)UnoptimizedDeepCopy.copy(app.getSatHash());
+
+    final double timeStep = app.getCurrentTimeStep(); // timestep to use in calculations SECONDS
+
+    // okay we are ready to begin, turn off dynamic coverage, save changes, clear data
+    ca.setDynamicUpdating(false);
+    this.saveSettings();
+    ca.clearCoverageData(startJulianDate);
+
+    // create a thread to do calulations in background
+    SwingWorker worker = new SwingWorker()
+    {
+        public Object doInBackground() // Vector<String>
+
+        {
+            // perform all of the process in the background!
+            // what happens when sat isn't propogated as far as date?
+            // make a new Time object - to track progress
+
+            Time currentTime = new Time();
+            currentTime.set(startJulianDate.getCurrentGregorianCalendar().getTimeInMillis());
+
+            currentTime.addSeconds(timeStep);// add first time step (inital time already included in clear data)
+            while(currentTime.getMJD() <= stopJulianDate.getMJD())
+            {
+                // update position of satellites
+                for(AbstractSatellite sat : tempSatHash.values())
+                {
+                    sat.propogate2JulDate(currentTime.getJulianDate());
+                } // propgate each sat
+                
+                - START HERE, next update CA!, then update progress bar!
+                
+                currentTime.addSeconds(timeStep);
+            } // for time loop
+
+            // now propogate all satellites to the current time  
+  
+            // NEED TO ADD TIME START AND STOP TO CA OBJECT - to SAVE IN DIALOG AND SO USER KNOWS!!!!
+
+            runProgressBar.setValue(0); // update progress bar
+
+            return null;
+        } //doInBackground
+
+    }; // swing worker
+
+    worker.execute(); // run swing worker
+
+}//GEN-LAST:event_runButtonActionPerformed
+
     public void clearCoverageData()
     {
-        if(ca.isDynamicUpdating()) 
+        if(ca.isDynamicUpdating())
         {
             ca.clearCoverageData(currentJulianDate);
         }
-        else 
+        else
         {
             ca.clearCoverageData();
         }
@@ -836,7 +933,6 @@ private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     private javax.swing.JComboBox colorMapComboBox;
     private jsattrak.coverage.ColorMapLabel colorMapLabel;
     private javax.swing.JCheckBox dyanmicUpdateCheckBox;
-    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
@@ -862,7 +958,6 @@ private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanel9;
-    private javax.swing.JProgressBar jProgressBar1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
@@ -871,8 +966,6 @@ private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextArea jTextArea2;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField latLowerField;
     private javax.swing.JTextField latSegTextField;
     private javax.swing.JTextField latUpperField;
@@ -883,9 +976,13 @@ private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     private javax.swing.JButton none2DButton;
     private javax.swing.JButton okButton;
     private javax.swing.JButton removeSatButton;
+    private javax.swing.JButton runButton;
+    private javax.swing.JProgressBar runProgressBar;
     private javax.swing.JList satIncludedList;
     private javax.swing.JCheckBox showColorBarCheckBox;
     private javax.swing.JCheckBox showGridCheckBox;
+    private javax.swing.JTextField startTextField;
+    private javax.swing.JTextField stopTextField;
     private javax.swing.JList twoDWindowList;
     // End of variables declaration//GEN-END:variables
 
@@ -893,13 +990,19 @@ private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     {
         boolean requiresGridRegen = false; // if a a grid regen is needed
         // save first tab
-        
-        try 
+
+        try
         {
             // display current settings in the dialog
-            double[] latBounds = new double[] {Double.parseDouble(latLowerField.getText()),Double.parseDouble(latUpperField.getText())};
-            double[] lonBounds = new double[] {Double.parseDouble(lonLowerField.getText()),Double.parseDouble(lonUpperField.getText())};
-            
+            double[] latBounds = new double[]
+            {
+                Double.parseDouble(latLowerField.getText()), Double.parseDouble(latUpperField.getText())
+            };
+            double[] lonBounds = new double[]
+            {
+                Double.parseDouble(lonLowerField.getText()), Double.parseDouble(lonUpperField.getText())
+            };
+
             // check if regen needed
             if(latBounds[0] != ca.getLatBounds()[0] || latBounds[1] != ca.getLatBounds()[1])
             {
@@ -909,49 +1012,51 @@ private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             {
                 requiresGridRegen = true;
             }
-            
+
             ca.setLatBounds(latBounds);
             ca.setLongBounds(lonBounds);
-            
+
             int latSeg = Integer.parseInt(latSegTextField.getText());
             int lonSeg = Integer.parseInt(lonSegTextField.getText());
-            
+
             if(latSeg != ca.getLatPanels() || lonSeg != ca.getLongPanels())
             {
                 requiresGridRegen = true;
             }
-            
+
             ca.setLatPanels(latSeg);
             ca.setLongPanels(lonSeg);
-            
+
             double ele = Double.parseDouble(minElevTextField.getText());
             if(ele != ca.getElevationLimit())
             {
                 requiresGridRegen = true;
             }
             ca.setElevationLimit(ele);
-            
+
             //-------------------------------------
-            
+
             // for each element in satIncludedList
             ca.clearSatCoverageVector(); // clear it first
+
             for(Object i : ((DefaultListModel)satIncludedList.getModel()).toArray())
             {
                 // only adds if isn't already in list
                 String satName = i.toString();//((DefaultListModel)satIncludedList.getModel()).get(i).toString();
+
                 ca.addSatToCoverageAnaylsis(satName);
             }
-            
+
             // dynamic updating
             ca.setDynamicUpdating(dyanmicUpdateCheckBox.isSelected());
-            
+
 
             // viz options ------------
-            ca.setAlpha( (int)Math.round( Integer.parseInt(alphaLabel.getText())/100.0*255 ) );
-            
+            ca.setAlpha((int)Math.round(Integer.parseInt(alphaLabel.getText()) / 100.0 * 255));
+
             ca.setPlotCoverageGrid(showGridCheckBox.isSelected());
             ca.setShowColorBar(showColorBarCheckBox.isSelected());
-            
+
             switch(colorMapComboBox.getSelectedIndex())
             {
                 case 0:
@@ -965,59 +1070,63 @@ private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                     break;
                 case 3:
                     ca.setColorMap(new GrayColorMap());
-                    break;     
+                    break;
             } // colormap switch
-            
+
             // 2D windows save which one(s) to use as a display
             // twoDWindowList
-            
+
             for(J2DEarthPanel ep : twoDWindowVec)
             {
                 String twoDWindowName = ep.getName();
-                
+
                 boolean windowFound = false;
-                
+
                 // find this window -- see if it contains ca, if not add ca to it
                 for(int i : twoDWindowList.getSelectedIndices())
                 {
                     String windowName = ((DefaultListModel)twoDWindowList.getModel()).get(i).toString();
-                    
+
                     if(ep.getName().equals(windowName))
                     {
                         windowFound = true;
                         if(!ep.checkIfIncludesRenderableObject(ca))
                         {
                             ep.addRenderableObject(ca); // add it
+
                         }
                     }// match 
+
                 } // for windows
-                
+
                 // see if window was found in list, if not remove it if it includes the ca
                 if(!windowFound)
                 {
                     if(ep.checkIfIncludesRenderableObject(ca))
-                        {
-                            ep.removeRenderableObject(ca);
-                        }
+                    {
+                        ep.removeRenderableObject(ca);
+                    }
                 }
-                
+
             } // for selected window names
-            
-        
+
+
         }
-        catch(Exception e) {
+        catch(Exception e)
+        {
             e.printStackTrace();
         }
-        
+
         // clear and redo grid?
         if(requiresGridRegen)
         {
             this.clearCoverageData();
         }
-        
- 
- 
+
+
+
     } // saveSettings
+
 
     public JInternalFrame getIframe()
     {
@@ -1028,6 +1137,44 @@ private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     {
         this.iframe = iframe;
     }
-    
-    
+
+    // returns null if date is formatted incorrectly, otherwise gives date
+    private GregorianCalendar getDateFromText(String dateText)
+    {
+        GregorianCalendar currentTimeDate = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
+        //or
+        //GregorianCalendar currentTimeDate = new GregorianCalendar();
+
+        SimpleDateFormat dateformat = new SimpleDateFormat("dd MMM yyyy HH:mm:ss.SSS z");
+        SimpleDateFormat dateformatShort1 = new SimpleDateFormat("dd MMM y H:m:s.S z");
+        SimpleDateFormat dateformatShort2 = new SimpleDateFormat("dd MMM y H:m:s z"); // no Milliseconds
+
+        //boolean dateAccepted = true; // assume date valid at first
+        try
+        {
+            currentTimeDate.setTime(dateformatShort1.parse(dateText));
+        //timeTextField.setText(dateformat.format(currentTimeDate.getTime()));
+        }
+        catch(Exception e2)
+        {
+            try
+            {
+                // try reading without the milliseconds
+                currentTimeDate.setTime(dateformatShort2.parse(dateText));
+            //timeTextField.setText(dateformat.format(currentTimeDate.getTime()));
+            }
+            catch(Exception e3)
+            {
+                // bad date input put back the old date string
+                //timeTextField.setText( app.getScenarioEpochDate().getDateTimeStr() );
+                //dateAccepted = false;
+                return null;
+            //System.out.println(" -- Rejected");
+            } // catch 2
+
+        } // catch 1
+
+        return currentTimeDate;
+    } //getDateFromText
+
 }

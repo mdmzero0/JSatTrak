@@ -177,7 +177,14 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
         CoverageAnalyzer ca = new CoverageAnalyzer();
     } // main
     
-    //  update the time
+    
+    /**
+     *  Performa an update of time and data of Coverage Metrics
+     * @param currentJulianDate
+     * @param satHash
+     * @param gsHash
+     */
+    @Override
     public void updateTime(final Time currentJulianDate, final Hashtable<String,AbstractSatellite> satHash, final Hashtable<String,GroundStation> gsHash)
     {
         if(!dynamicUpdating)
@@ -190,7 +197,12 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
     } // updateTime
     
     // internal function to actually perform the anaylsis - so it can be used by GUI update calls or coverage tool
-    private void performCoverageAnalysis(final Time currentJulianDate, final Hashtable<String,AbstractSatellite> satHash)
+    /**
+     * Performs coverage anaylsis with given time and satellite array, this fuction should be called only when directly performing coverage analysis, otherwise call updateTime
+     * @param currentJulianDate
+     * @param satHash
+     */
+    public void performCoverageAnalysis(final Time currentJulianDate, final Hashtable<String,AbstractSatellite> satHash)
     {
         // if first time update, save time and quit (only start calc after first time step)
         if(lastMJD == -1)
