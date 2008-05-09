@@ -1,8 +1,8 @@
 <launch4jConfig>
-  <dontWrapJar>false</dontWrapJar>
+  <dontWrapJar>true</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>C:\Documents and Settings\Shawn\Desktop\JSatTrak\dist\JSatTrak.jar</jar>
-  <outfile>C:\Documents and Settings\Shawn\Desktop\JSatTrak\dist\JSatTrak.exe</outfile>
+  <jar>JSatTrak.jar</jar>
+  <outfile>C:\Users\Shawn\Desktop\JSatTrak\JSatTrak\dist\JSatTrak.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir></chdir>
@@ -11,13 +11,12 @@
   <supportUrl></supportUrl>
   <customProcName>false</customProcName>
   <stayAlive>false</stayAlive>
-  <icon>C:\Documents and Settings\Shawn\Desktop\JSatTrak\Logo_src\JSatTrakLogo_48.ico</icon>
+  <manifest></manifest>
+  <icon>C:\Users\Shawn\Desktop\JSatTrak\JSatTrak\Logo_src\JSatTrakLogo_48.ico</icon>
   <jre>
     <path></path>
     <minVersion>1.6.0</minVersion>
     <maxVersion></maxVersion>
-    <dontUsePrivateJres>false</dontUsePrivateJres>
-    <initialHeapSize>0</initialHeapSize>
-    <maxHeapSize>0</maxHeapSize>
+    <jdkPreference>preferJre</jdkPreference>
   </jre>
 </launch4jConfig>
