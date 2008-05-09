@@ -172,7 +172,7 @@ import name.gano.file.FileTypeFilter;
  */
 public class JSatTrak extends javax.swing.JFrame implements InternalFrameListener, WindowListener, Serializable
 {
-    private String versionString = "Version 3.2c (6 May 2008)"; // Version of app
+    private String versionString = "Version 3.2 (9 May 2008)"; // Version of app
     
     // hastable to store all the statelites currently being processed
     private Hashtable<String,AbstractSatellite> satHash = new Hashtable<String,AbstractSatellite>();
@@ -828,11 +828,11 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         satListInternalFrame.getContentPane().setLayout(satListInternalFrameLayout);
         satListInternalFrameLayout.setHorizontalGroup(
             satListInternalFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 180, Short.MAX_VALUE)
+            .addGap(0, 174, Short.MAX_VALUE)
         );
         satListInternalFrameLayout.setVerticalGroup(
             satListInternalFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 315, Short.MAX_VALUE)
+            .addGap(0, 323, Short.MAX_VALUE)
         );
 
         satListInternalFrame.setBounds(610, 5, 190, 350);
@@ -884,7 +884,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
                 .addComponent(jSeparator7, javax.swing.GroupLayout.PREFERRED_SIZE, 5, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(1, 1, 1)
                 .addGroup(statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(statusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
+                    .addComponent(statusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 17, Short.MAX_VALUE)
                     .addComponent(statusAnimationLabel)
                     .addComponent(statusProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
@@ -1032,7 +1032,8 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         });
         utilitiesMenu.add(trackToolMenuItem);
 
-        coverageMenuItem.setText("Coverage Anaylsis");
+        coverageMenuItem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/other/preferences-system-network-proxy.png"))); // NOI18N
+        coverageMenuItem.setText("Coverage Analysis");
         coverageMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 coverageMenuItemActionPerformed(evt);
@@ -2169,7 +2170,7 @@ private void coverageMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         JInternalFrame iframe = new JInternalFrame(windowName,true,true,true,true);
         
         iframe.setContentPane(coverageBrowser );
-        iframe.setSize(500,330); // w,h
+        iframe.setSize(530,330); // w,h
         iframe.setLocation(10,10);
         
         coverageBrowser.setIframe(iframe);

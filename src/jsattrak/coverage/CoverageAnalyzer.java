@@ -55,10 +55,12 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
     private double minNotZeroVal = 1;  // current maximum and minimum (NOT ZERO) values 
     private double maxVal = 100;
     
+    private Time startTime = new Time(); // keep track of start time
+    
     // color map for data
     ColorMap colorMap = new ColorMap();
     
-    double lastMJD = -1; // last MJD update time
+    private double lastMJD = -1; // last MJD update time
     
     Vector<String> satsUsedInCoverage = new Vector<String>(); // vector of satellites used in Coverage anaylsis
     
@@ -101,6 +103,7 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
     {
         iniParamters();
         lastMJD = currentJulianDate.getMJD();
+        startTime.set(currentJulianDate.getCurrentGregorianCalendar().getTimeInMillis());        
     }
     
 //    /**
@@ -126,6 +129,7 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
     {
         iniParamters();
         lastMJD = currentJulianDate.getMJD();
+        startTime.set(currentJulianDate.getCurrentGregorianCalendar().getTimeInMillis());
     }
     
     /**
@@ -208,6 +212,7 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
         if(lastMJD == -1)
         {
             lastMJD = currentJulianDate.getMJD();
+            startTime.set(currentJulianDate.getCurrentGregorianCalendar().getTimeInMillis());
             return;
         }
         
@@ -848,6 +853,14 @@ public class CoverageAnalyzer implements JSatTrakRenderable,JSatTrakTimeDependen
     public String getUpperBoundLabel()
     {
         return colorBarNumberFormat.format(maxVal*24*60*60);
+    }
+
+    public Time getStartTime() {
+        return startTime;
+    }
+
+    public double getLastMJD() {
+        return lastMJD;
     }
     
 } // CoverageAnalyzer

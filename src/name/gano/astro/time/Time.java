@@ -323,6 +323,8 @@ public String getDateTimeStr()
         strBuf.append(fmt2Dig.format(get(Time.MINUTE)));
         strBuf.append(":");
         strBuf.append(fmt2Dig.format(get(Time.SECOND)));
+        strBuf.append(" ");
+        strBuf.append( tz.getID() );
         retStr=strBuf.toString();
     }
     return retStr;

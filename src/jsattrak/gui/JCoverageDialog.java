@@ -6,12 +6,16 @@
 
 package jsattrak.gui;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 import java.util.Hashtable;
 import java.util.TimeZone;
 import java.util.Vector;
 import javax.swing.DefaultListModel;
+import javax.swing.JFileChooser;
 import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
@@ -21,6 +25,7 @@ import jsattrak.coverage.CoverageAnalyzer;
 import jsattrak.coverage.GrayColorMap;
 import jsattrak.coverage.HotColorMap;
 import jsattrak.objects.AbstractSatellite;
+import jsattrak.utilities.ImageFilter;
 import jsattrak.utilities.UnoptimizedDeepCopy;
 import name.gano.astro.time.Time;
 
@@ -114,6 +119,9 @@ public class JCoverageDialog extends javax.swing.JPanel
         }
 
         twoDWindowList.setSelectedIndices(sel);
+        
+        // put date in auto run text box
+        startTextField.setText(app.getCurrentJulianDay().getDateTimeStr());
 
 
     } // JCoverageDialog
@@ -188,6 +196,12 @@ public class JCoverageDialog extends javax.swing.JPanel
         jScrollPane5 = new javax.swing.JScrollPane();
         jTextArea2 = new javax.swing.JTextArea();
         runProgressBar = new javax.swing.JProgressBar();
+        jPanel13 = new javax.swing.JPanel();
+        refreshButton = new javax.swing.JButton();
+        jLabel12 = new javax.swing.JLabel();
+        exportDataButton = new javax.swing.JButton();
+        jScrollPane6 = new javax.swing.JScrollPane();
+        dataSummaryTextArea = new javax.swing.JTextArea();
 
         setPreferredSize(new java.awt.Dimension(500, 300));
         setLayout(new java.awt.BorderLayout());
@@ -346,7 +360,7 @@ public class JCoverageDialog extends javax.swing.JPanel
                 .addContainerGap()
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel8Layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 132, Short.MAX_VALUE)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 136, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(addSatButton)
@@ -358,7 +372,7 @@ public class JCoverageDialog extends javax.swing.JPanel
                         .addComponent(jLabel2))
                     .addGroup(jPanel8Layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)))
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 137, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel8Layout.setVerticalGroup(
@@ -377,10 +391,10 @@ public class JCoverageDialog extends javax.swing.JPanel
                         .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel8Layout.createSequentialGroup()
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 195, Short.MAX_VALUE))
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE))
                             .addGroup(jPanel8Layout.createSequentialGroup()
                                 .addGap(3, 3, 3)
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)))))
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 201, Short.MAX_VALUE)))))
                 .addContainerGap())
         );
 
@@ -442,7 +456,7 @@ public class JCoverageDialog extends javax.swing.JPanel
             .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
-        jTabbedPane1.addTab("Coverage Anaylsis Setup", jPanel3);
+        jTabbedPane1.addTab("Coverage Analysis Setup", jPanel3);
 
         jPanel10.setBorder(javax.swing.BorderFactory.createTitledBorder("Viz Options"));
 
@@ -564,7 +578,7 @@ public class JCoverageDialog extends javax.swing.JPanel
             .addGroup(jPanel11Layout.createSequentialGroup()
                 .addComponent(jLabel8)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 177, Short.MAX_VALUE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 180, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(none2DButton)
@@ -591,7 +605,7 @@ public class JCoverageDialog extends javax.swing.JPanel
                 .addComponent(jPanel11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(66, Short.MAX_VALUE))
+                .addContainerGap(74, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -690,7 +704,62 @@ public class JCoverageDialog extends javax.swing.JPanel
                 .addContainerGap())
         );
 
-        jTabbedPane1.addTab("Anaylsis Autorun", jPanel5);
+        jTabbedPane1.addTab("Analysis Autorun", jPanel5);
+
+        refreshButton.setText("Refresh Summary");
+        refreshButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                refreshButtonActionPerformed(evt);
+            }
+        });
+
+        jLabel12.setText("Current Data Summary:");
+
+        exportDataButton.setText("Export Data");
+        exportDataButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                exportDataButtonActionPerformed(evt);
+            }
+        });
+
+        dataSummaryTextArea.setColumns(1);
+        dataSummaryTextArea.setRows(1);
+        dataSummaryTextArea.setTabSize(4);
+        jScrollPane6.setViewportView(dataSummaryTextArea);
+
+        javax.swing.GroupLayout jPanel13Layout = new javax.swing.GroupLayout(jPanel13);
+        jPanel13.setLayout(jPanel13Layout);
+        jPanel13Layout.setHorizontalGroup(
+            jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel13Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel12)
+                    .addGroup(jPanel13Layout.createSequentialGroup()
+                        .addGap(10, 10, 10)
+                        .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(exportDataButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(refreshButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                .addContainerGap(116, Short.MAX_VALUE))
+        );
+        jPanel13Layout.setVerticalGroup(
+            jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel13Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel12)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel13Layout.createSequentialGroup()
+                        .addComponent(refreshButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(exportDataButton))
+                    .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 194, Short.MAX_VALUE))
+                .addGap(42, 42, 42))
+        );
+
+        jTabbedPane1.addTab("Current Data", jPanel13);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -847,7 +916,7 @@ private void runButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
         JOptionPane.showMessageDialog(app, "Stop Date must be after Start Date", "Invalid Date", JOptionPane.WARNING_MESSAGE);
         return;
     }
-
+    
     final Hashtable<String, AbstractSatellite> tempSatHash = (Hashtable<String, AbstractSatellite>)UnoptimizedDeepCopy.copy(app.getSatHash());
 
     final double timeStep = app.getCurrentTimeStep(); // timestep to use in calculations SECONDS
@@ -861,6 +930,7 @@ private void runButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
     // create a thread to do calulations in background
     SwingWorker worker = new SwingWorker()
     {
+       @Override
         public Object doInBackground() // Vector<String>
 
         {
@@ -880,11 +950,13 @@ private void runButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
                     sat.propogate2JulDate(currentTime.getJulianDate());
                 } // propgate each sat
                 
+                // update coverage
                 ca.performCoverageAnalysis(currentTime, tempSatHash);
                 
-                //- START HERE, next update CA!, then update progress bar!
+                //Update progress bar
                 runProgressBar.setValue( (int)Math.round(100*(1.0-(stopJulianDate.getMJD()-currentTime.getMJD())/(stopJulianDate.getMJD()-startJulianDate.getMJD()))) );
                 
+                // increment time
                 currentTime.addSeconds(timeStep);
             } // for time loop
 
@@ -904,6 +976,96 @@ private void runButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
     worker.execute(); // run swing worker
 
 }//GEN-LAST:event_runButtonActionPerformed
+
+private void refreshButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshButtonActionPerformed
+    // list data summary to text area
+    dataSummaryTextArea.setText(""); // clear text
+    
+    String summaryText = "";
+    
+    summaryText += "Lat Bounds:  " + ca.getLatBounds()[0] + ", " + ca.getLatBounds()[1] +"\n";
+    summaryText += "Long Bounds: " + ca.getLongBounds()[0] + ", " + ca.getLongBounds()[1] +"\n";
+    
+    summaryText += "Lat/Long Segments:  " + ca.getLatPanels() +", " + ca.getLongPanels() +"\n";
+    
+    summaryText += "Min. Elevation Constraint [deg]: " + ca.getElevationLimit() +"\n";
+    
+    summaryText += "\n";
+    summaryText += "Coverage Start Time: " + ca.getStartTime().getDateTimeStr() +"\n";
+    summaryText += "Coverage Stop Time [MJD]: " + ca.getLastMJD() +"\n";
+    summaryText += "Coverage Time Span [days]: " + (ca.getLastMJD()-ca.getStartTime().getMJD()) +"\n";
+    
+    summaryText += "\nSatellite List:\n";
+    summaryText += "-------------------\n";
+    for(String sat : ca.getSatVector())
+    {
+        summaryText += sat.trim() + "\n";
+    }
+    
+    
+    // set text
+    dataSummaryTextArea.setText(summaryText);
+    dataSummaryTextArea.setCaretPosition(0); // start at top
+    
+}//GEN-LAST:event_refreshButtonActionPerformed
+
+private void exportDataButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportDataButtonActionPerformed
+    // popup file chooser .dat
+        final JFileChooser fc = new JFileChooser(app.getFileSaveAs());
+        ImageFilter xmlFilter = new ImageFilter("dat","*.dat");
+        fc.addChoosableFileFilter(xmlFilter);
+        
+        int returnVal = fc.showSaveDialog(this);
+        
+        if (returnVal == JFileChooser.APPROVE_OPTION)
+        {
+            File file = fc.getSelectedFile();
+            
+            String extension = JSatTrak.getExtension(file);
+            String fileSaveAs; 
+            if (extension != null)
+            {
+                fileSaveAs = file.getAbsolutePath();
+            }
+            else
+            {
+                // append the extension
+                file = new File(file.getAbsolutePath() + ".dat");
+                fileSaveAs = file.getAbsolutePath();
+            }
+            
+            fileSaveAs = file.getAbsolutePath();
+            
+            // export text file (mid points) lat [deg] \t long [deg] \t coverage time [sec]
+            try
+            {
+                PrintWriter out = new PrintWriter(new FileWriter(fileSaveAs));
+                
+                // first line
+                out.println("Latitude [deg] \t Longitude [deg] \t Coverage Time [sec]");
+                
+                for(int i = 0; i<ca.getLatPanels(); i++)
+                {
+                    for(int j=0; j<ca.getLongPanels(); j++)
+                    {
+                        out.println(ca.getLatPanelMidPoints()[i] + " \t" + ca.getLonPanelMidPoints()[j] + " \t" + ca.getCoverageCumTime()[i][j]);
+                    }
+                }
+                
+                out.close();
+            }
+            catch(Exception e)
+            {
+                JOptionPane.showMessageDialog(app, "Error writing to file: " + e.toString(), "ERROR", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+        } // if approve
+    
+    
+    
+    
+}//GEN-LAST:event_exportDataButtonActionPerformed
 
     public void clearCoverageData()
     {
@@ -938,12 +1100,15 @@ private void runButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
     private javax.swing.JButton clearDataButton;
     private javax.swing.JComboBox colorMapComboBox;
     private jsattrak.coverage.ColorMapLabel colorMapLabel;
+    private javax.swing.JTextArea dataSummaryTextArea;
     private javax.swing.JCheckBox dyanmicUpdateCheckBox;
+    private javax.swing.JButton exportDataButton;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -956,6 +1121,7 @@ private void runButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
     private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel11;
     private javax.swing.JPanel jPanel12;
+    private javax.swing.JPanel jPanel13;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
@@ -969,6 +1135,7 @@ private void runButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextArea jTextArea2;
@@ -981,6 +1148,7 @@ private void runButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
     private javax.swing.JTextField minElevTextField;
     private javax.swing.JButton none2DButton;
     private javax.swing.JButton okButton;
+    private javax.swing.JButton refreshButton;
     private javax.swing.JButton removeSatButton;
     private javax.swing.JButton runButton;
     private javax.swing.JProgressBar runProgressBar;
