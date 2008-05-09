@@ -853,8 +853,9 @@ private void runButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
     final double timeStep = app.getCurrentTimeStep(); // timestep to use in calculations SECONDS
 
     // okay we are ready to begin, turn off dynamic coverage, save changes, clear data
-    ca.setDynamicUpdating(false);
+    dyanmicUpdateCheckBox.setSelected(false);
     this.saveSettings();
+    ca.setDynamicUpdating(false); // in sure false
     ca.clearCoverageData(startJulianDate);
 
     // create a thread to do calulations in background
@@ -879,7 +880,10 @@ private void runButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
                     sat.propogate2JulDate(currentTime.getJulianDate());
                 } // propgate each sat
                 
-                - START HERE, next update CA!, then update progress bar!
+                ca.performCoverageAnalysis(currentTime, tempSatHash);
+                
+                //- START HERE, next update CA!, then update progress bar!
+                runProgressBar.setValue( (int)Math.round(100*(1.0-(stopJulianDate.getMJD()-currentTime.getMJD())/(stopJulianDate.getMJD()-startJulianDate.getMJD()))) );
                 
                 currentTime.addSeconds(timeStep);
             } // for time loop
@@ -889,6 +893,8 @@ private void runButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
             // NEED TO ADD TIME START AND STOP TO CA OBJECT - to SAVE IN DIALOG AND SO USER KNOWS!!!!
 
             runProgressBar.setValue(0); // update progress bar
+            
+            app.forceRepainting();
 
             return null;
         } //doInBackground
