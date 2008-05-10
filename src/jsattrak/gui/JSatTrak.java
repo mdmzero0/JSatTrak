@@ -95,6 +95,8 @@
 //  - and also views for model centric views... but I think that will work in the next release too.
 //
 // Jar signing commands:
+// NOTE: to unsign a jar (such as worldwind.jar) - open jar in winzip and delete everything in the meta-inf directory
+//        then resign -- fixed issue with "web start complaining about jars signed with multiple keys)
 // /usr/java/jdk1.6.0_01/bin/keytool -genkey -keystore myKeys -alias jdc
 // /usr/java/jdk1.6.0_01/bin/jarsigner -keystore myKeys JSatTrak.jar jdc
 
