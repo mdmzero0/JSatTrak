@@ -47,18 +47,44 @@
  * redistribute the Software for such purposes.
  */
 
+// JMF replacement files:
+// NOTE TO SELF: C:\Documents and Settings\Shawn\Desktop\FMJ\src\javax\media
+
 package jsattrak.utilities;
 
 import java.io.*;
 import java.util.*;
 import java.awt.Dimension;
 
-import javax.media.*;
-import javax.media.control.*;
-import javax.media.protocol.*;
+//import javax.media.*;
+//import javax.media.control.*;
+//import javax.media.protocol.*;
+//import javax.media.datasink.*;
+import javax.media.Buffer;
+import javax.media.ConfigureCompleteEvent;
+import javax.media.ControllerEvent;
+import javax.media.ControllerListener;
+import javax.media.DataSink;
+import javax.media.EndOfMediaEvent;
+import javax.media.Format;
+import javax.media.Manager;
+import javax.media.MediaLocator;
+import javax.media.PrefetchCompleteEvent;
+import javax.media.Processor;
+import javax.media.RealizeCompleteEvent;
+import javax.media.ResourceUnavailableEvent;
+import javax.media.Time;
+import javax.media.control.TrackControl;
+import javax.media.datasink.DataSinkErrorEvent;
+import javax.media.datasink.DataSinkEvent;
+import javax.media.datasink.DataSinkListener;
+import javax.media.datasink.EndOfStreamEvent;
 import javax.media.protocol.DataSource;
-import javax.media.datasink.*;
 import javax.media.format.VideoFormat;
+import javax.media.protocol.ContentDescriptor;
+import javax.media.protocol.FileTypeDescriptor;
+import javax.media.protocol.PullBufferDataSource;
+import javax.media.protocol.PullBufferStream;
 
 
 /**
