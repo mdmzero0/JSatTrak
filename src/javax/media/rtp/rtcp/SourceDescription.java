@@ -6,9 +6,12 @@
 package javax.media.rtp.rtcp;
 
 
-import com.sun.media.JMFSecurity;
-import com.sun.media.JMFSecurityManager;
-import com.sun.media.util.*;
+import jpg2movie.media.util.jdk12InetAddressAction;
+import jpg2movie.media.util.jdk12PropertyAction;
+import jpg2movie.media.util.jdk12;
+import jpg2movie.media.JMFSecurity;
+import jpg2movie.media.JMFSecurityManager;
+import jpg2movie.media.util.*;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;

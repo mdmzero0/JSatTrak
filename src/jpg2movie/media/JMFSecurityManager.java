@@ -3,7 +3,7 @@
 // Decompiler options: packimports(3) 
 // Source File Name:   JMFSecurityManager.java
 
-package com.sun.media;
+package jpg2movie.media;
 
 //import com.sun.media.util.Registry;
 import java.io.PrintStream;

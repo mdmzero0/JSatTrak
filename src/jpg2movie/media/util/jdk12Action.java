@@ -3,7 +3,7 @@
 // Decompiler options: packimports(3) 
 // Source File Name:   jdk12Action.java
 
-package com.sun.media.util;
+package jpg2movie.media.util;
 
 import java.lang.reflect.Constructor;
 
@@ -17,7 +17,7 @@ public class jdk12Action
     public static Constructor getCheckPermissionAction()
         throws NoSuchMethodException
     {
-        return (com.sun.media.util.CheckPermissionAction.class).getConstructor(new Class[] {
+        return (jpg2movie.media.util.CheckPermissionAction.class).getConstructor(new Class[] {
             java.security.Permission.class
         });
     }

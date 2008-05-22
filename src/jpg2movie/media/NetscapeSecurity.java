@@ -3,7 +3,7 @@
 // Decompiler options: packimports(3) 
 // Source File Name:   NetscapeSecurity.java
 
-package com.sun.media;
+package jpg2movie.media;
 
 import java.io.PrintStream;
 import java.lang.reflect.Method;

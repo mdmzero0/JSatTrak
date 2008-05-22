@@ -3,7 +3,7 @@
 // Decompiler options: packimports(3) 
 // Source File Name:   jdk12.java
 
-package com.sun.media.util;
+package jpg2movie.media.util;
 
 import java.lang.reflect.Method;
 

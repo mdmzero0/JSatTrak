@@ -3,7 +3,7 @@
 // Decompiler options: packimports(3) 
 // Source File Name:   JDK12Security.java
 
-package com.sun.media;
+package jpg2movie.media;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;

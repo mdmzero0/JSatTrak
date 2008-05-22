@@ -1,32 +1,29 @@
 // Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
 // Jad home page: http://www.kpdus.com/jad.html
 // Decompiler options: packimports(3) 
-// Source File Name:   jdk12ConnectionAction.java
+// Source File Name:   jdk12PriorityAction.java
 
-package com.sun.media.util;
+package jpg2movie.media.util;
 
 import java.lang.reflect.Constructor;
-import java.net.URLConnection;
 import java.security.PrivilegedAction;
 
-public class jdk12ConnectionAction
+public class jdk12PriorityAction
     implements PrivilegedAction
 {
 
-    public jdk12ConnectionAction(URLConnection urlC)
+    public jdk12PriorityAction(Thread t, int priority)
     {
-        try
-        {
-            this.urlC = urlC;
-        }
-        catch(Throwable e) { }
+        this.t = t;
+        this.priority = priority;
     }
 
     public Object run()
     {
         try
         {
-            return urlC.getInputStream();
+            this.t.setPriority(priority);
+            return null;
         }
         catch(Throwable t)
         {
@@ -46,15 +43,16 @@ public class jdk12ConnectionAction
         }
     }
 
+    private Thread t;
+    private int priority;
     public static Constructor cons;
-    private URLConnection urlC;
 
     static 
     {
         try
         {
-            cons = (com.sun.media.util.jdk12ConnectionAction.class).getConstructor(new Class[] {
-                java.net.URLConnection.class
+            cons = (jpg2movie.media.util.jdk12PriorityAction.class).getConstructor(new Class[] {
+                java.lang.Thread.class, Integer.TYPE
             });
         }
         catch(Throwable e) { }

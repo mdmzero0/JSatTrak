@@ -3,7 +3,7 @@
 // Decompiler options: packimports(3) 
 // Source File Name:   jdk12CreateThreadRunnableAction.java
 
-package com.sun.media.util;
+package jpg2movie.media.util;
 
 import java.lang.reflect.Constructor;
 import java.security.PrivilegedAction;
@@ -59,10 +59,10 @@ public class jdk12CreateThreadRunnableAction
     {
         try
         {
-            cons = (com.sun.media.util.jdk12CreateThreadRunnableAction.class).getConstructor(new Class[] {
+            cons = (jpg2movie.media.util.jdk12CreateThreadRunnableAction.class).getConstructor(new Class[] {
                 java.lang.Class.class, java.lang.Runnable.class
             });
-            conswithname = (com.sun.media.util.jdk12CreateThreadRunnableAction.class).getConstructor(new Class[] {
+            conswithname = (jpg2movie.media.util.jdk12CreateThreadRunnableAction.class).getConstructor(new Class[] {
                 java.lang.Class.class, java.lang.Runnable.class, java.lang.String.class
             });
         }

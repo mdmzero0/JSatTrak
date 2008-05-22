@@ -1,39 +1,34 @@
 // Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
 // Jad home page: http://www.kpdus.com/jad.html
 // Decompiler options: packimports(3) 
-// Source File Name:   jdk12MakeDirectoryAction.java
+// Source File Name:   jdk12ConnectionAction.java
 
-package com.sun.media.util;
+package jpg2movie.media.util;
 
-import java.io.File;
 import java.lang.reflect.Constructor;
+import java.net.URLConnection;
 import java.security.PrivilegedAction;
 
-public class jdk12MakeDirectoryAction
+public class jdk12ConnectionAction
     implements PrivilegedAction
 {
 
-    public jdk12MakeDirectoryAction(File file)
+    public jdk12ConnectionAction(URLConnection urlC)
     {
-        this.file = file;
+        try
+        {
+            this.urlC = urlC;
+        }
+        catch(Throwable e) { }
     }
 
     public Object run()
     {
         try
         {
-            if(file != null)
-            {
-                if(file.exists() || file.mkdirs())
-                    return TRUE;
-                else
-                    return FALSE;
-            } else
-            {
-                return FALSE;
-            }
+            return urlC.getInputStream();
         }
-        catch(Throwable e)
+        catch(Throwable t)
         {
             return null;
         }
@@ -52,16 +47,14 @@ public class jdk12MakeDirectoryAction
     }
 
     public static Constructor cons;
-    private File file;
-    private static Boolean TRUE = new Boolean(true);
-    private static Boolean FALSE = new Boolean(false);
+    private URLConnection urlC;
 
     static 
     {
         try
         {
-            cons = (com.sun.media.util.jdk12MakeDirectoryAction.class).getConstructor(new Class[] {
-                java.io.File.class
+            cons = (jpg2movie.media.util.jdk12ConnectionAction.class).getConstructor(new Class[] {
+                java.net.URLConnection.class
             });
         }
         catch(Throwable e) { }

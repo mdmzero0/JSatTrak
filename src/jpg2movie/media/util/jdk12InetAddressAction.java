@@ -3,7 +3,7 @@
 // Decompiler options: packimports(3) 
 // Source File Name:   jdk12InetAddressAction.java
 
-package com.sun.media.util;
+package jpg2movie.media.util;
 
 import java.lang.reflect.Constructor;
 import java.net.InetAddress;
@@ -62,7 +62,7 @@ public class jdk12InetAddressAction
     {
         try
         {
-            cons = (com.sun.media.util.jdk12InetAddressAction.class).getConstructor(new Class[] {
+            cons = (jpg2movie.media.util.jdk12InetAddressAction.class).getConstructor(new Class[] {
                 java.net.InetAddress.class, java.lang.String.class, java.lang.String.class
             });
         }

@@ -3,7 +3,7 @@
 // Decompiler options: packimports(3) 
 // Source File Name:   jdk12DeleteFileAction.java
 
-package com.sun.media.util;
+package jpg2movie.media.util;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
@@ -64,7 +64,7 @@ public class jdk12DeleteFileAction
     {
         try
         {
-            cons = (com.sun.media.util.jdk12DeleteFileAction.class).getConstructor(new Class[] {
+            cons = (jpg2movie.media.util.jdk12DeleteFileAction.class).getConstructor(new Class[] {
                 java.io.File.class
             });
         }

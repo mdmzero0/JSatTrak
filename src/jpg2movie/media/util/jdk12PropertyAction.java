@@ -1,19 +1,18 @@
 // Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
 // Jad home page: http://www.kpdus.com/jad.html
 // Decompiler options: packimports(3) 
-// Source File Name:   jdk12ReadFileAction.java
+// Source File Name:   jdk12PropertyAction.java
 
-package com.sun.media.util;
+package jpg2movie.media.util;
 
-import java.io.FileInputStream;
 import java.lang.reflect.Constructor;
 import java.security.PrivilegedAction;
 
-public class jdk12ReadFileAction
+public class jdk12PropertyAction
     implements PrivilegedAction
 {
 
-    public jdk12ReadFileAction(String name)
+    public jdk12PropertyAction(String name)
     {
         try
         {
@@ -26,7 +25,7 @@ public class jdk12ReadFileAction
     {
         try
         {
-            return new FileInputStream(name);
+            return System.getProperty(name);
         }
         catch(Throwable t)
         {
@@ -53,7 +52,7 @@ public class jdk12ReadFileAction
     {
         try
         {
-            cons = (com.sun.media.util.jdk12ReadFileAction.class).getConstructor(new Class[] {
+            cons = (jpg2movie.media.util.jdk12PropertyAction.class).getConstructor(new Class[] {
                 java.lang.String.class
             });
         }

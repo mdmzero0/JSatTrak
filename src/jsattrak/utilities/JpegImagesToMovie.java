@@ -60,8 +60,9 @@ import javax.media.*;
 import javax.media.control.*;
 import javax.media.protocol.*;
 import javax.media.datasink.*;
-//import javax.media.Buffer;
 import javax.media.format.VideoFormat;
+
+//import javax.media.Buffer;
 //import javax.media.ConfigureCompleteEvent;
 //import javax.media.ControllerEvent;
 //import javax.media.ControllerListener;

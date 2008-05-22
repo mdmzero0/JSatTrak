@@ -1,33 +1,34 @@
 // Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
 // Jad home page: http://www.kpdus.com/jad.html
 // Decompiler options: packimports(3) 
-// Source File Name:   jdk12PropertyAction.java
+// Source File Name:   jdk12RandomAccessFileAction.java
 
-package com.sun.media.util;
+package jpg2movie.media.util;
 
+import java.io.RandomAccessFile;
 import java.lang.reflect.Constructor;
 import java.security.PrivilegedAction;
 
-public class jdk12PropertyAction
+public class jdk12RandomAccessFileAction
     implements PrivilegedAction
 {
 
-    public jdk12PropertyAction(String name)
+    public jdk12RandomAccessFileAction(String name, String mode)
     {
-        try
-        {
-            this.name = name;
-        }
-        catch(Throwable e) { }
+        boolean rw = mode.equals("rw");
+        if(!rw)
+            mode = "r";
+        this.mode = mode;
+        this.name = name;
     }
 
     public Object run()
     {
         try
         {
-            return System.getProperty(name);
+            return new RandomAccessFile(name, mode);
         }
-        catch(Throwable t)
+        catch(Throwable e)
         {
             return null;
         }
@@ -47,13 +48,14 @@ public class jdk12PropertyAction
 
     public static Constructor cons;
     private String name;
+    private String mode;
 
     static 
     {
         try
         {
-            cons = (com.sun.media.util.jdk12PropertyAction.class).getConstructor(new Class[] {
-                java.lang.String.class
+            cons = (jpg2movie.media.util.jdk12RandomAccessFileAction.class).getConstructor(new Class[] {
+                java.lang.String.class, java.lang.String.class
             });
         }
         catch(Throwable e) { }

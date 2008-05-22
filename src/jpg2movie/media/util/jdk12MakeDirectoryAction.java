@@ -1,33 +1,39 @@
 // Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
 // Jad home page: http://www.kpdus.com/jad.html
 // Decompiler options: packimports(3) 
-// Source File Name:   jdk12MulticastSocketJoinGroupAction.java
+// Source File Name:   jdk12MakeDirectoryAction.java
 
-package com.sun.media.util;
+package jpg2movie.media.util;
 
+import java.io.File;
 import java.lang.reflect.Constructor;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
 import java.security.PrivilegedAction;
 
-public class jdk12MulticastSocketJoinGroupAction
+public class jdk12MakeDirectoryAction
     implements PrivilegedAction
 {
 
-    public jdk12MulticastSocketJoinGroupAction(MulticastSocket s, InetAddress a)
+    public jdk12MakeDirectoryAction(File file)
     {
-        this.s = s;
-        this.a = a;
+        this.file = file;
     }
 
     public Object run()
     {
         try
         {
-            s.joinGroup(a);
-            return s;
+            if(file != null)
+            {
+                if(file.exists() || file.mkdirs())
+                    return TRUE;
+                else
+                    return FALSE;
+            } else
+            {
+                return FALSE;
+            }
         }
-        catch(Throwable t)
+        catch(Throwable e)
         {
             return null;
         }
@@ -46,15 +52,16 @@ public class jdk12MulticastSocketJoinGroupAction
     }
 
     public static Constructor cons;
-    private MulticastSocket s;
-    private InetAddress a;
+    private File file;
+    private static Boolean TRUE = new Boolean(true);
+    private static Boolean FALSE = new Boolean(false);
 
     static 
     {
         try
         {
-            cons = (com.sun.media.util.jdk12MulticastSocketJoinGroupAction.class).getConstructor(new Class[] {
-                java.net.MulticastSocket.class, java.net.InetAddress.class
+            cons = (jpg2movie.media.util.jdk12MakeDirectoryAction.class).getConstructor(new Class[] {
+                java.io.File.class
             });
         }
         catch(Throwable e) { }

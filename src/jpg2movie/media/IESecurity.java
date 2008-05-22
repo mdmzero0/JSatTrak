@@ -1,31 +1,31 @@
 // Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
 // Jad home page: http://www.kpdus.com/jad.html
 // Decompiler options: packimports(3) 
-// Source File Name:   DefaultSecurity.java
+// Source File Name:   IESecurity.java
 
-package com.sun.media;
+package jpg2movie.media;
 
-import java.io.PrintStream;
+
 import java.lang.reflect.Method;
 
 // Referenced classes of package com.sun.media:
 //            JMFSecurity
 
-public class DefaultSecurity
+public class IESecurity
     implements JMFSecurity
 {
 
-    public static void dummyMethod()
-    {
-    }
-
-    private DefaultSecurity()
+    private IESecurity()
     {
     }
 
     public String getName()
     {
-        return "default";
+        return "internetexplorer";
+    }
+
+    public static void dummyMethod()
+    {
     }
 
     public void requestPermission(Method m[], Class c[], Object args[][], int request)
@@ -44,7 +44,7 @@ public class DefaultSecurity
 
     public boolean isLinkPermissionEnabled()
     {
-        return clsLoader == null;
+        return jview;
     }
 
     public void permissionFailureNotification(int i)
@@ -54,30 +54,41 @@ public class DefaultSecurity
     public void loadLibrary(String name)
         throws UnsatisfiedLinkError
     {
-        if(clsLoader == null)
+        try
+        {
+            try
+            {
+                //if(!jview)
+                    //PolicyEngine.assertPermission(PermissionID.SYSTEM);
+            }
+            catch(Throwable t) { }
             System.loadLibrary(name);
-        else
+        }
+        catch(Exception e)
+        {
             throw new UnsatisfiedLinkError("Unable to get link privilege to " + name);
+        }
+        catch(Error e)
+        {
+            throw new UnsatisfiedLinkError("Unable to get link privilege to " + name);
+        }
     }
 
     public static JMFSecurity security;
-    private static ClassLoader clsLoader = null;
+    public static boolean jview = false;
     private static Class cls;
     private static Method dummyMethodRef = null;
+    public static final boolean DEBUG = false;
 
     static 
     {
         cls = null;
-        security = new DefaultSecurity();
+        security = new IESecurity();
+        cls = security.getClass();
         try
         {
-            cls = security.getClass();
-            clsLoader = cls.getClassLoader();
             dummyMethodRef = cls.getMethod("dummyMethod", new Class[0]);
         }
-        catch(Exception e)
-        {
-            System.out.println(e);
-        }
+        catch(Exception e) { }
     }
 }
