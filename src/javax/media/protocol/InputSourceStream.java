@@ -1,3 +1,8 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   InputSourceStream.java
+
 package javax.media.protocol;
 
 import java.io.IOException;
@@ -9,10 +14,6 @@ import java.io.InputStream;
 public class InputSourceStream
     implements PullSourceStream
 {
-
-    protected InputStream stream;
-    protected boolean eosReached;
-    ContentDescriptor contentType;
 
     public InputSourceStream(InputStream s, ContentDescriptor type)
     {
@@ -34,9 +35,7 @@ public class InputSourceStream
     public boolean willReadBlock()
     {
         if(eosReached)
-        {
             return true;
-        }
         try
         {
             return stream.available() == 0;
@@ -52,9 +51,7 @@ public class InputSourceStream
     {
         int bytesRead = stream.read(buffer, offset, length);
         if(bytesRead == -1)
-        {
             eosReached = true;
-        }
         return bytesRead;
     }
 
@@ -78,4 +75,8 @@ public class InputSourceStream
     {
         return null;
     }
+
+    protected InputStream stream;
+    protected boolean eosReached;
+    ContentDescriptor contentType;
 }

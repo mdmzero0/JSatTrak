@@ -1,3 +1,8 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   URLDataSource.java
+
 package javax.media.protocol;
 
 import java.io.IOException;
@@ -14,14 +19,14 @@ public class URLDataSource extends PullDataSource
     class URLSourceStream extends InputSourceStream
     {
 
-        protected URLConnection conn;
-
         public long getContentLength()
         {
             long len = conn.getContentLength();
             len = len != -1L ? len : -1L;
             return len;
         }
+
+        protected URLConnection conn;
 
         public URLSourceStream(URLConnection conn, ContentDescriptor type)
             throws IOException
@@ -31,11 +36,6 @@ public class URLDataSource extends PullDataSource
         }
     }
 
-
-    protected URLConnection conn;
-    protected ContentDescriptor contentType;
-    protected URLSourceStream sources[];
-    protected boolean connected;
 
     protected URLDataSource()
     {
@@ -51,12 +51,9 @@ public class URLDataSource extends PullDataSource
     public PullSourceStream[] getStreams()
     {
         if(!connected)
-        {
             throw new Error("Unconnected source.");
-        } else
-        {
+        else
             return sources;
-        }
     }
 
     public void connect()
@@ -67,9 +64,7 @@ public class URLDataSource extends PullDataSource
         connected = true;
         String mimeType = conn.getContentType();
         if(mimeType == null)
-        {
             mimeType = "UnknownContent";
-        }
         contentType = new ContentDescriptor(ContentDescriptor.mimeTypeToPackageName(mimeType));
         sources = new URLSourceStream[1];
         sources[0] = new URLSourceStream(conn, contentType);
@@ -78,12 +73,9 @@ public class URLDataSource extends PullDataSource
     public String getContentType()
     {
         if(!connected)
-        {
             throw new Error("Source is unconnected.");
-        } else
-        {
+        else
             return contentType.getContentType();
-        }
     }
 
     public void disconnect()
@@ -123,4 +115,9 @@ public class URLDataSource extends PullDataSource
     {
         return null;
     }
+
+    protected URLConnection conn;
+    protected ContentDescriptor contentType;
+    protected URLSourceStream sources[];
+    protected boolean connected;
 }

@@ -1,3 +1,8 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   ControllerEvent.java
+
 package javax.media;
 
 
@@ -6,8 +11,6 @@ package javax.media;
 
 public class ControllerEvent extends MediaEvent
 {
-
-    Controller eventSrc;
 
     public ControllerEvent(Controller from)
     {
@@ -29,4 +32,6 @@ public class ControllerEvent extends MediaEvent
     {
         return getClass().getName() + "[source=" + eventSrc + "]";
     }
+
+    Controller eventSrc;
 }

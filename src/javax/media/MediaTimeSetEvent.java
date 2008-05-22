@@ -1,3 +1,8 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   MediaTimeSetEvent.java
+
 package javax.media;
 
 
@@ -6,8 +11,6 @@ package javax.media;
 
 public class MediaTimeSetEvent extends ControllerEvent
 {
-
-    Time mediaTime;
 
     public MediaTimeSetEvent(Controller from, Time newMediaTime)
     {
@@ -24,4 +27,6 @@ public class MediaTimeSetEvent extends ControllerEvent
     {
         return getClass().getName() + "[source=" + super.eventSrc + ",mediaTime=" + mediaTime + "]";
     }
+
+    Time mediaTime;
 }

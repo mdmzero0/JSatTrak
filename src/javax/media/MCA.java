@@ -1,3 +1,8 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   Manager.java
+
 package javax.media;
 
 
@@ -7,9 +12,6 @@ package javax.media;
 
 class MCA extends ControllerAdapter
 {
-
-    boolean sync[];
-    int state;
 
     public MCA(boolean sync[], int state)
     {
@@ -40,17 +42,13 @@ class MCA extends ControllerAdapter
     public void configureComplete(ConfigureCompleteEvent evt)
     {
         if(state == 180)
-        {
             succeed();
-        }
     }
 
     public void realizeComplete(RealizeCompleteEvent evt)
     {
         if(state == 300)
-        {
             succeed();
-        }
     }
 
     public void controllerError(ControllerErrorEvent evt)
@@ -67,4 +65,7 @@ class MCA extends ControllerAdapter
     {
         fail();
     }
+
+    boolean sync[];
+    int state;
 }

@@ -1,3 +1,8 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   SystemTimeBase.java
+
 package javax.media;
 
 
@@ -7,8 +12,6 @@ package javax.media;
 public final class SystemTimeBase
     implements TimeBase
 {
-
-    static long offset = System.currentTimeMillis() * 0xf4240L;
 
     public SystemTimeBase()
     {
@@ -23,5 +26,7 @@ public final class SystemTimeBase
     {
         return System.currentTimeMillis() * 0xf4240L - offset;
     }
+
+    static long offset = System.currentTimeMillis() * 0xf4240L;
 
 }

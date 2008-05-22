@@ -1,3 +1,8 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   DataSinkEvent.java
+
 package javax.media.datasink;
 
 import java.util.EventObject;
@@ -6,8 +11,6 @@ import javax.media.MediaEvent;
 
 public class DataSinkEvent extends MediaEvent
 {
-
-    private String message;
 
     public DataSinkEvent(DataSink from)
     {
@@ -30,4 +33,6 @@ public class DataSinkEvent extends MediaEvent
     {
         return getClass().getName() + "[source=" + getSource() + "] message: " + message;
     }
+
+    private String message;
 }

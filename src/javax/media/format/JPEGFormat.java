@@ -1,3 +1,8 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   JPEGFormat.java
+
 package javax.media.format;
 
 import java.awt.Dimension;
@@ -8,14 +13,6 @@ import javax.media.Format;
 
 public class JPEGFormat extends VideoFormat
 {
-
-    public static final int DEC_422 = 0;
-    public static final int DEC_420 = 1;
-    public static final int DEC_444 = 2;
-    public static final int DEC_402 = 3;
-    public static final int DEC_411 = 4;
-    int qFactor;
-    int decimation;
 
     public JPEGFormat()
     {
@@ -62,29 +59,17 @@ public class JPEGFormat extends VideoFormat
     {
         String s = getEncoding() + " video format:";
         if(super.size != null)
-        {
             s = s + " size = " + super.size.width + "x" + super.size.height;
-        }
         if(super.frameRate != -1F)
-        {
             s = s + " FrameRate = " + super.frameRate;
-        }
         if(super.maxDataLength != -1)
-        {
             s = s + " maxDataLength = " + super.maxDataLength;
-        }
         if(super.dataType != null)
-        {
             s = s + " dataType = " + super.dataType;
-        }
         if(qFactor != -1)
-        {
             s = s + " q factor = " + qFactor;
-        }
         if(decimation != -1)
-        {
             s = s + " decimation = " + decimation;
-        }
         return s;
     }
 
@@ -103,9 +88,7 @@ public class JPEGFormat extends VideoFormat
     public boolean matches(Format format)
     {
         if(!super.matches(format))
-        {
             return false;
-        }
         if(!(format instanceof JPEGFormat))
         {
             return true;
@@ -120,9 +103,7 @@ public class JPEGFormat extends VideoFormat
     {
         Format fmt;
         if((fmt = super.intersects(format)) == null)
-        {
             return null;
-        }
         if(!(format instanceof JPEGFormat))
         {
             return fmt;
@@ -135,4 +116,12 @@ public class JPEGFormat extends VideoFormat
             return res;
         }
     }
+
+    public static final int DEC_422 = 0;
+    public static final int DEC_420 = 1;
+    public static final int DEC_444 = 2;
+    public static final int DEC_402 = 3;
+    public static final int DEC_411 = 4;
+    int qFactor;
+    int decimation;
 }

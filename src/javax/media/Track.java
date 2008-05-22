@@ -1,3 +1,8 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   Track.java
+
 package javax.media;
 
 
@@ -8,9 +13,6 @@ package javax.media;
 public interface Track
     extends Duration
 {
-
-    public static final Time TIME_UNKNOWN = Time.TIME_UNKNOWN;
-    public static final int FRAME_UNKNOWN = 0x7fffffff;
 
     public abstract Format getFormat();
 
@@ -27,5 +29,8 @@ public interface Track
     public abstract Time mapFrameToTime(int i);
 
     public abstract void setTrackListener(TrackListener tracklistener);
+
+    public static final Time TIME_UNKNOWN = Time.TIME_UNKNOWN;
+    public static final int FRAME_UNKNOWN = 0x7fffffff;
 
 }

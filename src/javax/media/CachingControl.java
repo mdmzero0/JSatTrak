@@ -1,3 +1,8 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   CachingControl.java
+
 package javax.media;
 
 import java.awt.Component;
@@ -9,8 +14,6 @@ public interface CachingControl
     extends Control
 {
 
-    public static final long LENGTH_UNKNOWN = 0x7fffffffffffffffL;
-
     public abstract boolean isDownloading();
 
     public abstract long getContentLength();
@@ -20,4 +23,6 @@ public interface CachingControl
     public abstract Component getProgressBarComponent();
 
     public abstract Component getControlComponent();
+
+    public static final long LENGTH_UNKNOWN = 0x7fffffffffffffffL;
 }

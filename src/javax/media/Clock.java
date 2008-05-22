@@ -1,3 +1,8 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   Clock.java
+
 package javax.media;
 
 
@@ -6,8 +11,6 @@ package javax.media;
 
 public interface Clock
 {
-
-    public static final Time RESET = new Time(0x7fffffffffffffffL);
 
     public abstract void setTimeBase(TimeBase timebase)
         throws IncompatibleTimeBaseException;
@@ -36,5 +39,7 @@ public interface Clock
     public abstract float getRate();
 
     public abstract float setRate(float f);
+
+    public static final Time RESET = new Time(0x7fffffffffffffffL);
 
 }

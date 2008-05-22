@@ -1,3 +1,8 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   PackageManager.java
+
 package javax.media;
 
 import java.io.PrintStream;
@@ -7,18 +12,6 @@ import java.util.Vector;
 
 public class PackageManager
 {
-
-    private static PackageManager pm = null;
-    private static Method mGetProtocolPrefixList = null;
-    private static Method mSetProtocolPrefixList = null;
-    private static Method mCommitProtocolPrefixList = null;
-    private static Method mGetContentPrefixList = null;
-    private static Method mSetContentPrefixList = null;
-    private static Method mCommitContentPrefixList = null;
-    private static final Class sigNone[];
-    private static final Class sigVector[];
-    private static Vector protoPrefixList;
-    private static Vector contentPrefixList;
 
     public PackageManager()
     {
@@ -39,12 +32,9 @@ public class PackageManager
     public static Vector getProtocolPrefixList()
     {
         if(pm != null && mGetProtocolPrefixList != null)
-        {
             return (Vector)runMethod(mGetProtocolPrefixList, null);
-        } else
-        {
+        else
             return protoPrefixList;
-        }
     }
 
     public static void setProtocolPrefixList(Vector list)
@@ -64,20 +54,15 @@ public class PackageManager
     public static void commitProtocolPrefixList()
     {
         if(pm != null && mCommitProtocolPrefixList != null)
-        {
             runMethod(mCommitProtocolPrefixList, null);
-        }
     }
 
     public static Vector getContentPrefixList()
     {
         if(pm != null && mGetContentPrefixList != null)
-        {
             return (Vector)runMethod(mGetContentPrefixList, null);
-        } else
-        {
+        else
             return contentPrefixList;
-        }
     }
 
     public static void setContentPrefixList(Vector list)
@@ -97,9 +82,7 @@ public class PackageManager
     public static void commitContentPrefixList()
     {
         if(pm != null && mCommitContentPrefixList != null)
-        {
             runMethod(mCommitContentPrefixList, null);
-        }
     }
 
     static Method getDeclaredMethod(Class c, String name, Class params[])
@@ -107,12 +90,9 @@ public class PackageManager
     {
         Method m = c.getMethod(name, params);
         if(m.getDeclaringClass() == c)
-        {
             return m;
-        } else
-        {
+        else
             return null;
-        }
     }
 
     static Class _mthclass$(String x0)
@@ -126,6 +106,18 @@ public class PackageManager
             throw new NoClassDefFoundError(x1.getMessage());
         }
     }
+
+    private static PackageManager pm = null;
+    private static Method mGetProtocolPrefixList = null;
+    private static Method mSetProtocolPrefixList = null;
+    private static Method mCommitProtocolPrefixList = null;
+    private static Method mGetContentPrefixList = null;
+    private static Method mSetContentPrefixList = null;
+    private static Method mCommitContentPrefixList = null;
+    private static final Class sigNone[];
+    private static final Class sigVector[];
+    private static Vector protoPrefixList;
+    private static Vector contentPrefixList;
 
     static 
     {

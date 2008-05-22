@@ -1,3 +1,8 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   RateChangeEvent.java
+
 package javax.media;
 
 
@@ -6,8 +11,6 @@ package javax.media;
 
 public class RateChangeEvent extends ControllerEvent
 {
-
-    float rate;
 
     public RateChangeEvent(Controller from, float newRate)
     {
@@ -24,4 +27,6 @@ public class RateChangeEvent extends ControllerEvent
     {
         return getClass().getName() + "[source=" + super.eventSrc + ",rate=" + rate + "]";
     }
+
+    float rate;
 }

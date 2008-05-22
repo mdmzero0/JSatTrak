@@ -1,3 +1,8 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   ControllerClosedEvent.java
+
 package javax.media;
 
 
@@ -6,8 +11,6 @@ package javax.media;
 
 public class ControllerClosedEvent extends ControllerEvent
 {
-
-    protected String message;
 
     public ControllerClosedEvent(Controller from)
     {
@@ -25,4 +28,6 @@ public class ControllerClosedEvent extends ControllerEvent
     {
         return message;
     }
+
+    protected String message;
 }

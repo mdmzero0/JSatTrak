@@ -1,3 +1,8 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   Buffer.java
+
 package javax.media;
 
 
@@ -6,35 +11,6 @@ package javax.media;
 
 public class Buffer
 {
-
-    protected long timeStamp;
-    protected long duration;
-    protected Format format;
-    protected int flags;
-    protected Object data;
-    protected Object header;
-    protected int length;
-    protected int offset;
-    protected long sequenceNumber;
-    public static final int FLAG_EOM = 1;
-    public static final int FLAG_DISCARD = 2;
-    public static final int FLAG_SILENCE = 4;
-    public static final int FLAG_SID = 8;
-    public static final int FLAG_KEY_FRAME = 16;
-    public static final int FLAG_NO_DROP = 32;
-    public static final int FLAG_NO_WAIT = 64;
-    public static final int FLAG_NO_SYNC = 96;
-    public static final int FLAG_SYSTEM_TIME = 128;
-    public static final int FLAG_RELATIVE_TIME = 256;
-    public static final int FLAG_FLUSH = 512;
-    public static final int FLAG_SYSTEM_MARKER = 1024;
-    public static final int FLAG_RTP_MARKER = 2048;
-    public static final int FLAG_RTP_TIME = 4096;
-    public static final int FLAG_BUF_OVERFLOWN = 8192;
-    public static final int FLAG_BUF_UNDERFLOWN = 16384;
-    public static final int FLAG_LIVE_DATA = 32768;
-    public static final long TIME_UNKNOWN = -1L;
-    public static final long SEQUENCE_UNKNOWN = 0x7ffffffffffffffeL;
 
     public Buffer()
     {
@@ -77,12 +53,9 @@ public class Buffer
     public void setEOM(boolean eom)
     {
         if(eom)
-        {
             flags |= 1;
-        } else
-        {
+        else
             flags &= -2;
-        }
     }
 
     public boolean isDiscard()
@@ -93,12 +66,9 @@ public class Buffer
     public void setDiscard(boolean discard)
     {
         if(discard)
-        {
             flags |= 2;
-        } else
-        {
+        else
             flags &= -3;
-        }
     }
 
     public Object getData()
@@ -202,41 +172,27 @@ public class Buffer
         Buffer buf = new Buffer();
         Object data = getData();
         if(data != null)
-        {
             if(data instanceof byte[])
-            {
                 buf.data = ((byte[])data).clone();
-            } else
+            else
             if(data instanceof int[])
-            {
                 buf.data = ((int[])data).clone();
-            } else
+            else
             if(data instanceof short[])
-            {
                 buf.data = ((short[])data).clone();
-            } else
-            {
+            else
                 buf.data = data;
-            }
-        }
         if(header != null)
-        {
             if(header instanceof byte[])
-            {
                 buf.header = ((byte[])header).clone();
-            } else
+            else
             if(header instanceof int[])
-            {
                 buf.header = ((int[])header).clone();
-            } else
+            else
             if(header instanceof short[])
-            {
                 buf.header = ((short[])header).clone();
-            } else
-            {
+            else
                 buf.header = header;
-            }
-        }
         buf.format = format;
         buf.length = length;
         buf.offset = offset;
@@ -246,4 +202,33 @@ public class Buffer
         buf.flags = flags;
         return buf;
     }
+
+    protected long timeStamp;
+    protected long duration;
+    protected Format format;
+    protected int flags;
+    protected Object data;
+    protected Object header;
+    protected int length;
+    protected int offset;
+    protected long sequenceNumber;
+    public static final int FLAG_EOM = 1;
+    public static final int FLAG_DISCARD = 2;
+    public static final int FLAG_SILENCE = 4;
+    public static final int FLAG_SID = 8;
+    public static final int FLAG_KEY_FRAME = 16;
+    public static final int FLAG_NO_DROP = 32;
+    public static final int FLAG_NO_WAIT = 64;
+    public static final int FLAG_NO_SYNC = 96;
+    public static final int FLAG_SYSTEM_TIME = 128;
+    public static final int FLAG_RELATIVE_TIME = 256;
+    public static final int FLAG_FLUSH = 512;
+    public static final int FLAG_SYSTEM_MARKER = 1024;
+    public static final int FLAG_RTP_MARKER = 2048;
+    public static final int FLAG_RTP_TIME = 4096;
+    public static final int FLAG_BUF_OVERFLOWN = 8192;
+    public static final int FLAG_BUF_UNDERFLOWN = 16384;
+    public static final int FLAG_LIVE_DATA = 32768;
+    public static final long TIME_UNKNOWN = -1L;
+    public static final long SEQUENCE_UNKNOWN = 0x7ffffffffffffffeL;
 }

@@ -1,3 +1,8 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   StopEvent.java
+
 package javax.media;
 
 
@@ -6,8 +11,6 @@ package javax.media;
 
 public class StopEvent extends TransitionEvent
 {
-
-    private Time mediaTime;
 
     public StopEvent(Controller from, int previous, int current, int target, Time mediaTime)
     {
@@ -24,4 +27,6 @@ public class StopEvent extends TransitionEvent
     {
         return getClass().getName() + "[source=" + super.eventSrc + ",previous=" + TransitionEvent.stateName(super.previousState) + ",current=" + TransitionEvent.stateName(super.currentState) + ",target=" + TransitionEvent.stateName(super.targetState) + ",mediaTime=" + mediaTime + "]";
     }
+
+    private Time mediaTime;
 }

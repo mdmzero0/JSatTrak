@@ -1,3 +1,8 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   StopTimeChangeEvent.java
+
 package javax.media;
 
 
@@ -6,8 +11,6 @@ package javax.media;
 
 public class StopTimeChangeEvent extends ControllerEvent
 {
-
-    Time stopTime;
 
     public StopTimeChangeEvent(Controller from, Time newStopTime)
     {
@@ -24,4 +27,6 @@ public class StopTimeChangeEvent extends ControllerEvent
     {
         return getClass().getName() + "[source=" + super.eventSrc + ",stopTime=" + stopTime + "]";
     }
+
+    Time stopTime;
 }

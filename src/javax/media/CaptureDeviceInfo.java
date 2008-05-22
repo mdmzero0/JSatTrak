@@ -1,3 +1,8 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   CaptureDeviceInfo.java
+
 package javax.media;
 
 import java.io.Serializable;
@@ -8,10 +13,6 @@ import java.io.Serializable;
 public class CaptureDeviceInfo
     implements Serializable
 {
-
-    protected String name;
-    protected MediaLocator locator;
-    protected Format formats[];
 
     public CaptureDeviceInfo(String name, MediaLocator locator, Format formats[])
     {
@@ -61,11 +62,13 @@ public class CaptureDeviceInfo
         if(formats != null)
         {
             for(int i = 0; i < formats.length; i++)
-            {
                 result = result + formats[i] + "\n";
-            }
 
         }
         return result;
     }
+
+    protected String name;
+    protected MediaLocator locator;
+    protected Format formats[];
 }

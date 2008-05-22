@@ -1,3 +1,8 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   ControllerAdapter.java
+
 package javax.media;
 
 import java.util.EventListener;
@@ -135,116 +140,88 @@ public class ControllerAdapter
     public void controllerUpdate(ControllerEvent e)
     {
         if(e instanceof FormatChangeEvent)
-        {
             formatChange((FormatChangeEvent)e);
-        } else
+        else
         if(e instanceof CachingControlEvent)
-        {
             cachingControl((CachingControlEvent)e);
-        } else
+        else
         if(e instanceof ControllerErrorEvent)
         {
             controllerError((ControllerErrorEvent)e);
             if(e instanceof DataLostErrorEvent)
-            {
                 dataLostError((DataLostErrorEvent)e);
-            } else
+            else
             if(e instanceof InternalErrorEvent)
-            {
                 internalError((InternalErrorEvent)e);
-            } else
+            else
             if(e instanceof ResourceUnavailableEvent)
-            {
                 resourceUnavailable((ResourceUnavailableEvent)e);
-            } else
+            else
             if(e instanceof ConnectionErrorEvent)
-            {
                 connectionError((ConnectionErrorEvent)e);
-            }
         } else
         if(e instanceof DurationUpdateEvent)
-        {
             durationUpdate((DurationUpdateEvent)e);
-        } else
+        else
         if(e instanceof MediaTimeSetEvent)
-        {
             mediaTimeSet((MediaTimeSetEvent)e);
-        } else
+        else
         if(e instanceof RateChangeEvent)
-        {
             rateChange((RateChangeEvent)e);
-        } else
+        else
         if(e instanceof StopTimeChangeEvent)
-        {
             stopTimeChange((StopTimeChangeEvent)e);
-        } else
+        else
         if(e instanceof AudioDeviceUnavailableEvent)
-        {
             audioDeviceUnavailable((AudioDeviceUnavailableEvent)e);
-        } else
+        else
         if(e instanceof ControllerClosedEvent)
-        {
             controllerClosed((ControllerClosedEvent)e);
-        } else
+        else
         if(e instanceof SizeChangeEvent)
-        {
             sizeChange((SizeChangeEvent)e);
-        } else
+        else
         if(e instanceof TransitionEvent)
         {
             transition((TransitionEvent)e);
             if(e instanceof ConfigureCompleteEvent)
-            {
                 configureComplete((ConfigureCompleteEvent)e);
-            } else
+            else
             if(e instanceof PrefetchCompleteEvent)
-            {
                 prefetchComplete((PrefetchCompleteEvent)e);
-            } else
+            else
             if(e instanceof RealizeCompleteEvent)
-            {
                 realizeComplete((RealizeCompleteEvent)e);
-            } else
+            else
             if(e instanceof StartEvent)
-            {
                 start((StartEvent)e);
-            } else
+            else
             if(e instanceof StopEvent)
             {
                 stop((StopEvent)e);
                 if(e instanceof DeallocateEvent)
-                {
                     deallocate((DeallocateEvent)e);
-                } else
+                else
                 if(e instanceof EndOfMediaEvent)
-                {
                     endOfMedia((EndOfMediaEvent)e);
-                } else
+                else
                 if(e instanceof RestartingEvent)
-                {
                     restarting((RestartingEvent)e);
-                } else
+                else
                 if(e instanceof StopAtTimeEvent)
-                {
                     stopAtTime((StopAtTimeEvent)e);
-                } else
+                else
                 if(e instanceof StopByRequestEvent)
-                {
                     stopByRequest((StopByRequestEvent)e);
-                } else
+                else
                 if(e instanceof DataStarvedEvent)
-                {
                     dataStarved((DataStarvedEvent)e);
-                }
             }
         } else
         if(e.getClass().getName().equals("com.ibm.media.ReplaceURLEvent"))
-        {
             replaceURL(e);
-        } else
+        else
         if(e.getClass().getName().equals("com.ibm.media.ShowDocumentEvent"))
-        {
             showDocument(e);
-        }
     }
 }

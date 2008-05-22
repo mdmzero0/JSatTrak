@@ -1,3 +1,8 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   DataSource.java
+
 package javax.media.protocol;
 
 import java.io.IOException;
@@ -9,8 +14,6 @@ import javax.media.*;
 public abstract class DataSource
     implements Controls, Duration
 {
-
-    MediaLocator sourceLocator;
 
     public DataSource()
     {
@@ -26,12 +29,9 @@ public abstract class DataSource
     public void setLocator(MediaLocator source)
     {
         if(sourceLocator == null)
-        {
             sourceLocator = source;
-        } else
-        {
+        else
             throw new Error("Locator already set on DataSource.");
-        }
     }
 
     public MediaLocator getLocator()
@@ -42,12 +42,9 @@ public abstract class DataSource
     protected void initCheck()
     {
         if(sourceLocator == null)
-        {
             throw new Error("Uninitialized DataSource error.");
-        } else
-        {
+        else
             return;
-        }
     }
 
     public abstract String getContentType();
@@ -68,4 +65,6 @@ public abstract class DataSource
     public abstract Object[] getControls();
 
     public abstract Time getDuration();
+
+    MediaLocator sourceLocator;
 }

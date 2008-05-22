@@ -1,3 +1,8 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   GainChangeEvent.java
+
 package javax.media;
 
 
@@ -6,11 +11,6 @@ package javax.media;
 
 public class GainChangeEvent extends MediaEvent
 {
-
-    GainControl eventSrc;
-    boolean newMute;
-    float newDB;
-    float newLevel;
 
     public GainChangeEvent(GainControl from, boolean mute, float dB, float level)
     {
@@ -45,4 +45,9 @@ public class GainChangeEvent extends MediaEvent
     {
         return newMute;
     }
+
+    GainControl eventSrc;
+    boolean newMute;
+    float newDB;
+    float newLevel;
 }

@@ -1,3 +1,8 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   SourceStream.java
+
 package javax.media.protocol;
 
 
@@ -8,11 +13,11 @@ public interface SourceStream
     extends Controls
 {
 
-    public static final long LENGTH_UNKNOWN = -1L;
-
     public abstract ContentDescriptor getContentDescriptor();
 
     public abstract long getContentLength();
 
     public abstract boolean endOfStream();
+
+    public static final long LENGTH_UNKNOWN = -1L;
 }

@@ -1,3 +1,8 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   MediaLocator.java
+
 package javax.media;
 
 import java.io.Serializable;
@@ -7,9 +12,6 @@ import java.net.URL;
 public class MediaLocator
     implements Serializable
 {
-
-    private URL url;
-    private String locatorString;
 
     public MediaLocator(URL url)
     {
@@ -26,9 +28,7 @@ public class MediaLocator
         throws MalformedURLException
     {
         if(url == null)
-        {
             url = new URL(locatorString);
-        }
         return url;
     }
 
@@ -37,9 +37,7 @@ public class MediaLocator
         String protocol = "";
         int colonIndex = locatorString.indexOf(':');
         if(colonIndex != -1)
-        {
             protocol = locatorString.substring(0, colonIndex);
-        }
         return protocol;
     }
 
@@ -48,9 +46,7 @@ public class MediaLocator
         String remainder = "";
         int colonIndex = locatorString.indexOf(":");
         if(colonIndex != -1)
-        {
             remainder = locatorString.substring(colonIndex + 1);
-        }
         return remainder;
     }
 
@@ -63,4 +59,7 @@ public class MediaLocator
     {
         return locatorString;
     }
+
+    private URL url;
+    private String locatorString;
 }

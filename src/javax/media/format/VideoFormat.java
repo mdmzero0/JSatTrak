@@ -1,3 +1,8 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   VideoFormat.java
+
 package javax.media.format;
 
 import java.awt.Dimension;
@@ -5,32 +10,6 @@ import javax.media.Format;
 
 public class VideoFormat extends Format
 {
-
-    protected Dimension size;
-    protected int maxDataLength;
-    protected float frameRate;
-    public static final String CINEPAK = "cvid";
-    public static final String JPEG = "jpeg";
-    public static final String JPEG_RTP = "jpeg/rtp";
-    public static final String MPEG = "mpeg";
-    public static final String MPEG_RTP = "mpeg/rtp";
-    public static final String H261 = "h261";
-    public static final String H261_RTP = "h261/rtp";
-    public static final String H263 = "h263";
-    public static final String H263_RTP = "h263/rtp";
-    public static final String H263_1998_RTP = "h263-1998/rtp";
-    public static final String RGB = "rgb";
-    public static final String YUV = "yuv";
-    public static final String IRGB = "irgb";
-    public static final String SMC = "smc";
-    public static final String RLE = "rle";
-    public static final String RPZA = "rpza";
-    public static final String MJPG = "mjpg";
-    public static final String MJPEGA = "mjpa";
-    public static final String MJPEGB = "mjpb";
-    public static final String INDEO32 = "iv32";
-    public static final String INDEO41 = "iv41";
-    public static final String INDEO50 = "iv50";
 
     public VideoFormat(String encoding)
     {
@@ -44,9 +23,7 @@ public class VideoFormat extends Format
     {
         this(encoding);
         if(size != null)
-        {
             this.size = new Dimension(size);
-        }
         this.maxDataLength = maxDataLength;
         super.dataType = dataType;
         this.frameRate = frameRate;
@@ -79,9 +56,7 @@ public class VideoFormat extends Format
         super.copy(f);
         VideoFormat vf = (VideoFormat)f;
         if(vf.size != null)
-        {
             size = new Dimension(vf.size);
-        }
         maxDataLength = vf.maxDataLength;
         frameRate = vf.frameRate;
     }
@@ -90,28 +65,17 @@ public class VideoFormat extends Format
     {
         String s = "";
         if(getEncoding() != null)
-        {
             s = s + getEncoding().toUpperCase();
-        } else
-        {
+        else
             s = s + "N/A";
-        }
         if(size != null)
-        {
             s = s + ", " + size.width + "x" + size.height;
-        }
         if(frameRate != -1F)
-        {
             s = s + ", FrameRate=" + (float)(int)(frameRate * 10F) / 10F;
-        }
         if(maxDataLength != -1)
-        {
             s = s + ", Length=" + maxDataLength;
-        }
         if(super.dataType != null && super.dataType != Format.byteArray)
-        {
             s = s + ", " + super.dataType;
-        }
         return s;
     }
 
@@ -123,14 +87,10 @@ public class VideoFormat extends Format
             if(size == null || vf.size == null)
             {
                 if(size != vf.size)
-                {
                     return false;
-                }
             } else
             if(!size.equals(vf.size))
-            {
                 return false;
-            }
             return super.equals(format) && maxDataLength == vf.maxDataLength && frameRate == vf.frameRate;
         } else
         {
@@ -141,9 +101,7 @@ public class VideoFormat extends Format
     public boolean matches(Format format)
     {
         if(!super.matches(format))
-        {
             return false;
-        }
         if(!(format instanceof VideoFormat))
         {
             return true;
@@ -158,9 +116,7 @@ public class VideoFormat extends Format
     {
         Format fmt;
         if((fmt = super.intersects(format)) == null)
-        {
             return null;
-        }
         if(!(format instanceof VideoFormat))
         {
             return fmt;
@@ -189,4 +145,30 @@ public class VideoFormat extends Format
             return fmt;
         }
     }
+
+    protected Dimension size;
+    protected int maxDataLength;
+    protected float frameRate;
+    public static final String CINEPAK = "cvid";
+    public static final String JPEG = "jpeg";
+    public static final String JPEG_RTP = "jpeg/rtp";
+    public static final String MPEG = "mpeg";
+    public static final String MPEG_RTP = "mpeg/rtp";
+    public static final String H261 = "h261";
+    public static final String H261_RTP = "h261/rtp";
+    public static final String H263 = "h263";
+    public static final String H263_RTP = "h263/rtp";
+    public static final String H263_1998_RTP = "h263-1998/rtp";
+    public static final String RGB = "rgb";
+    public static final String YUV = "yuv";
+    public static final String IRGB = "irgb";
+    public static final String SMC = "smc";
+    public static final String RLE = "rle";
+    public static final String RPZA = "rpza";
+    public static final String MJPG = "mjpg";
+    public static final String MJPEGA = "mjpa";
+    public static final String MJPEGB = "mjpb";
+    public static final String INDEO32 = "iv32";
+    public static final String INDEO41 = "iv41";
+    public static final String INDEO50 = "iv50";
 }

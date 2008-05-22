@@ -1,3 +1,8 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   CaptureDeviceManager.java
+
 package javax.media;
 
 import java.io.IOException;
@@ -11,13 +16,6 @@ import java.util.Vector;
 
 public class CaptureDeviceManager
 {
-
-    private static CaptureDeviceManager cdm = null;
-    private static Method mGetDeviceList = null;
-    private static Method mGetDevice = null;
-    private static Method mAddDevice = null;
-    private static Method mRemoveDevice = null;
-    private static Method mCommit = null;
 
     public CaptureDeviceManager()
     {
@@ -65,12 +63,9 @@ public class CaptureDeviceManager
             params[0] = format;
             Vector returnVal = (Vector)runMethod(mGetDeviceList, params);
             if(returnVal == null)
-            {
                 return new Vector(1);
-            } else
-            {
+            else
                 return returnVal;
-            }
         } else
         {
             return new Vector(1);
@@ -85,12 +80,9 @@ public class CaptureDeviceManager
             params[0] = newDevice;
             Object result = runMethod(mAddDevice, params);
             if(result != null)
-            {
                 return ((Boolean)result).booleanValue();
-            } else
-            {
+            else
                 return false;
-            }
         } else
         {
             return false;
@@ -105,12 +97,9 @@ public class CaptureDeviceManager
             params[0] = device;
             Object result = runMethod(mRemoveDevice, params);
             if(result != null)
-            {
                 return ((Boolean)result).booleanValue();
-            } else
-            {
+            else
                 return false;
-            }
         } else
         {
             return false;
@@ -121,9 +110,7 @@ public class CaptureDeviceManager
         throws IOException
     {
         if(cdm != null && mCommit != null)
-        {
             runMethod(mCommit, null);
-        }
     }
 
     static Class _mthclass$(String x0)
@@ -137,6 +124,13 @@ public class CaptureDeviceManager
             throw new NoClassDefFoundError(x1.getMessage());
         }
     }
+
+    private static CaptureDeviceManager cdm = null;
+    private static Method mGetDeviceList = null;
+    private static Method mGetDevice = null;
+    private static Method mAddDevice = null;
+    private static Method mRemoveDevice = null;
+    private static Method mCommit = null;
 
     static 
     {

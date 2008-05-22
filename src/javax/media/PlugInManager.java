@@ -1,3 +1,8 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   PlugInManager.java
+
 package javax.media;
 
 import java.io.IOException;
@@ -11,21 +16,6 @@ import java.util.Vector;
 
 public class PlugInManager
 {
-
-    private static PlugInManager pim = null;
-    public static final int DEMULTIPLEXER = 1;
-    public static final int CODEC = 2;
-    public static final int EFFECT = 3;
-    public static final int RENDERER = 4;
-    public static final int MULTIPLEXER = 5;
-    private static Method mGetPlugInList = null;
-    private static Method mSetPlugInList = null;
-    private static Method mCommit = null;
-    private static Method mAddPlugIn = null;
-    private static Method mRemovePlugIn = null;
-    private static Method mGetSupportedInputFormats = null;
-    private static Method mGetSupportedOutputFormats = null;
-    private static Format emptyFormat[] = new Format[0];
 
     public PlugInManager()
     {
@@ -82,9 +72,7 @@ public class PlugInManager
         throws IOException
     {
         if(pim != null && mCommit != null)
-        {
             runMethod(mCommit, null);
-        }
     }
 
     public static boolean addPlugIn(String classname, Format in[], Format out[], int type)
@@ -98,12 +86,9 @@ public class PlugInManager
             params[3] = new Integer(type);
             Object result = runMethod(mAddPlugIn, params);
             if(result != null)
-            {
                 return ((Boolean)result).booleanValue();
-            } else
-            {
+            else
                 return false;
-            }
         } else
         {
             return false;
@@ -119,12 +104,9 @@ public class PlugInManager
             params[1] = new Integer(type);
             Object result = runMethod(mRemovePlugIn, params);
             if(result != null)
-            {
                 return ((Boolean)result).booleanValue();
-            } else
-            {
+            else
                 return false;
-            }
         } else
         {
             return false;
@@ -172,6 +154,21 @@ public class PlugInManager
             throw new NoClassDefFoundError(x1.getMessage());
         }
     }
+
+    private static PlugInManager pim = null;
+    public static final int DEMULTIPLEXER = 1;
+    public static final int CODEC = 2;
+    public static final int EFFECT = 3;
+    public static final int RENDERER = 4;
+    public static final int MULTIPLEXER = 5;
+    private static Method mGetPlugInList = null;
+    private static Method mSetPlugInList = null;
+    private static Method mCommit = null;
+    private static Method mAddPlugIn = null;
+    private static Method mRemovePlugIn = null;
+    private static Method mGetSupportedInputFormats = null;
+    private static Method mGetSupportedOutputFormats = null;
+    private static Format emptyFormat[] = new Format[0];
 
     static 
     {

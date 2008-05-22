@@ -1,3 +1,8 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   SizeChangeEvent.java
+
 package javax.media;
 
 import javax.media.format.FormatChangeEvent;
@@ -7,10 +12,6 @@ import javax.media.format.FormatChangeEvent;
 
 public class SizeChangeEvent extends FormatChangeEvent
 {
-
-    protected int width;
-    protected int height;
-    protected float scale;
 
     public SizeChangeEvent(Controller from, int width, int height, float scale)
     {
@@ -34,4 +35,8 @@ public class SizeChangeEvent extends FormatChangeEvent
     {
         return scale;
     }
+
+    protected int width;
+    protected int height;
+    protected float scale;
 }

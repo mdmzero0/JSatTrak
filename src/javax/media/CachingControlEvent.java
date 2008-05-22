@@ -1,3 +1,8 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   CachingControlEvent.java
+
 package javax.media;
 
 
@@ -6,9 +11,6 @@ package javax.media;
 
 public class CachingControlEvent extends ControllerEvent
 {
-
-    CachingControl control;
-    long progress;
 
     public CachingControlEvent(Controller from, CachingControl cacheControl, long progress)
     {
@@ -31,4 +33,7 @@ public class CachingControlEvent extends ControllerEvent
     {
         return getClass().getName() + "[source=" + super.eventSrc + ",cachingControl=" + control + ",progress=" + progress + "]";
     }
+
+    CachingControl control;
+    long progress;
 }

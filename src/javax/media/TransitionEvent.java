@@ -1,3 +1,8 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   TransitionEvent.java
+
 package javax.media;
 
 
@@ -6,10 +11,6 @@ package javax.media;
 
 public class TransitionEvent extends ControllerEvent
 {
-
-    int previousState;
-    int currentState;
-    int targetState;
 
     public TransitionEvent(Controller from, int previous, int current, int target)
     {
@@ -69,4 +70,8 @@ public class TransitionEvent extends ControllerEvent
         }
         return "<Unknown>";
     }
+
+    int previousState;
+    int currentState;
+    int targetState;
 }

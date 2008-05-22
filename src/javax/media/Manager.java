@@ -1,7 +1,12 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   Manager.java
+
 package javax.media;
 
-//import com.sun.media.Log;
-//import com.sun.media.util.Registry;
+import com.sun.media.Log;
+import com.sun.media.util.Registry;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -30,24 +35,6 @@ import javax.media.protocol.SourceCloneable;
 public final class Manager
 {
 
-    private static String VERSION = "2.1.1e";
-    public static final int MAX_SECURITY = 1;
-    public static final int CACHING = 2;
-    public static final int LIGHTWEIGHT_RENDERER = 3;
-    public static final int PLUGIN_PLAYER = 4;
-    private static int numberOfHints = 4;
-    private static SystemTimeBase sysTimeBase = null;
-    public static final String UNKNOWN_CONTENT_NAME = "unknown";
-    private static boolean jdkInit = false;
-    private static Method forName3ArgsM;
-    private static Method getSystemClassLoaderM;
-    private static ClassLoader systemClassLoader;
-    private static Method getContextClassLoaderM;
-    private static String fileSeparator = System.getProperty("file.separator");
-    private static Hashtable hintTable;
-    static final int DONE = 0;
-    static final int SUCCESS = 1;
-
     private Manager()
     {
     }
@@ -71,9 +58,7 @@ public final class Manager
         boolean needPluginPlayer = ((Boolean)getHint(4)).booleanValue();
         String protocol = sourceLocator.getProtocol();
         if(protocol != null && (protocol.equalsIgnoreCase("rtp") || protocol.equalsIgnoreCase("rtsp")))
-        {
             needPluginPlayer = false;
-        }
         try
         {
             newPlayer = createPlayerForContent(sourceLocator, needPluginPlayer, sources);
@@ -81,18 +66,14 @@ public final class Manager
         catch(NoPlayerException e)
         {
             if(needPluginPlayer)
-            {
                 throw e;
-            }
             newPlayer = createPlayerForContent(sourceLocator, true, sources);
         }
         if(sources.size() != 0)
         {
             DataSource ds;
-            for(Enumeration enu = sources.elements(); enu.hasMoreElements(); ds.disconnect())
-            {
-                ds = (DataSource)enu.nextElement();
-            }
+            for(Enumeration enum = sources.elements(); enum.hasMoreElements(); ds.disconnect())
+                ds = (DataSource)enum.nextElement();
 
         }
         return newPlayer;
@@ -104,24 +85,18 @@ public final class Manager
         boolean needPluginPlayer = ((Boolean)getHint(4)).booleanValue();
         String contentType = source.getContentType();
         if(contentType != null && (contentType.equalsIgnoreCase("rtp") || contentType.equalsIgnoreCase("rtsp")))
-        {
             needPluginPlayer = false;
-        }
         Player newPlayer;
         try
         {
             if(needPluginPlayer)
-            {
                 contentType = "unknown";
-            }
             newPlayer = createPlayerForSource(source, contentType, null);
         }
         catch(NoPlayerException e)
         {
             if(needPluginPlayer)
-            {
                 throw e;
-            }
             newPlayer = createPlayerForSource(source, "unknown", null);
         }
         return newPlayer;
@@ -173,10 +148,8 @@ public final class Manager
         if(sources.size() != 0)
         {
             DataSource ds;
-            for(Enumeration enu = sources.elements(); enu.hasMoreElements(); ds.disconnect())
-            {
-                ds = (DataSource)enu.nextElement();
-            }
+            for(Enumeration enum = sources.elements(); enum.hasMoreElements(); ds.disconnect())
+                ds = (DataSource)enum.nextElement();
 
         }
         return newProcessor;
@@ -208,14 +181,11 @@ public final class Manager
         int reqNumTracks = -1;
         int nTracksEnabled = 0;
         if(model == null)
-        {
             throw new NoProcessorException("null ProcessorModel");
-        }
         ds = model.getInputDataSource();
         if(ds != null)
-        {
             processor = createProcessor(ds);
-        } else
+        else
         if((ml = model.getInputLocator()) != null)
         {
             processor = createProcessor(ml);
@@ -230,21 +200,15 @@ public final class Manager
                 reqFormats[i] = model.getOutputTrackFormat(i);
                 Vector deviceList = CaptureDeviceManager.getDeviceList(reqFormats[i]);
                 if(deviceList == null || deviceList.size() == 0)
-                {
                     if(reqFormats[i] instanceof AudioFormat)
-                    {
                         deviceList = CaptureDeviceManager.getDeviceList(new AudioFormat(null));
-                    } else
+                    else
                     if(reqFormats[i] instanceof VideoFormat)
-                    {
                         deviceList = CaptureDeviceManager.getDeviceList(new VideoFormat(null));
-                    }
-                }
                 if(deviceList.size() != 0)
                 {
                     CaptureDeviceInfo cdi = (CaptureDeviceInfo)deviceList.elementAt(0);
                     if(cdi != null && cdi.getLocator() != null)
-                    {
                         try
                         {
                             DataSource crds = createDataSource(cdi.getLocator());
@@ -259,14 +223,10 @@ public final class Manager
                                         for(int f = 0; f < supported.length; f++)
                                         {
                                             if(!supported[f].matches(reqFormats[i]))
-                                            {
                                                 continue;
-                                            }
                                             Format intersect = supported[f].intersects(reqFormats[i]);
                                             if(intersect != null && fc[0].setFormat(intersect) != null)
-                                            {
                                                 break;
-                                            }
                                         }
 
                                     }
@@ -276,21 +236,16 @@ public final class Manager
                         }
                         catch(IOException ioe) { }
                         catch(NoDataSourceException ndse) { }
-                    }
                 }
             }
 
             if(dataSourceList.size() == 0)
-            {
                 throw new NoProcessorException("No suitable capture devices found!");
-            }
             if(dataSourceList.size() > 1)
             {
                 DataSource dataSourceArray[] = new DataSource[dataSourceList.size()];
                 for(int k = 0; k < dataSourceList.size(); k++)
-                {
                     dataSourceArray[k] = (DataSource)dataSourceList.elementAt(k);
-                }
 
                 try
                 {
@@ -307,9 +262,7 @@ public final class Manager
             processor = createProcessor(ds);
         }
         if(processor == null)
-        {
             throw new NoProcessorException("Couldn't create Processor for source");
-        }
         blockingCall(processor, 180);
         ContentDescriptor rcd = model.getContentDescriptor();
         if(rcd == null)
@@ -319,53 +272,37 @@ public final class Manager
         {
             ContentDescriptor cds[] = processor.getSupportedContentDescriptors();
             if(cds == null || cds.length == 0)
-            {
                 throw new NoProcessorException("Processor doesn't support output");
-            }
             for(int i = 0; i < cds.length; i++)
             {
                 if(!rcd.matches(cds[i]) || processor.setContentDescriptor(cds[i]) == null)
-                {
                     continue;
-                }
                 matched = true;
                 break;
             }
 
             if(!matched)
-            {
                 throw new NoProcessorException("Processor doesn't support requested output ContentDescriptor");
-            }
         }
         javax.media.control.TrackControl procTracks[] = processor.getTrackControls();
         if(procTracks != null && procTracks.length > 0)
         {
             int nValidTracks = 0;
             for(int i = 0; i < procTracks.length; i++)
-            {
                 if(procTracks[i].isEnabled())
-                {
                     nValidTracks++;
-                }
-            }
 
             if(reqNumTracks == -1)
-            {
                 reqNumTracks = model.getTrackCount(nValidTracks);
-            }
             if(reqNumTracks > 0)
             {
                 if(reqFormats == null)
-                {
                     reqFormats = new Format[reqNumTracks];
-                }
                 int procToReqMap[] = new int[reqNumTracks];
                 for(int i = 0; i < reqNumTracks; i++)
                 {
                     if(reqFormats[i] == null)
-                    {
                         reqFormats[i] = model.getOutputTrackFormat(i);
-                    }
                     procToReqMap[i] = -1;
                 }
 
@@ -379,9 +316,7 @@ public final class Manager
                         for(int j = 0; j < reqNumTracks; j++)
                         {
                             if(procToReqMap[j] != -1 || reqFormats[j] != null && !prefFormat.matches(reqFormats[j]) || !model.isFormatAcceptable(j, prefFormat))
-                            {
                                 continue;
-                            }
                             procToReqMap[j] = i;
                             enabled[i] = true;
                             nTracksEnabled++;
@@ -397,12 +332,8 @@ public final class Manager
                     if(procTracks[i].isEnabled())
                     {
                         for(int j = 0; j < reqNumTracks; j++)
-                        {
                             if(procToReqMap[j] == i)
-                            {
                                 used = true;
-                            }
-                        }
 
                         if(!used)
                         {
@@ -416,9 +347,7 @@ public final class Manager
                                     for(int j = 0; j < reqNumTracks && !matched; j++)
                                     {
                                         if(procToReqMap[j] != -1 || reqFormats[j] != null && !prefFormat.matches(reqFormats[j]) || !model.isFormatAcceptable(j, prefFormat) || procTracks[i].setFormat(prefFormat) == null)
-                                        {
                                             continue;
-                                        }
                                         procToReqMap[j] = i;
                                         enabled[i] = true;
                                         nTracksEnabled++;
@@ -434,9 +363,7 @@ public final class Manager
                 }
 
                 if(nTracksEnabled < reqNumTracks)
-                {
                     throw new CannotRealizeException("Unable to provide all requested tracks");
-                }
             }
         }
         blockingCall(processor, 300);
@@ -480,14 +407,14 @@ public final class Manager
             {
                 source = null;
                 String err = "Error instantiating class: " + protoClassName + " : " + e;
-                //Log.error(e);
+                Log.error(e);
                 throw new NoDataSourceException(err);
             }
             catch(Error e)
             {
                 source = null;
                 String err = "Error instantiating class: " + protoClassName + " : " + e;
-                //Log.error(e);
+                Log.error(e);
                 throw new NoDataSourceException(err);
             }
         }
@@ -497,7 +424,7 @@ public final class Manager
             throw new NoDataSourceException("Cannot find a DataSource for: " + sourceLocator);
         } else
         {
-            //Log.comment("DataSource created: " + source + "\n");
+            Log.comment("DataSource created: " + source + "\n");
             return source;
         }
     }
@@ -506,60 +433,40 @@ public final class Manager
         throws IncompatibleSourceException
     {
         if(sources.length == 0)
-        {
             throw new IncompatibleSourceException("No sources");
-        }
         if(sources[0] instanceof PullDataSource)
         {
             for(int i = 1; i < sources.length; i++)
-            {
                 if(!(sources[i] instanceof PullDataSource))
-                {
                     throw new IncompatibleSourceException("One of the sources isn't matching the others");
-                }
-            }
 
             PullDataSource pds[] = new PullDataSource[sources.length];
             for(int i = 0; i < pds.length; i++)
-            {
                 pds[i] = (PullDataSource)sources[i];
-            }
 
             return reflectMDS("com.ibm.media.protocol.MergingPullDataSource", pds);
         }
         if(sources[0] instanceof PushDataSource)
         {
             for(int i = 1; i < sources.length; i++)
-            {
                 if(!(sources[i] instanceof PushDataSource))
-                {
                     throw new IncompatibleSourceException("One of the sources isn't matching the others");
-                }
-            }
 
             PushDataSource pds[] = new PushDataSource[sources.length];
             for(int i = 0; i < pds.length; i++)
-            {
                 pds[i] = (PushDataSource)sources[i];
-            }
 
             return reflectMDS("com.ibm.media.protocol.MergingPushDataSource", pds);
         }
         if(sources[0] instanceof PullBufferDataSource)
         {
             for(int i = 1; i < sources.length; i++)
-            {
                 if(!(sources[i] instanceof PullBufferDataSource))
-                {
                     throw new IncompatibleSourceException("One of the sources isn't matching the others");
-                }
-            }
 
             PullBufferDataSource pds[] = new PullBufferDataSource[sources.length];
             for(int i = 0; i < pds.length; i++)
-            {
                 pds[i] = (PullBufferDataSource)sources[i];
-            }
 
             return reflectMDS("com.ibm.media.protocol.MergingPullBufferDataSource", pds);
         }
@@ -569,28 +476,19 @@ public final class Manager
             for(int i = 1; i < sources.length; i++)
             {
                 if(!(sources[i] instanceof PushBufferDataSource))
-                {
                     throw new IncompatibleSourceException("One of the sources isn't matching the others");
-                }
                 if(sources[i] instanceof CaptureDevice)
-                {
                     anyCapture = true;
-                }
             }
 
             PushBufferDataSource pds[] = new PushBufferDataSource[sources.length];
             for(int i = 0; i < pds.length; i++)
-            {
                 pds[i] = (PushBufferDataSource)sources[i];
-            }
 
             if(anyCapture)
-            {
                 return reflectMDS("com.ibm.media.protocol.MergingCDPushBDS", pds);
-            } else
-            {
+            else
                 return reflectMDS("com.ibm.media.protocol.MergingPushBufferDataSource", pds);
-            }
         } else
         {
             return null;
@@ -607,25 +505,19 @@ public final class Manager
             paramTypes[0] = pds.getClass();
             Constructor cc = cls.getConstructor(paramTypes);
             if(cname.indexOf("PullDataSource") >= 0)
-            {
                 arg[0] = (PullDataSource[])pds;
-            } else
+            else
             if(cname.indexOf("PushDataSource") >= 0)
-            {
                 arg[0] = (PushDataSource[])pds;
-            } else
+            else
             if(cname.indexOf("PullBufferDataSource") >= 0)
-            {
                 arg[0] = (PullBufferDataSource[])pds;
-            } else
+            else
             if(cname.indexOf("PushBufferDataSource") >= 0)
-            {
                 arg[0] = (PushBufferDataSource[])pds;
-            } else
+            else
             if(cname.indexOf("CDPushBDS") >= 0)
-            {
                 arg[0] = (PushBufferDataSource[])pds;
-            }
             return (DataSource)cc.newInstance(arg);
         }
         catch(Exception ex)
@@ -673,55 +565,34 @@ public final class Manager
     public static DataSource createCloneableDataSource(DataSource source)
     {
         if(source instanceof SourceCloneable)
-        {
             return source;
-        }
         if(source instanceof CaptureDevice)
         {
             if(source instanceof PullDataSource)
-            {
                 return reflectDS("com.ibm.media.protocol.CloneableCapturePullDataSource", source);
-            }
             if(source instanceof PushDataSource)
-            {
                 return reflectDS("com.ibm.media.protocol.CloneableCapturePushDataSource", source);
-            }
             if(source instanceof PullBufferDataSource)
-            {
                 return reflectDS("com.ibm.media.protocol.CloneableCapturePullBufferDataSource", source);
-            }
             if(source instanceof PushBufferDataSource)
-            {
                 return reflectDS("com.ibm.media.protocol.CloneableCapturePushBufferDataSource", source);
-            }
         }
         if(source instanceof PullDataSource)
-        {
             return reflectDS("com.ibm.media.protocol.CloneablePullDataSource", source);
-        }
         if(source instanceof PushDataSource)
-        {
             return reflectDS("com.ibm.media.protocol.CloneablePushDataSource", source);
-        }
         if(source instanceof PullBufferDataSource)
-        {
             return reflectDS("com.ibm.media.protocol.CloneablePullBufferDataSource", source);
-        }
         if(source instanceof PushBufferDataSource)
-        {
             return reflectDS("com.ibm.media.protocol.CloneablePushBufferDataSource", source);
-        } else
-        {
+        else
             return null;
-        }
     }
 
     public static TimeBase getSystemTimeBase()
     {
         if(sysTimeBase == null)
-        {
             sysTimeBase = new SystemTimeBase();
-        }
         return sysTimeBase;
     }
 
@@ -750,24 +621,18 @@ public final class Manager
                 try
                 {
                     if(useUnknownContent)
-                    {
                         newPlayer = createPlayerForSource(source, "unknown", sourceUsed);
-                    } else
-                    {
+                    else
                         newPlayer = createPlayerForSource(source, source.getContentType(), sourceUsed);
-                    }
                     break;
                 }
                 catch(NoPlayerException e)
                 {
                     newPlayer = null;
                     if(sourceUsed[0])
-                    {
                         source.disconnect();
-                    } else
-                    {
+                    else
                         sources.put(protoClassName, source);
-                    }
                 }
             }
             catch(ClassNotFoundException e)
@@ -786,25 +651,22 @@ public final class Manager
             {
                 source = null;
                 String err = "Error instantiating class: " + protoClassName + " : " + e;
-                //Log.error(e);
+                Log.error(e);
                 throw new NoPlayerException(err);
             }
             catch(Error e)
             {
                 source = null;
                 String err = "Error instantiating class: " + protoClassName + " : " + e;
-                //Log.error(e);
+                Log.error(e);
                 throw new NoPlayerException(err);
             }
         }
 
         if(newPlayer == null)
-        {
             throw new NoPlayerException("Cannot find a Player for :" + sourceLocator);
-        } else
-        {
+        else
             return newPlayer;
-        }
     }
 
     static Player createPlayerForSource(DataSource source, String contentTypeName, boolean sourceUsed[])
@@ -812,9 +674,7 @@ public final class Manager
     {
         Player newPlayer = null;
         if(sourceUsed != null)
-        {
             sourceUsed[0] = true;
-        }
         Enumeration playerList = getHandlerClassList(contentTypeName).elements();
         DataSource newSource = null;
         while(playerList.hasMoreElements()) 
@@ -843,33 +703,25 @@ public final class Manager
                     newPlayer = createPlayerForSource(newSource, "unknown", null);
                 }
                 if(newPlayer != null)
-                {
                     break;
-                }
             }
             catch(ClassNotFoundException e)
             {
                 newPlayer = null;
                 if(sourceUsed != null)
-                {
                     sourceUsed[0] = false;
-                }
             }
             catch(InstantiationException e)
             {
                 newPlayer = null;
                 if(sourceUsed != null)
-                {
                     sourceUsed[0] = false;
-                }
             }
             catch(IllegalAccessException e)
             {
                 newPlayer = null;
                 if(sourceUsed != null)
-                {
                     sourceUsed[0] = false;
-                }
             }
             catch(IncompatibleSourceException e)
             {
@@ -888,7 +740,7 @@ public final class Manager
             catch(Error e)
             {
                 String err = "Error instantiating class: " + handlerClassName + " : " + e;
-                //Log.error(e);
+                Log.error(e);
                 throw new NoPlayerException(err);
             }
         }
@@ -897,8 +749,8 @@ public final class Manager
             throw new NoPlayerException("Cannot find a Player for: " + source);
         } else
         {
-            //Log.comment("Player created: " + newPlayer);
-            //Log.comment("  using DataSource: " + source + "\n");
+            Log.comment("Player created: " + newPlayer);
+            Log.comment("  using DataSource: " + source + "\n");
             return newPlayer;
         }
     }
@@ -928,24 +780,18 @@ public final class Manager
                 try
                 {
                     if(useUnknownContent)
-                    {
                         newProcessor = createProcessorForSource(source, "unknown", sourceUsed);
-                    } else
-                    {
+                    else
                         newProcessor = createProcessorForSource(source, source.getContentType(), sourceUsed);
-                    }
                     break;
                 }
                 catch(NoProcessorException e)
                 {
                     newProcessor = null;
                     if(sourceUsed[0])
-                    {
                         source.disconnect();
-                    } else
-                    {
+                    else
                         sources.put(protoClassName, source);
-                    }
                 }
             }
             catch(ClassNotFoundException e)
@@ -963,24 +809,21 @@ public final class Manager
             catch(Exception e)
             {
                 String err = "Error instantiating class: " + protoClassName + " : " + e;
-                //Log.error(e);
+                Log.error(e);
                 throw new NoProcessorException(err);
             }
             catch(Error e)
             {
                 String err = "Error instantiating class: " + protoClassName + " : " + e;
-                //Log.error(e);
+                Log.error(e);
                 throw new NoProcessorException(err);
             }
         }
 
         if(newProcessor == null)
-        {
             throw new NoProcessorException("Cannot find a Processor for: " + sourceLocator);
-        } else
-        {
+        else
             return newProcessor;
-        }
     }
 
     static Processor createProcessorForSource(DataSource source, String contentTypeName, boolean sourceUsed[])
@@ -988,9 +831,7 @@ public final class Manager
     {
         Processor newProcessor = null;
         if(sourceUsed != null)
-        {
             sourceUsed[0] = true;
-        }
         Enumeration playerList = getProcessorClassList(contentTypeName).elements();
         DataSource newSource = null;
         while(playerList.hasMoreElements()) 
@@ -1019,33 +860,25 @@ public final class Manager
                     newProcessor = createProcessorForSource(newSource, "unknown", null);
                 }
                 if(newProcessor != null)
-                {
                     break;
-                }
             }
             catch(ClassNotFoundException e)
             {
                 newProcessor = null;
                 if(sourceUsed != null)
-                {
                     sourceUsed[0] = false;
-                }
             }
             catch(InstantiationException e)
             {
                 newProcessor = null;
                 if(sourceUsed != null)
-                {
                     sourceUsed[0] = false;
-                }
             }
             catch(IllegalAccessException e)
             {
                 newProcessor = null;
                 if(sourceUsed != null)
-                {
                     sourceUsed[0] = false;
-                }
             }
             catch(IncompatibleSourceException e)
             {
@@ -1059,14 +892,14 @@ public final class Manager
             {
                 newProcessor = null;
                 String err = "Error instantiating class: " + handlerClassName + " : " + e;
-                //Log.error(e);
+                Log.error(e);
                 throw new NoProcessorException(err);
             }
             catch(Error e)
             {
                 newProcessor = null;
                 String err = "Error instantiating class: " + handlerClassName + " : " + e;
-                //Log.error(e);
+                Log.error(e);
                 throw new NoProcessorException(err);
             }
         }
@@ -1075,8 +908,8 @@ public final class Manager
             throw new NoProcessorException("Cannot find a Processor for: " + source);
         } else
         {
-            //Log.comment("Processor created: " + newProcessor);
-            //Log.comment("  using DataSource: " + source + "\n");
+            Log.comment("Processor created: " + newProcessor);
+            Log.comment("  using DataSource: " + source + "\n");
             return newProcessor;
         }
     }
@@ -1140,66 +973,51 @@ public final class Manager
             throw new NoDataSinkException("Cannot find a DataSink for: " + datasource);
         } else
         {
-            //Log.comment("DataSink created: " + dataSink);
-            //Log.comment("  using DataSource: " + datasource + "\n");
+            Log.comment("DataSink created: " + dataSink);
+            Log.comment("  using DataSource: " + datasource + "\n");
             return dataSink;
         }
     }
 
-//    public static String getCacheDirectory()
-//    {
-//        Object cdir = Registry.get("secure.cacheDir");
-//        String cacheDir;
-//        if(cdir != null && (cdir instanceof String))
-//        {
-//            cacheDir = (String)cdir;
-//            if(cacheDir.indexOf(fileSeparator) == -1)
-//            {
-//                if(fileSeparator.equals("/"))
-//                {
-//                    cacheDir = "/tmp";
-//                } else
-//                if(fileSeparator.equals("\\"))
-//                {
-//                    cacheDir = "C:" + fileSeparator + "temp";
-//                } else
-//                {
-//                    cacheDir = null;
-//                }
-//            }
-//            return cacheDir;
-//        }
-//        if(fileSeparator.equals("/"))
-//        {
-//            cacheDir = "/tmp";
-//        } else
-//        if(fileSeparator.equals("\\"))
-//        {
-//            cacheDir = "C:" + fileSeparator + "temp";
-//        } else
-//        {
-//            cacheDir = null;
-//        }
-//        return cacheDir;
-//    }
+    public static String getCacheDirectory()
+    {
+        Object cdir = Registry.get("secure.cacheDir");
+        String cacheDir;
+        if(cdir != null && (cdir instanceof String))
+        {
+            cacheDir = (String)cdir;
+            if(cacheDir.indexOf(fileSeparator) == -1)
+                if(fileSeparator.equals("/"))
+                    cacheDir = "/tmp";
+                else
+                if(fileSeparator.equals("\\"))
+                    cacheDir = "C:" + fileSeparator + "temp";
+                else
+                    cacheDir = null;
+            return cacheDir;
+        }
+        if(fileSeparator.equals("/"))
+            cacheDir = "/tmp";
+        else
+        if(fileSeparator.equals("\\"))
+            cacheDir = "C:" + fileSeparator + "temp";
+        else
+            cacheDir = null;
+        return cacheDir;
+    }
 
     public static void setHint(int hint, Object value)
     {
         if(value != null && hint >= 1 && hint <= numberOfHints)
-        {
             hintTable.put(new Integer(hint), value);
-        }
     }
 
     public static Object getHint(int hint)
     {
         if(hint >= 1 && hint <= numberOfHints)
-        {
             return hintTable.get(new Integer(hint));
-        } else
-        {
+        else
             return null;
-        }
     }
 
     private static void blockingCall(Player p, int state)
@@ -1211,32 +1029,24 @@ public final class Manager
         ControllerListener cl = new MCA(sync, state);
         p.addControllerListener(cl);
         if(state == 300)
-        {
             p.realize();
-        } else
+        else
         if(state == 180)
-        {
             ((Processor)p).configure();
-        }
         synchronized(sync)
         {
             while(!sync[0]) 
-            {
                 try
                 {
                     sync.wait();
                 }
                 catch(InterruptedException e) { }
-            }
         }
         p.removeControllerListener(cl);
         if(!sync[1])
-        {
             throw new CannotRealizeException();
-        } else
-        {
+        else
             return;
-        }
     }
 
     public static Vector getDataSourceList(String protocolName)
@@ -1263,9 +1073,7 @@ public final class Manager
         classList.addElement(name);
         String prefixName;
         for(Enumeration prefix = prefixList.elements(); prefix.hasMoreElements(); classList.addElement(prefixName + "." + name))
-        {
             prefixName = (String)prefix.nextElement();
-        }
 
         return classList;
     }
@@ -1286,22 +1094,16 @@ public final class Manager
         Vector audioDevs = CaptureDeviceManager.getDeviceList(new AudioFormat(null));
         Vector videoDevs = CaptureDeviceManager.getDeviceList(new VideoFormat(null));
         if(audioDevs != null && audioDevs.size() > 0)
-        {
             nDevices++;
-        }
         if(videoDevs != null && videoDevs.size() > 0)
-        {
             nDevices++;
-        }
         return nDevices;
     }
 
     private static boolean checkIfJDK12()
     {
         if(jdkInit)
-        {
             return forName3ArgsM != null;
-        }
         jdkInit = true;
         try
         {
@@ -1330,16 +1132,12 @@ public final class Manager
         catch(Exception e)
         {
             if(!checkIfJDK12())
-            {
                 throw new ClassNotFoundException(e.getMessage());
-            }
         }
         catch(Error e)
         {
             if(!checkIfJDK12())
-            {
                 throw e;
-            }
         }
         try
         {
@@ -1364,6 +1162,24 @@ public final class Manager
             throw e;
         }
     }
+
+    private static String VERSION = "2.1.1e";
+    public static final int MAX_SECURITY = 1;
+    public static final int CACHING = 2;
+    public static final int LIGHTWEIGHT_RENDERER = 3;
+    public static final int PLUGIN_PLAYER = 4;
+    private static int numberOfHints = 4;
+    private static SystemTimeBase sysTimeBase = null;
+    public static final String UNKNOWN_CONTENT_NAME = "unknown";
+    private static boolean jdkInit = false;
+    private static Method forName3ArgsM;
+    private static Method getSystemClassLoaderM;
+    private static ClassLoader systemClassLoader;
+    private static Method getContextClassLoaderM;
+    private static String fileSeparator = System.getProperty("file.separator");
+    private static Hashtable hintTable;
+    static final int DONE = 0;
+    static final int SUCCESS = 1;
 
     static 
     {

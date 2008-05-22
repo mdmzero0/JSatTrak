@@ -1,3 +1,8 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   ProcessorModel.java
+
 package javax.media;
 
 import javax.media.protocol.ContentDescriptor;
@@ -8,11 +13,6 @@ import javax.media.protocol.DataSource;
 
 public class ProcessorModel
 {
-
-    private Format formats[];
-    private MediaLocator inputLocator;
-    private DataSource inputDataSource;
-    private ContentDescriptor outputContentDescriptor;
 
     public ProcessorModel()
     {
@@ -57,34 +57,25 @@ public class ProcessorModel
     public int getTrackCount(int availableTrackCount)
     {
         if(formats != null)
-        {
             return formats.length;
-        } else
-        {
+        else
             return -1;
-        }
     }
 
     public Format getOutputTrackFormat(int tIndex)
     {
         if(formats != null && formats.length > tIndex)
-        {
             return formats[tIndex];
-        } else
-        {
+        else
             return null;
-        }
     }
 
     public boolean isFormatAcceptable(int tIndex, Format tFormat)
     {
         if(formats != null && formats.length > tIndex)
-        {
             return tFormat.matches(formats[tIndex]);
-        } else
-        {
+        else
             return true;
-        }
     }
 
     public ContentDescriptor getContentDescriptor()
@@ -101,4 +92,9 @@ public class ProcessorModel
     {
         return inputLocator;
     }
+
+    private Format formats[];
+    private MediaLocator inputLocator;
+    private DataSource inputDataSource;
+    private ContentDescriptor outputContentDescriptor;
 }
