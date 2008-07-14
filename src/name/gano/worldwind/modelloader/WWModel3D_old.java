@@ -1,5 +1,5 @@
 /*
- * WWModel3D.java
+ * WWModel3D_old.java
  *
  * Created on February 14, 2008, 9:11 PM
  *
@@ -15,7 +15,7 @@ import net.java.joglutils.model.geometry.Model;
  *
  * @author RodgersGB, Shawn Gano
  */
-public class WWModel3D
+public class WWModel3D_old
 {
     private Position position;
     private Model model;
@@ -26,11 +26,11 @@ public class WWModel3D
 
     // STK - model - Nadir Alignment with ECF velocity constraint
     
-    /** Creates a new instance of WWModel3D
+    /** Creates a new instance of WWModel3D_old
      * @param model
      * @param pos 
      */
-    public WWModel3D(Model model, Position pos)
+    public WWModel3D_old(Model model, Position pos)
     {
         this.model = model;
         this.setPosition(pos);

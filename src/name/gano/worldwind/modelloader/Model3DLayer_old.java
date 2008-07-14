@@ -1,5 +1,5 @@
 /*
- * Model3DLayer.java
+ * Model3DLayer_old.java
  *
  * Created on February 12, 2008, 10:49 PM
  *
@@ -22,28 +22,28 @@ import net.java.joglutils.model.iModel3DRenderer;
  *
  * @author RodgersGB, Shawn Gano
  */
-public class Model3DLayer extends AbstractLayer {
-    private Vector<WWModel3D> list;
+public class Model3DLayer_old extends AbstractLayer {
+    private Vector<WWModel3D_old> list;
     private boolean maitainConstantSize = true; // default true
     private double size = 1;
     
-    /** Creates a new instance of Model3DLayer */
-    public Model3DLayer() {
-        list = new Vector<WWModel3D>();
+    /** Creates a new instance of Model3DLayer_old */
+    public Model3DLayer_old() {
+        list = new Vector<WWModel3D_old>();
     }
 
-    public void addModel(WWModel3D model) {
+    public void addModel(WWModel3D_old model) {
         list.add(model);
     }
     
-    public void removeModel(WWModel3D model) {
+    public void removeModel(WWModel3D_old model) {
         list.remove(model);
     }
     
     protected void doRender(DrawContext dc) {
         try {
             beginDraw(dc);
-            Iterator<WWModel3D> it = list.iterator();
+            Iterator<WWModel3D_old> it = list.iterator();
             while (it.hasNext())
                 draw(dc, it.next());
         }
@@ -60,7 +60,7 @@ public class Model3DLayer extends AbstractLayer {
     }
     
     // draw this layer
-    protected void draw(DrawContext dc, WWModel3D model) {
+    protected void draw(DrawContext dc, WWModel3D_old model) {
         GL gl = dc.getGL();
         Position pos = model.getPosition();
         Vec4 loc = dc.getGlobe().computePointFromPosition(pos);
