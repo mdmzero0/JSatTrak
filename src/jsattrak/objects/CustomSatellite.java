@@ -37,6 +37,7 @@ import name.gano.astro.coordinates.CoordinateConversion;
 import name.gano.astro.time.Time;
 import name.gano.math.interpolation.LagrangeInterp;
 import name.gano.swingx.treetable.CustomTreeTableNode;
+import name.gano.worldwind.modelloader.WWModel3D_new;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 
 /**
@@ -106,6 +107,11 @@ public class CustomSatellite  extends AbstractSatellite
     
     private boolean showConsoleOnPropogate = true;
            
+    
+    // 3D model parameters
+    private boolean use3dModel = false; // use custom 3D model (or default sphere)
+    private String threeDModelPath = ""; // path to the custom model
+    WWModel3D_new threeDModel;
     
 //    // Constructors
 //    public CustomSatellite()
@@ -1106,4 +1112,29 @@ public class CustomSatellite  extends AbstractSatellite
         return xn;
     } // secantMethod
     
+    // 3D model -------------------------
+    public boolean isUse3dModel()
+    {
+        return use3dModel; 
+    }
+    
+    public void setUse3dModel(boolean use3dModel)
+    {
+        this.use3dModel = use3dModel;
+    }
+    
+    public String getThreeDModelPath()
+    {
+        return threeDModelPath;
+    }
+    
+    public void setThreeDModelPath(String path)
+    {
+        this.threeDModelPath = path;
+    }
+    
+    public WWModel3D_new getThreeDModel()
+    {
+        return threeDModel;
+    }
 }

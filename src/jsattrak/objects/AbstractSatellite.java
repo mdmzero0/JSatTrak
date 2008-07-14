@@ -25,6 +25,7 @@ package jsattrak.objects;
 import java.awt.Color;
 import java.io.Serializable;
 import jsattrak.utilities.TLE;
+import name.gano.worldwind.modelloader.WWModel3D_new;
 
 /**
  *
@@ -166,5 +167,15 @@ public abstract class AbstractSatellite implements Serializable
     public abstract void setShowName2D(boolean showName2D);
 
     public abstract void updateTleData(TLE newTLE);
+    
+    public abstract boolean isUse3dModel();
+    
+    public abstract void setUse3dModel(boolean use3dModel);
+    
+    public abstract String getThreeDModelPath();
+    
+    public abstract void setThreeDModelPath(String path);
+    
+    public abstract WWModel3D_new getThreeDModel();
 
 }

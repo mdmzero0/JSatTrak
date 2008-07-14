@@ -69,6 +69,8 @@
  *          3.2.1 - (22 May 2008) - unsucessful try to remove dependency on JMF
  *                  ? view following sat (very preliminary) and 3D models?
  *             // bug - does CoverageAnalyzer save and open in 2d window correctly?? use dialog maybe to fix this?
+ *  Version 3.3.0 - 14 July 2008 -- Added 3D models  (in progress)
+ * 
  */
 // notes: not good to use rk78 in a solver loop because direvatives inaccurate, because solution changes slightly near end.?
 //

@@ -29,14 +29,14 @@ public class test extends ApplicationTemplate
 
             try
             {
-                Model3DLayer_old layer = new Model3DLayer_old();
-                layer.setMaitainConstantSize(true);
-                layer.setSize(300000);
+                Model3DLayer_new layer = new Model3DLayer_new();
+//                layer.setMaitainConstantSize(true);
+//                layer.setSize(300000);
                 
                 Random generator = new Random();
 //                Model modelOBJ = ModelFactory.createModel("test/data/penguin.obj");
 //                for (int i=0; i<100; i++) {
-//                    layer.addModel(new WWModel3D_old(modelOBJ,
+//                    layer.addModel(new WWModel3D(modelOBJ,
 //                            new Position(Angle.fromDegrees(generator.nextInt()%80),
 //                                         Angle.fromDegrees(generator.nextInt()%180),
 //                                         500000)));
@@ -45,15 +45,20 @@ public class test extends ApplicationTemplate
                 Model model3DS = ModelFactory.createModel("test/data/globalstar/Globalstar.3ds");
                 model3DS.setUseLighting(false); // turn off lighting!
 //                for (int i=0; i<100; i++) {
-//                    layer.addModel(new WWModel3D_old(model3DS,
+//                    layer.addModel(new WWModel3D(model3DS,
 //                            new Position(Angle.fromDegrees(generator.nextInt()%80),
 //                                         Angle.fromDegrees(generator.nextInt()%180),
 //                                         750000)));
 //                }
-                layer.addModel(new WWModel3D_old(model3DS,
+                
+                WWModel3D_new model3D = new WWModel3D_new(model3DS,
                             new Position(Angle.fromDegrees(0),
                                          Angle.fromDegrees(0),
-                                         750000)));
+                                         750000));
+                model3D.setMaitainConstantSize(true);
+                model3D.setSize(300000);
+                
+                layer.addModel(model3D);
                 
                 insertBeforeCompass(this.getWwd(), layer);
                 this.getLayerPanel().update(this.getWwd());

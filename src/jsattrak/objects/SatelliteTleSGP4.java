@@ -25,6 +25,8 @@
 
 package jsattrak.objects;
 
+import gov.nasa.worldwind.geom.Angle;
+import gov.nasa.worldwind.geom.Position;
 import java.awt.Color;
 import java.util.Random;
 import javax.swing.JOptionPane;
@@ -34,6 +36,8 @@ import name.gano.astro.Kepler;
 import name.gano.astro.coordinates.CoordinateConversion;
 import name.gano.astro.propogators.sdp4.SDP4;
 import jsattrak.utilities.TLE;
+import name.gano.worldwind.modelloader.WWModel3D_new;
+import net.java.joglutils.model.ModelFactory;
 
 /**
  * 
@@ -90,6 +94,10 @@ public class SatelliteTleSGP4 extends AbstractSatellite
     private boolean showGroundTrack3d = false;
     private boolean show3DOrbitTraceECI = true; // show orbit in ECI mode otherwise , ECEF
     
+        // 3D model parameters
+    private boolean use3dModel = false; // use custom 3D model (or default sphere)
+    private String threeDModelPath = ""; // path to the custom model
+    WWModel3D_new threeDModel;
     
     /** Creates a new instance of SatelliteProps - default properties with given name and TLE lines
      * @param name name of satellite
@@ -788,5 +796,66 @@ public class SatelliteTleSGP4 extends AbstractSatellite
         return timeLag;
     }
     
+    // 3D model -------------------------
+    public boolean isUse3dModel()
+    {
+        return use3dModel; 
+    }
+    
+    public void setUse3dModel(boolean use3dModel)
+    {
+        this.use3dModel = use3dModel;
+        
+        if(use3dModel && threeDModel==null)
+        {
+            String path = "data/models/globalstar/Globalstar.3ds";
+            if(threeDModelPath.length()>0)
+            {
+                path = threeDModelPath;
+            }
+            loadNewModel(path);
+        }
+    }
+    
+    public String getThreeDModelPath()
+    {
+        return threeDModelPath;
+    }
+    
+    public void setThreeDModelPath(String path)
+    {
+        if(use3dModel && !(path.equalsIgnoreCase(this.threeDModelPath)) )
+        {
+            // need to load the model
+            loadNewModel(path);//"test/data/globalstar/Globalstar.3ds");
+        }
+        
+        this.threeDModelPath = path; // save path no matter
+    }
+    
+    private void loadNewModel(String path)
+    {
+        try
+            {
+                net.java.joglutils.model.geometry.Model model3DS = ModelFactory.createModel(path);
+                model3DS.setUseLighting(false); // turn off lighting!
+
+                threeDModel =  new WWModel3D_new(model3DS,
+                        new Position(Angle.fromRadians(this.getLatitude()),
+                        Angle.fromRadians(this.getLongitude()),
+                        this.getAltitude()));
+
+                threeDModel.setMaitainConstantSize(true);
+                threeDModel.setSize(300000); // this needs to be a property!
+            }catch(Exception e)
+            {
+                System.out.println("ERROR LOADING 3D MODEL");
+            }
+    }
+    
+    public WWModel3D_new getThreeDModel()
+    {
+        return threeDModel;
+    }    
     
 } // SatelliteProps

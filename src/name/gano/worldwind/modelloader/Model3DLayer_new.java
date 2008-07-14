@@ -1,5 +1,5 @@
 /*
- * Model3DLayer_old.java
+ * Model3DLayer_new.java
  *
  * Created on February 12, 2008, 10:49 PM
  *
@@ -22,28 +22,29 @@ import net.java.joglutils.model.iModel3DRenderer;
  *
  * @author RodgersGB, Shawn Gano
  */
-public class Model3DLayer_old extends AbstractLayer {
-    private Vector<WWModel3D_old> list;
-    private boolean maitainConstantSize = true; // default true
-    private double size = 1;
+public class Model3DLayer_new extends AbstractLayer {
+    private Vector<WWModel3D_new> list;
+    // moved to model itself
+//    private boolean maitainConstantSize = true; // default true
+//    private double size = 1;
     
-    /** Creates a new instance of Model3DLayer_old */
-    public Model3DLayer_old() {
-        list = new Vector<WWModel3D_old>();
+    /** Creates a new instance of Model3DLayer_new */
+    public Model3DLayer_new() {
+        list = new Vector<WWModel3D_new>();
     }
 
-    public void addModel(WWModel3D_old model) {
+    public void addModel(WWModel3D_new model) {
         list.add(model);
     }
     
-    public void removeModel(WWModel3D_old model) {
+    public void removeModel(WWModel3D_new model) {
         list.remove(model);
     }
     
     protected void doRender(DrawContext dc) {
         try {
             beginDraw(dc);
-            Iterator<WWModel3D_old> it = list.iterator();
+            Iterator<WWModel3D_new> it = list.iterator();
             while (it.hasNext())
                 draw(dc, it.next());
         }
@@ -60,11 +61,11 @@ public class Model3DLayer_old extends AbstractLayer {
     }
     
     // draw this layer
-    protected void draw(DrawContext dc, WWModel3D_old model) {
+    protected void draw(DrawContext dc, WWModel3D_new model) {
         GL gl = dc.getGL();
         Position pos = model.getPosition();
         Vec4 loc = dc.getGlobe().computePointFromPosition(pos);
-        double localSize = this.computeSize(dc, loc);
+        double localSize = this.computeSize(dc, loc, model);
         
         if (dc.getView().getFrustumInModelCoordinates().contains(loc)) 
         {
@@ -73,8 +74,8 @@ public class Model3DLayer_old extends AbstractLayer {
 //            gl.glRotated(-pos.getLatitude().degrees, 1,0,0);
             gl.glScaled(localSize, localSize, localSize);  /// can change the scale of the model here!!
             
-            model.setRollDeg(pos.getLongitude().degrees);
-            model.setPitchDeg(-pos.getLatitude().degrees);
+            //model.setRollDeg(pos.getLongitude().degrees);
+            //model.setPitchDeg(-pos.getLatitude().degrees);
             
             // attitude
             //if the base of the model is parallel to the x-y plane and the up vector is in the positive z direction it would be...
@@ -154,9 +155,9 @@ public class Model3DLayer_old extends AbstractLayer {
         gl.glPopAttrib();
     }
     
-    private double computeSize(DrawContext dc, Vec4 loc) {
-        if (this.maitainConstantSize)
-            return size;
+    private double computeSize(DrawContext dc, Vec4 loc, WWModel3D_new model) {
+        if (model.isConstantSize())
+            return model.getSize();
         
         if (loc == null) {
             System.err.println("Null location when computing size of model");
@@ -170,21 +171,21 @@ public class Model3DLayer_old extends AbstractLayer {
         return currentSize;
     }
 
-    public boolean isConstantSize() {
-        return maitainConstantSize;
-    }
-
-    public void setMaitainConstantSize(boolean maitainConstantSize) {
-        this.maitainConstantSize = maitainConstantSize;
-    }
-
-    public double getSize() {
-        return size;
-    }
-
-    public void setSize(double size) {
-        this.size = size;
-    }
+//    public boolean isConstantSize() {
+//        return maitainConstantSize;
+//    }
+//
+//    public void setMaitainConstantSize(boolean maitainConstantSize) {
+//        this.maitainConstantSize = maitainConstantSize;
+//    }
+//
+//    public double getSize() {
+//        return size;
+//    }
+//
+//    public void setSize(double size) {
+//        this.size = size;
+//    }
     
      @Override
     public String toString()
