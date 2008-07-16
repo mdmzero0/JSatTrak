@@ -578,7 +578,7 @@ private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         double[] axis = MathUtils.cross(unitOrient, unitV);
         double normAxis = MathUtils.norm(axis);
         
-        JOptionPane.showMessageDialog(this, "Angle: " + (angleRad*180.0/Math.PI) + ", normAxis: " + normAxis + ", Axis: " + axis[0] +"," + axis[1] +"," + axis[2]);
+        JOptionPane.showMessageDialog(this, "Angle: " + (angleRad*180.0/Math.PI) + ",\n normAxis: " + normAxis + ",\n Axis: " + axis[0] +"," + axis[1] +"," + axis[2]);
                 
                 
 }//GEN-LAST:event_jButton3ActionPerformed
