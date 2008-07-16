@@ -69,7 +69,8 @@
  *          3.2.1 - (22 May 2008) - unsucessful try to remove dependency on JMF
  *                  ? view following sat (very preliminary) and 3D models?
  *             // bug - does CoverageAnalyzer save and open in 2d window correctly?? use dialog maybe to fix this?
- *  Version 3.3.0 - 14 July 2008 -- Added 3D models  (in progress)
+ *  Version 3.3.0 - 15 July 2008 -- Added 3D models  (in progress) - fixed bug: 3d view in ECI reverted back to North up when time advanced (J3DEarthPanel.java, and internal)
+ *           
  * 
  */
 // notes: not good to use rk78 in a solver loop because direvatives inaccurate, because solution changes slightly near end.?
@@ -177,7 +178,7 @@ import name.gano.file.FileTypeFilter;
  */
 public class JSatTrak extends javax.swing.JFrame implements InternalFrameListener, WindowListener, Serializable
 {
-    private String versionString = "Version 3.2.1 (22 May 2008)"; // Version of app
+    private String versionString = "Version 3.3.0 alpha (15 July 2008)"; // Version of app
     
     // hastable to store all the statelites currently being processed
     private Hashtable<String,AbstractSatellite> satHash = new Hashtable<String,AbstractSatellite>();

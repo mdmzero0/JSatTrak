@@ -817,7 +817,8 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
             
             //Quaternion q0 = ((BasicOrbitView) wwd.getView()).getRotation();
             //Vec4 vec = ((BasicOrbitView) wwd.getView()).getEyePoint();
-            Position pos = ((BasicOrbitView) wwd.getView()).getCurrentEyePosition();
+            //Position pos = ((BasicOrbitView) wwd.getView()).getCurrentEyePosition();
+            Position pos = ((BasicOrbitView) wwd.getView()).getCenterPosition(); // WORKS
             
             // amount to rotate the globe (degrees) around poles axis
             double rotateEarthDelta = thetaf - theta0; // deg
@@ -828,13 +829,15 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
             //double[] newEyePos = MathUtils.mult(rz, new double[] {vec.x,vec.y,vec.z});
 //            Angle newLon = pos.getLongitude().addDegrees(-rotateEarthDelta);
 //            Position newPos = new Position(pos.getLatitude(),newLon,pos.getElevation());
-            Position newPos = pos.add(new Position(Angle.fromDegrees(0),Angle.fromDegrees(-rotateEarthDelta),0.0));
+            //Position newPos = pos.add(new Position(Angle.fromDegrees(0),Angle.fromDegrees(-rotateEarthDelta),0.0));
+            Position newPos = pos.add(new Position(Angle.fromDegrees(0),Angle.fromDegrees(-rotateEarthDelta),0.0)); // WORKS
             
             // rotation in 3D space is "added" to the quaternion by quaternion multiplication
 //            try // try around it to prevent problems when running the simulation and then opening a new 3D window (this is called before the wwj is initalized)
 //            {
                 //((BasicOrbitView) wwd.getView()).setRotation(q0.multiply(q));
-                ((BasicOrbitView) wwd.getView()).setEyePosition(newPos);
+                //((BasicOrbitView) wwd.getView()).setEyePosition(newPos);
+                ((BasicOrbitView) wwd.getView()).setCenterPosition(newPos); // WORKS  -- fixed 15  Jul 2008 SEG
 //            }
 //            catch(Exception e)
 //            {

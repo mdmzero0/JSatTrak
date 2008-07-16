@@ -148,11 +148,19 @@ public class WWModel3D_new implements Renderable
             //model.setRollDeg(pos.getLongitude().degrees);
             //model.setPitchDeg(-pos.getLatitude().degrees);
             
-            // attitude
+            // attitude  -- flight dynamics way or Euler angles way? 
             //if the base of the model is parallel to the x-y plane and the up vector is in the positive z direction it would be...
-            gl.glRotated(model.getYawDeg(), 0,0,1);
+            gl.glRotated(model.getYawDeg(), 0,0,1); // 0,0,1
             gl.glRotated(model.getPitchDeg(), 1,0,0);
             gl.glRotated(model.getRollDeg(), 0,1,0);
+//            gl.glRotated(model.getRollDeg(), 0,1,0);
+//            gl.glRotated(model.getPitchDeg(), 1,0,0);
+//            gl.glRotated(model.getYawDeg(), 0,0,1); // 0,0,1
+//              gl.glRotated(model.getYawDeg(),   0,1,0); // 0,0,1
+//              gl.glRotated(model.getPitchDeg(), 0,0,1);
+//              gl.glRotated(model.getRollDeg(),  0,1,0);
+            
+            
             
             // Get an instance of the display list renderer
             iModel3DRenderer renderer = DisplayListRenderer.getInstance();

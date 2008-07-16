@@ -154,6 +154,12 @@ public class OrbitModelRenderable implements Renderable
                         sat.getThreeDModel().setPosition(new Position(Angle.fromRadians(sat.getLatitude()),
                             Angle.fromRadians(sat.getLongitude()),
                             sat.getAltitude()));
+                        // set roll pitch yaw (assume user wants LVLH, velcorty aligned)
+                        sat.getThreeDModel().setYawDeg(-(90-sat.getKeplarianElements()[2]*180.0/Math.PI));
+                        //sat.getThreeDModel().setYawDeg(-(90-51.6-10)); ///90-
+                        sat.getThreeDModel().setPitchDeg(-sat.getLatitude());
+                        sat.getThreeDModel().setRollDeg(sat.getLongitude());
+                        
                         sat.getThreeDModel().render(dc); // render model
                     }
                 }
