@@ -42,22 +42,27 @@ public class Model3DLayer_new extends AbstractLayer {
     }
     
     protected void doRender(DrawContext dc) {
-        try {
-            beginDraw(dc);
-            Iterator<WWModel3D_new> it = list.iterator();
+        
+        // render using models own methods, not this layers
+        Iterator<WWModel3D_new> it = list.iterator();
             while (it.hasNext())
-                draw(dc, it.next());
-        }
-        // handle any exceptions
-        catch (Exception e) {
-            // handle
-            e.printStackTrace();
-        }
-        // we must end drawing so that opengl
-        // states do not leak through.
-        finally {
-            endDraw(dc);
-        }
+                it.next().render(dc);
+//        try {
+//            beginDraw(dc);
+//            Iterator<WWModel3D_new> it = list.iterator();
+//            while (it.hasNext())
+//                draw(dc, it.next());
+//        }
+//        // handle any exceptions
+//        catch (Exception e) {
+//            // handle
+//            e.printStackTrace();
+//        }
+//        // we must end drawing so that opengl
+//        // states do not leak through.
+//        finally {
+//            endDraw(dc);
+//        }
     }
     
     // draw this layer

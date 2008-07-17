@@ -60,6 +60,7 @@ public class SatelliteTleSGP4 extends AbstractSatellite
     private double[] j2kVel = new double[3];
     // MOD Mean of Date (or actually mean of Epoch Date)
     private double[] posMOD = new double[3];  // mean of date position for LLA calcs
+    private double[] velMOD = new double[3];
     
     // lat,long,alt  [radians, radians, km/m ?]
     private double[] lla = new double[3];
@@ -200,6 +201,7 @@ public class SatelliteTleSGP4 extends AbstractSatellite
             j2kVel[i] = j2kVel[i]*1000.0;
             // MOD
              posMOD[i] = sdp4Prop.itsR[i]*1000000000.0;
+             velMOD[i] = sdp4Prop.itsV[i]*1000.0;
         }
         
         // save old lat/long for ascending node check
@@ -857,5 +859,10 @@ public class SatelliteTleSGP4 extends AbstractSatellite
     {
         return threeDModel;
     }    
+    
+    public  double[] getMODVelocity()
+    {
+        return velMOD.clone();
+    }
     
 } // SatelliteProps

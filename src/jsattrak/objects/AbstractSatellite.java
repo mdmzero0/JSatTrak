@@ -177,5 +177,7 @@ public abstract class AbstractSatellite implements Serializable
     public abstract void setThreeDModelPath(String path);
     
     public abstract WWModel3D_new getThreeDModel();
+    
+    public abstract double[] getMODVelocity();
 
 }

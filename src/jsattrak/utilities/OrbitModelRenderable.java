@@ -155,10 +155,17 @@ public class OrbitModelRenderable implements Renderable
                             Angle.fromRadians(sat.getLongitude()),
                             sat.getAltitude()));
                         // set roll pitch yaw (assume user wants LVLH, velcorty aligned)
-                        sat.getThreeDModel().setYawDeg(-(90-sat.getKeplarianElements()[2]*180.0/Math.PI));
-                        //sat.getThreeDModel().setYawDeg(-(90-51.6-10)); ///90-
-                        sat.getThreeDModel().setPitchDeg(-sat.getLatitude());
-                        sat.getThreeDModel().setRollDeg(sat.getLongitude());
+//                        sat.getThreeDModel().setYawDeg(-(90-sat.getKeplarianElements()[2]*180.0/Math.PI));
+//                        //sat.getThreeDModel().setYawDeg(-(90-51.6-10)); ///90-
+//                        sat.getThreeDModel().setPitchDeg(-sat.getLatitude());
+//                        sat.getThreeDModel().setRollDeg(sat.getLongitude());
+                         
+                        
+                        // REALLY NEED MOD VELOCITY!!
+                        sat.getThreeDModel().setMainRotationAngleAxis(sat.getMODVelocity());
+                        Vec4 vec = dc.getGlobe().computePointFromPosition(sat.getThreeDModel().getPosition());
+                        
+                        //System.out.println("MOD Pos:" + vec.x +"," + vec.y +"," +vec.z);
                         
                         sat.getThreeDModel().render(dc); // render model
                     }

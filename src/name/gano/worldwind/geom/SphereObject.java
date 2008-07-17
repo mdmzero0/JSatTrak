@@ -54,6 +54,8 @@ public final class SphereObject implements Extent, Renderable
     
     private int numDivisions = 20; // number of horizontal and verticle divisions in the sphere
 
+    boolean plotFixedAxis = true;
+    
     /**
      * Creates a sphere that completely contains a set of points.
      *
@@ -384,6 +386,29 @@ public final class SphereObject implements Extent, Renderable
         }
         
         dc.getGLU().gluSphere(quadric, this.radius, numDivisions, numDivisions);
+        
+        // Draw in axis
+        if(plotFixedAxis)
+        {
+            gl.glLineWidth(3.0f);
+            gl.glColor3d(1, 0, 0); // COLOR 
+            gl.glBegin(gl.GL_LINES);
+                gl.glVertex3d(radius * 3, 0, 0);
+                gl.glVertex3d(0, 0, 0);
+            gl.glEnd();
+            // Draw in axis
+            gl.glColor3d(0, 1, 0); // COLOR 
+            gl.glBegin(gl.GL_LINES);
+                gl.glVertex3d(0, radius * 3, 0);
+                gl.glVertex3d(0, 0, 0);
+            gl.glEnd();
+            // Draw in axis
+            gl.glColor3d(0, 0, 1); // COLOR 
+            gl.glBegin(gl.GL_LINES);
+                gl.glVertex3d(0, 0, radius * 3);
+                gl.glVertex3d(0, 0, 0);
+            gl.glEnd();
+        }
         
         gl.glPopMatrix();
         dc.getGLU().gluDeleteQuadric(quadric);

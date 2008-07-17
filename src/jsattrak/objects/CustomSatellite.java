@@ -1137,4 +1137,9 @@ public class CustomSatellite  extends AbstractSatellite
     {
         return threeDModel;
     }
+    
+    public  double[] getMODVelocity()
+    {
+        return new double[3];
+    }
 }
