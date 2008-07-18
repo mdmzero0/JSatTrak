@@ -10,7 +10,6 @@ package name.gano.worldwind.modelloader;
 
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Vec4;
-import gov.nasa.worldwind.globes.Globe;
 import gov.nasa.worldwind.render.DrawContext;
 import gov.nasa.worldwind.render.Renderable;
 import javax.media.opengl.GL;
@@ -42,6 +41,8 @@ public class WWModel3D_new implements Renderable
     public double xAxis = 0;
     public double yAxis = 0;
     public double zAxis = 0;
+    
+    public double[] velUnitVec = new double[3];
 
     // STK - model - Nadir Alignment with ECF velocity constraint
     
@@ -175,7 +176,14 @@ public class WWModel3D_new implements Renderable
                 gl.glVertex3d(0, 0, radius * 3);
                 gl.glVertex3d(0, 0, 0);
             gl.glEnd();
-        
+            
+            // plot velocity Vector here
+            gl.glColor3d(0,1,1); // COLOR 
+            gl.glBegin(gl.GL_LINES);
+                //gl.glVertex3d(-velUnitVec[0]*radius*3, velUnitVec[2]*radius*3, velUnitVec[1]*radius*3);
+                gl.glVertex3d(-velUnitVec[0]*radius*3, velUnitVec[2]*radius*3, velUnitVec[1]*radius*3);
+                gl.glVertex3d(0, 0, 0);
+            gl.glEnd();
             
             
             //model.setRollDeg(pos.getLongitude().degrees);
@@ -270,8 +278,8 @@ public class WWModel3D_new implements Renderable
     
     public void setMainRotationAngleAxis(double[] v)
     {
-        //double[] orgOrientation = new double[] {0,0,1};
-        double[] orgOrientation = new double[] {0,1,0};
+        double[] orgOrientation = new double[] {0,0,1};
+        //double[] orgOrientation = new double[] {0,1,0};
     
 //        double[] v = new double[3];
 //        v[0] = Double.parseDouble(xBox.getText());

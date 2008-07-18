@@ -248,6 +248,25 @@ public class MathUtils
 	}
         
         // Elementary rotation matrix about x axis
+        
+        /**
+         * Creates a unit vector from the given vector
+         * @param vec any vector n-dimensional
+         * @return unit vector (n-dimensional) with norm = 1
+         */
+        public static double[] UnitVector(double[] vec)
+        {
+            int n = vec.length;
+            double[] unitVect = new double[n];
+            
+            double normVec = MathUtils.norm(vec);
+            
+            unitVect = MathUtils.scale(vec, 1.0/normVec);
+            
+            //System.out.println("Norm:" + MathUtils.norm(unitVect));
+             
+            return unitVect;
+        } // UnitVector
 
     /**
      * Elementary rotation matrix about x axis
