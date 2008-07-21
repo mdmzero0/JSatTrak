@@ -151,26 +151,7 @@ public class OrbitModelRenderable implements Renderable
                     // custom 3D object
                     if(sat.getThreeDModel() != null) // make sure it is not null
                     {
-                        // set position -- should NOT DO THIS HERE! (should do this only when needs updat - when time changes
-                        sat.getThreeDModel().setPosition(new Position(Angle.fromRadians(sat.getLatitude()),
-                            Angle.fromRadians(sat.getLongitude()),
-                            sat.getAltitude()));
-                        // set roll pitch yaw (assume user wants LVLH, velcorty aligned)
-//                        sat.getThreeDModel().setYawDeg(-(90-sat.getKeplarianElements()[2]*180.0/Math.PI));
-//                        //sat.getThreeDModel().setYawDeg(-(90-51.6-10)); ///90-
-//                        sat.getThreeDModel().setPitchDeg(-sat.getLatitude());
-//                        sat.getThreeDModel().setRollDeg(sat.getLongitude());
-                         
-                        
-                        // REALLY NEED MOD VELOCITY!!
-                        sat.getThreeDModel().setMainRotationAngleAxis(sat.getMODVelocity());
-                        // set velcoity for test plotting
-                        sat.getThreeDModel().velUnitVec = MathUtils.UnitVector(sat.getMODVelocity());
-                        //Vec4 vec = dc.getGlobe().computePointFromPosition(sat.getThreeDModel().getPosition());
-                        //System.out.println("MOD Pos:" + vec.x +"," + vec.y +"," +vec.z);
-                        
-                        //System.out.println("unit V:" + sat.getThreeDModel().velUnitVec[0] +"," + sat.getThreeDModel().velUnitVec[1] +"," +sat.getThreeDModel().velUnitVec[2]);
-                        
+                       //- 
                         sat.getThreeDModel().render(dc); // render model
                     }
                 }
@@ -271,5 +252,37 @@ public class OrbitModelRenderable implements Renderable
         
         return rh;
     }
+    
+    public void updateMJD(double MJD, double eciRotDeg)
+    {
+        for (AbstractSatellite sat : satHash.values()) // search through all sat nodes
+        {
+            // set position -- should NOT DO THIS HERE! (should do this only when needs updat - when time changes
+            // DIES HERE IF NO 3D MODEL  - I.E. 3D model not selected either!
+            sat.getThreeDModel().setPosition(new Position(Angle.fromRadians(sat.getLatitude()),
+                    Angle.fromRadians(sat.getLongitude()),
+                    sat.getAltitude()));
+            // set roll pitch yaw (assume user wants LVLH, velcorty aligned)
+//                        sat.getThreeDModel().setYawDeg(-(90-sat.getKeplarianElements()[2]*180.0/Math.PI));
+//                        //sat.getThreeDModel().setYawDeg(-(90-51.6-10)); ///90-
+//                        sat.getThreeDModel().setPitchDeg(-sat.getLatitude());
+//                        sat.getThreeDModel().setRollDeg(sat.getLongitude());
+
+
+            // REALLY NEED MOD VELOCITY!!
+            sat.getThreeDModel().setMainRotationAngleAxis(sat.getMODVelocity());
+            // set velcoity for test plotting
+            sat.getThreeDModel().velUnitVec = MathUtils.UnitVector(sat.getMODVelocity());
+        //Vec4 vec = dc.getGlobe().computePointFromPosition(sat.getThreeDModel().getPosition());
+        //System.out.println("MOD Pos:" + vec.x +"," + vec.y +"," +vec.z);
+
+        //System.out.println("unit V:" + sat.getThreeDModel().velUnitVec[0] +"," + sat.getThreeDModel().velUnitVec[1] +"," +sat.getThreeDModel().velUnitVec[2]);
+            
+            // Set ECI angle
+            sat.getThreeDModel().setEciRotAngleDeg(eciRotDeg);
+        }
+         
+         
+    } // update MJD
     
 }

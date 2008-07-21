@@ -226,6 +226,7 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
         eciLayer = new ECIRenderableLayer(currentMJD); // create ECI layer
         orbitModel = new OrbitModelRenderable(satHash, wwd.getModel().getGlobe());
         eciLayer.addRenderable(orbitModel); // add renderable object
+        eciLayer.setCurrentMJD(currentMJD); // update time again after adding renderable
         m.getLayers().add(eciLayer); // add ECI Layer
         
         // add ECEF Layer

@@ -210,6 +210,33 @@ public class ECEFModelRenderable implements Renderable
             } // show GS in 3D
         } // for each ground station
         
+        // LOCATION OF SAT - and orientation
+                   // plot position 
+//         gl.glRotated(-90, 0.0, 1.0, 0.0); // needs to be before veleocty?
+//        for(AbstractSatellite sat : satHash.values() )
+//        {
+//            double[] xyz = sat.getPosMOD();
+//            if(xyz != null)
+//            {
+//                // 3D model is rendered Here
+//                if(sat.isUse3dModel())
+//                {
+//                    // custom 3D object
+//                    if(sat.getThreeDModel() != null) // make sure it is not null
+//                    {
+//                       //- 
+//                        sat.getThreeDModel().render(dc); // render model
+//                    }
+//                }
+//                else
+//                {
+//                    // default "sphere" for model
+//                    sphere.setCenter(-xyz[0], xyz[2], xyz[1]);
+//                    sphere.render(dc);
+//                }
+//            } // if pos is not null
+//        }
+//        
         gl.glPopAttrib();
         
      } // render

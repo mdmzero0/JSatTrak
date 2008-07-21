@@ -43,6 +43,8 @@ public class WWModel3D_new implements Renderable
     public double zAxis = 0;
     
     public double[] velUnitVec = new double[3];
+    
+    private double eciRotAngleDeg = 0; // angle satellite already rotated due to ECI rotation (through z-axis)
 
     // STK - model - Nadir Alignment with ECF velocity constraint
     
@@ -147,16 +149,21 @@ public class WWModel3D_new implements Renderable
         Position pos = model.getPosition();
         Vec4 loc = dc.getGlobe().computePointFromPosition(pos);
         double localSize = this.computeSize(dc, loc);
-        
+       
+       
         if (dc.getView().getFrustumInModelCoordinates().contains(loc)) 
-        {
-            dc.getView().pushReferenceCenter(dc, loc);
+        {       
+            // MAYBE REPLACE "PUSH REFERENCE CENTER" - with gl. move to new center... (maybe not)
+            
+            dc.getView().pushReferenceCenter(dc, loc);   
 //            gl.glRotated(pos.getLongitude().degrees, 0,1,0);
 //            gl.glRotated(-pos.getLatitude().degrees, 1,0,0);
             gl.glScaled(localSize, localSize, localSize);  /// can change the scale of the model here!!
             
+            // re/un rotate ECI layer
+            gl.glRotated(-eciRotAngleDeg, 0.0, 1.0, 0.0); // -- WORKS!!?!! (re rotate because pushReferenceCenter, undoes the ECI roation?)
             
-            // Earth fixed Inertial
+            // Earth fixed Inertial  -- yes, inertial? (no, because it was spun around by ECI layer)
             double radius = 0.6;
          gl.glLineWidth(3.0f);
             gl.glColor3d(1, 0, 0); // COLOR 
@@ -177,7 +184,8 @@ public class WWModel3D_new implements Renderable
                 gl.glVertex3d(0, 0, 0);
             gl.glEnd();
             
-            // plot velocity Vector here
+            // plot velocity Vector here -- NEEDS A DEROTATION FROM ECI coordinates
+            // because model was spun by xxx degrees already (from ECI layer) around the z-axis so attitude is not where it normally is
             gl.glColor3d(0,1,1); // COLOR 
             gl.glBegin(gl.GL_LINES);
                 //gl.glVertex3d(-velUnitVec[0]*radius*3, velUnitVec[2]*radius*3, velUnitVec[1]*radius*3);
@@ -210,7 +218,6 @@ public class WWModel3D_new implements Renderable
             
             
             // body axis
-             // Earth fixed Inertial
             double radius2 = 0.3;
          gl.glLineWidth(3.0f);
             gl.glColor3d(1, 0, 0); // COLOR 
@@ -325,6 +332,16 @@ public class WWModel3D_new implements Renderable
             currentSize = 2;
         
         return currentSize;
+    }
+
+    public double getEciRotAngleDeg()
+    {
+        return eciRotAngleDeg;
+    }
+
+    public void setEciRotAngleDeg(double eciRotAngleDeg)
+    {
+        this.eciRotAngleDeg = eciRotAngleDeg;
     }
     
 }

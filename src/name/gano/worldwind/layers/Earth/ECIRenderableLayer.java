@@ -23,6 +23,7 @@ package name.gano.worldwind.layers.Earth;
 import gov.nasa.worldwind.layers.RenderableLayer;
 import gov.nasa.worldwind.render.DrawContext;
 import gov.nasa.worldwind.render.Renderable;
+import jsattrak.utilities.OrbitModelRenderable;
 
 /**
  * This layer automatically rotates its collection of renderables so that their 
@@ -135,7 +136,18 @@ public class ECIRenderableLayer extends RenderableLayer
         
         // now calculate the mean sidereal time at Greenwich (UT time) in degrees
         rotateECIdeg =  ( (280.46061837 + 360.98564736629*(currentMJD-51544.5)) + 0.000387933*T*T - T*T*T/38710000.0 +offsetRotdeg) % 360.0;
-                
+        
+        System.out.println("Rotat:" + rotateECIdeg);
+        
+        // set ECI angle to all OrbitModelRenderables
+         for (Renderable renderable : super.getRenderables())
+        {
+             if(renderable instanceof OrbitModelRenderable)
+             {
+                 ((OrbitModelRenderable)renderable).updateMJD(currentMJD, rotateECIdeg);
+             }//OrbitModelRenderable
+         } // for renderables
+        
     } // setCurrentMJD
 
     // SEG added -------------
