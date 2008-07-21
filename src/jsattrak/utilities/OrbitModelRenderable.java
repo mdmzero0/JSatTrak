@@ -270,7 +270,7 @@ public class OrbitModelRenderable implements Renderable
 
 
             // REALLY NEED MOD VELOCITY!!
-            sat.getThreeDModel().setMainRotationAngleAxis(sat.getMODVelocity());
+            sat.getThreeDModel().setMainRotationAngleAxis(sat.getMODVelocity(),sat.getPosMOD());
             // set velcoity for test plotting
             sat.getThreeDModel().velUnitVec = MathUtils.UnitVector(sat.getMODVelocity());
         //Vec4 vec = dc.getGlobe().computePointFromPosition(sat.getThreeDModel().getPosition());

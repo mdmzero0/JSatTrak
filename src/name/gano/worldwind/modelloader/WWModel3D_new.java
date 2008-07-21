@@ -46,6 +46,9 @@ public class WWModel3D_new implements Renderable
     
     private double eciRotAngleDeg = 0; // angle satellite already rotated due to ECI rotation (through z-axis)
 
+    private double[] testNorm = new double[3];
+    double angle2Rad = 0;
+    
     // STK - model - Nadir Alignment with ECF velocity constraint
     
     /** Creates a new instance of WWModel3D_new
@@ -167,20 +170,20 @@ public class WWModel3D_new implements Renderable
             double radius = 0.6;
          gl.glLineWidth(3.0f);
             gl.glColor3d(1, 0, 0); // COLOR 
-            gl.glBegin(gl.GL_LINES);
-                gl.glVertex3d(radius * 3, 0, 0);
+            gl.glBegin(gl.GL_LINES); // X-Axis (J2000)
+                gl.glVertex3d(-radius * 3, 0, 0);
                 gl.glVertex3d(0, 0, 0);
             gl.glEnd();
             // Draw in axis
             gl.glColor3d(0, 1, 0); // COLOR 
-            gl.glBegin(gl.GL_LINES);
-                gl.glVertex3d(0, radius * 3, 0);
+            gl.glBegin(gl.GL_LINES); // Y-Axis (J2000)
+                gl.glVertex3d(0, 0, radius * 3);
                 gl.glVertex3d(0, 0, 0);
             gl.glEnd();
             // Draw in axis
             gl.glColor3d(0, 0, 1); // COLOR 
-            gl.glBegin(gl.GL_LINES);
-                gl.glVertex3d(0, 0, radius * 3);
+            gl.glBegin(gl.GL_LINES); // Z-Axis (J2000)
+                gl.glVertex3d(0, radius * 3,0 );
                 gl.glVertex3d(0, 0, 0);
             gl.glEnd();
             
@@ -189,52 +192,43 @@ public class WWModel3D_new implements Renderable
             gl.glColor3d(0,1,1); // COLOR 
             gl.glBegin(gl.GL_LINES);
                 //gl.glVertex3d(-velUnitVec[0]*radius*3, velUnitVec[2]*radius*3, velUnitVec[1]*radius*3);
-                gl.glVertex3d(-velUnitVec[0]*radius*3, velUnitVec[2]*radius*3, velUnitVec[1]*radius*3);
+                gl.glVertex3d(-velUnitVec[0]*radius*1, velUnitVec[2]*radius*1, velUnitVec[1]*radius*1);
                 gl.glVertex3d(0, 0, 0);
             gl.glEnd();
             
+            // test normal compontnet -- only works when angle2Rad == 0 below (used for inital debug
+//            gl.glColor3d(1,0,1); // COLOR - magenta
+//            gl.glBegin(gl.GL_LINES);
+//                gl.glVertex3d(-testNorm[0]*radius*4, testNorm[2]*radius*4, testNorm[1]*radius*4);
+//                gl.glVertex3d(0, 0, 0);
+//            gl.glEnd(); 
             
-            //model.setRollDeg(pos.getLongitude().degrees);
-            //model.setPitchDeg(-pos.getLatitude().degrees);
             
-            // attitude  -- flight dynamics way or Euler angles way? 
-            //if the base of the model is parallel to the x-y plane and the up vector is in the positive z direction it would be...
-            
-//            // best ---
-//            gl.glRotated(model.getYawDeg(), 0,0,1); // 0,0,1
-//            gl.glRotated(model.getPitchDeg(), 1,0,0);
-//            gl.glRotated(model.getRollDeg(), 0,1,0);
-            
-////            gl.glRotated(model.getRollDeg(), 0,1,0);
-////            gl.glRotated(model.getPitchDeg(), 1,0,0);
-////            gl.glRotated(model.getYawDeg(), 0,0,1); // 0,0,1
-////              gl.glRotated(model.getYawDeg(),   0,1,0); // 0,0,1
-////              gl.glRotated(model.getPitchDeg(), 0,0,1);
-////              gl.glRotated(model.getRollDeg(),  0,1,0);
-            
-            // TEST
-            //gl.glRotated(angle,yAxis,zAxis,xAxis);
+            // rotate around specified angle to align with velocity
             gl.glRotated(angle,-xAxis,zAxis,yAxis); // in J2K coordinate frame
             
+            // Rotation of body around velocity
+            gl.glRotated(angle2Rad*180/Math.PI,0,1,0); 
+        
             
             // body axis
             double radius2 = 0.3;
          gl.glLineWidth(3.0f);
             gl.glColor3d(1, 0, 0); // COLOR 
-            gl.glBegin(gl.GL_LINES);
-                gl.glVertex3d(radius2 * 3, 0, 0);
+            gl.glBegin(gl.GL_LINES); // X-Axis (body)
+                gl.glVertex3d(-radius2 * 3, 0, 0);
                 gl.glVertex3d(0, 0, 0);
             gl.glEnd();
             // Draw in axis
             gl.glColor3d(0, 1, 0); // COLOR 
-            gl.glBegin(gl.GL_LINES);
-                gl.glVertex3d(0, radius2 * 3, 0);
+            gl.glBegin(gl.GL_LINES); // Y-Axis (body)
+                gl.glVertex3d(0, 0, radius2 * 3);
                 gl.glVertex3d(0, 0, 0);
             gl.glEnd();
             // Draw in axis
             gl.glColor3d(0, 0, 1); // COLOR 
-            gl.glBegin(gl.GL_LINES);
-                gl.glVertex3d(0, 0, radius2 * 3);
+            gl.glBegin(gl.GL_LINES); // Z-Axis (body)
+                gl.glVertex3d(0,radius2 * 3,0);
                 gl.glVertex3d(0, 0, 0);
             gl.glEnd();
             
@@ -283,7 +277,7 @@ public class WWModel3D_new implements Renderable
         gl.glPopAttrib();
     }
     
-    public void setMainRotationAngleAxis(double[] v)
+    public void setMainRotationAngleAxis(double[] v, double[] pos)
     {
         double[] orgOrientation = new double[] {0,0,1};
         //double[] orgOrientation = new double[] {0,1,0};
@@ -306,7 +300,6 @@ public class WWModel3D_new implements Renderable
         
         //JOptionPane.showMessageDialog(this, "Angle: " + (angleRad*180.0/Math.PI) + ",\n normAxis: " + normAxis + ",\n Axis: " + axis[0] +"," + axis[1] +"," + axis[2]);
         
-        
         //System.out.println("MOD unit VEL:" + unitV[0] +"," + unitV[1] +"," + unitV[2]);
         
         // reorient model
@@ -314,6 +307,34 @@ public class WWModel3D_new implements Renderable
         this.xAxis = axis[0];
         this.yAxis = axis[1];
         this.zAxis = axis[2];
+        
+        // compute angle for rotation require to align sat body normal to veleoctiy (up away from Earth)
+        double[] normTop = new double[] {0,1,0}; // is this right?
+        
+        double c = Math.cos(angleRad);
+        double s = Math.sin(angleRad);
+        double t = 1-Math.cos(angleRad);
+        double[] unitAxis = MathUtils.UnitVector(axis);
+        double X = unitAxis[0]; // or axis - seems the same
+        double Y = unitAxis[1];
+        double Z = unitAxis[2];
+        
+        double[][] rotThroughAxis = new double[][] {{t*X*X+c,t*X*Y-s*Z,t*X*Z+s*Y},
+                                                    {t*X*Y+s*Z,t*Y*Y+c,t*Y*Z-s*X},
+                                                    {t*X*Z-s*Y,t*Y*Z+s*X,t*Z*Z+c}};
+        double[] resultingNormDir = MathUtils.UnitVector( MathUtils.mult(rotThroughAxis, normTop) );
+        
+        double dot = MathUtils.dot(resultingNormDir, v);
+        //System.out.println("dot="+dot);
+        testNorm = resultingNormDir;
+        
+        // above works fin (tested)
+        
+        // now to solve - paralllel with position vector component in this plane
+        double[] prosProjVelPlane = MathUtils.UnitVector( MathUtils.sub(pos, MathUtils.scale(unitV,MathUtils.dot(pos, unitV)) )   );
+
+        // find angle between this and the resultingNormDir
+        angle2Rad = Math.acos(MathUtils.dot(resultingNormDir, prosProjVelPlane));
         
     } // setMainRotationAngleAxis
     

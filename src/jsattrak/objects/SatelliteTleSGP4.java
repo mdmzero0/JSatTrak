@@ -811,6 +811,7 @@ public class SatelliteTleSGP4 extends AbstractSatellite
         if(use3dModel && threeDModel==null)
         {
             String path = "data/models/globalstar/Globalstar.3ds";
+            //String path = "data/models/genesis/genesis.3ds";
             if(threeDModelPath.length()>0)
             {
                 path = threeDModelPath;
