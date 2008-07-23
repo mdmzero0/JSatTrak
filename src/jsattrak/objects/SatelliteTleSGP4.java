@@ -810,8 +810,8 @@ public class SatelliteTleSGP4 extends AbstractSatellite
         
         if(use3dModel && threeDModel==null)
         {
-            String path = "data/models/globalstar/Globalstar.3ds";
-            //String path = "data/models/genesis/genesis.3ds";
+            //String path = "data/models/globalstar/Globalstar.3ds";
+            String path = "data/models/isscomplete/iss_v2.3ds";
             if(threeDModelPath.length()>0)
             {
                 path = threeDModelPath;
@@ -841,7 +841,7 @@ public class SatelliteTleSGP4 extends AbstractSatellite
         try
             {
                 net.java.joglutils.model.geometry.Model model3DS = ModelFactory.createModel(path);
-                model3DS.setUseLighting(false); // turn off lighting!
+                //model3DS.setUseLighting(false); // turn off lighting!
 
                 threeDModel =  new WWModel3D_new(model3DS,
                         new Position(Angle.fromRadians(this.getLatitude()),

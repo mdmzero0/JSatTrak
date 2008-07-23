@@ -166,35 +166,35 @@ public class WWModel3D_new implements Renderable
             // re/un rotate ECI layer
             gl.glRotated(-eciRotAngleDeg, 0.0, 1.0, 0.0); // -- WORKS!!?!! (re rotate because pushReferenceCenter, undoes the ECI roation?)
             
-            // Earth fixed Inertial  -- yes, inertial? (no, because it was spun around by ECI layer)
-            double radius = 0.6;
-         gl.glLineWidth(3.0f);
-            gl.glColor3d(1, 0, 0); // COLOR 
-            gl.glBegin(gl.GL_LINES); // X-Axis (J2000)
-                gl.glVertex3d(-radius * 3, 0, 0);
-                gl.glVertex3d(0, 0, 0);
-            gl.glEnd();
-            // Draw in axis
-            gl.glColor3d(0, 1, 0); // COLOR 
-            gl.glBegin(gl.GL_LINES); // Y-Axis (J2000)
-                gl.glVertex3d(0, 0, radius * 3);
-                gl.glVertex3d(0, 0, 0);
-            gl.glEnd();
-            // Draw in axis
-            gl.glColor3d(0, 0, 1); // COLOR 
-            gl.glBegin(gl.GL_LINES); // Z-Axis (J2000)
-                gl.glVertex3d(0, radius * 3,0 );
-                gl.glVertex3d(0, 0, 0);
-            gl.glEnd();
+//            // Earth fixed Inertial  -- yes, inertial? (no, because it was spun around by ECI layer)
+//            double radius = 0.6;
+//         gl.glLineWidth(3.0f);
+//            gl.glColor3d(1, 0, 0); // COLOR 
+//            gl.glBegin(gl.GL_LINES); // X-Axis (J2000)
+//                gl.glVertex3d(-radius * 3, 0, 0);
+//                gl.glVertex3d(0, 0, 0);
+//            gl.glEnd();
+//            // Draw in axis
+//            gl.glColor3d(0, 1, 0); // COLOR 
+//            gl.glBegin(gl.GL_LINES); // Y-Axis (J2000)
+//                gl.glVertex3d(0, 0, radius * 3);
+//                gl.glVertex3d(0, 0, 0);
+//            gl.glEnd();
+//            // Draw in axis
+//            gl.glColor3d(0, 0, 1); // COLOR 
+//            gl.glBegin(gl.GL_LINES); // Z-Axis (J2000)
+//                gl.glVertex3d(0, radius * 3,0 );
+//                gl.glVertex3d(0, 0, 0);
+//            gl.glEnd();
             
-            // plot velocity Vector here -- NEEDS A DEROTATION FROM ECI coordinates
-            // because model was spun by xxx degrees already (from ECI layer) around the z-axis so attitude is not where it normally is
-            gl.glColor3d(0,1,1); // COLOR 
-            gl.glBegin(gl.GL_LINES);
-                //gl.glVertex3d(-velUnitVec[0]*radius*3, velUnitVec[2]*radius*3, velUnitVec[1]*radius*3);
-                gl.glVertex3d(-velUnitVec[0]*radius*1, velUnitVec[2]*radius*1, velUnitVec[1]*radius*1);
-                gl.glVertex3d(0, 0, 0);
-            gl.glEnd();
+//            // plot velocity Vector here -- NEEDS A DEROTATION FROM ECI coordinates
+//            // because model was spun by xxx degrees already (from ECI layer) around the z-axis so attitude is not where it normally is
+//            gl.glColor3d(0,1,1); // COLOR 
+//            gl.glBegin(gl.GL_LINES);
+//                //gl.glVertex3d(-velUnitVec[0]*radius*3, velUnitVec[2]*radius*3, velUnitVec[1]*radius*3);
+//                gl.glVertex3d(-velUnitVec[0]*radius*1, velUnitVec[2]*radius*1, velUnitVec[1]*radius*1);
+//                gl.glVertex3d(0, 0, 0);
+//            gl.glEnd();
             
             // test normal compontnet -- only works when angle2Rad == 0 below (used for inital debug
 //            gl.glColor3d(1,0,1); // COLOR - magenta
@@ -211,29 +211,68 @@ public class WWModel3D_new implements Renderable
             gl.glRotated(angle2Rad*180/Math.PI,0,1,0); 
         
             
-            // body axis
-            double radius2 = 0.3;
-         gl.glLineWidth(3.0f);
-            gl.glColor3d(1, 0, 0); // COLOR 
-            gl.glBegin(gl.GL_LINES); // X-Axis (body)
-                gl.glVertex3d(-radius2 * 3, 0, 0);
-                gl.glVertex3d(0, 0, 0);
-            gl.glEnd();
-            // Draw in axis
-            gl.glColor3d(0, 1, 0); // COLOR 
-            gl.glBegin(gl.GL_LINES); // Y-Axis (body)
-                gl.glVertex3d(0, 0, radius2 * 3);
-                gl.glVertex3d(0, 0, 0);
-            gl.glEnd();
-            // Draw in axis
-            gl.glColor3d(0, 0, 1); // COLOR 
-            gl.glBegin(gl.GL_LINES); // Z-Axis (body)
-                gl.glVertex3d(0,radius2 * 3,0);
-                gl.glVertex3d(0, 0, 0);
-            gl.glEnd();
+//            // body axis
+//            double radius2 = 0.3;
+//         gl.glLineWidth(3.0f);
+//            gl.glColor3d(1, 0, 0); // COLOR 
+//            gl.glBegin(gl.GL_LINES); // X-Axis (body)
+//                gl.glVertex3d(-radius2 * 3, 0, 0);
+//                gl.glVertex3d(0, 0, 0);
+//            gl.glEnd();
+//            // Draw in axis
+//            gl.glColor3d(0, 1, 0); // COLOR 
+//            gl.glBegin(gl.GL_LINES); // Y-Axis (body)
+//                gl.glVertex3d(0, 0, radius2 * 3);
+//                gl.glVertex3d(0, 0, 0);
+//            gl.glEnd();
+//            // Draw in axis
+//            gl.glColor3d(0, 0, 1); // COLOR 
+//            gl.glBegin(gl.GL_LINES); // Z-Axis (body)
+//                gl.glVertex3d(0,radius2 * 3,0);
+//                gl.glVertex3d(0, 0, 0);
+//            gl.glEnd();
+            
+            //gl.glClear(GL.GL_COLOR_BUFFER_BIT);
+            gl.glLineWidth(0.0f);
+            //gl.glColor3d(1, 1, 1); // COLOR 
+            gl.glColor4d(1, 1, 1, 0);
+            
+            // add lights?
+            //gl.glLightModelfv(GL.GL_LIGHT_MODEL_AMB IENT, model_ambient, 0);
+            float[] model_ambient = {1.0f, 1.0f, 1.0f, 1.0f};
+            gl.glLightModelfv(GL.GL_LIGHT_MODEL_AMBIENT, model_ambient, 1);
+            
+            float lightPosition[] = { 0, 50000000, 0, 1.0f };
+            float[] lightAmbient = {0.9f, 0.9f, 0.9f, 1.0f};
+        
+        /** Diffuse light array */
+        float[] lightDiffuse = {0.5f, 0.5f, 0.5f, 1.0f};
+        
+        /** Specular light array */
+        float[] lightSpecular = {0.5f, 0.5f, 0.5f, 1.0f};
+        
+            gl.glLightModelfv(GL.GL_LIGHT_MODEL_AMBIENT, model_ambient, 0);
+            //gl.glLightfv(GL.GL_LIGHT1, GL.GL_POSITION, lightPosition, 0);
+            //gl.glLightfv(GL.GL_LIGHT1, GL.GL_DIFFUSE, lightDiffuse, 0);
+            gl.glLightfv(GL.GL_LIGHT1, GL.GL_AMBIENT, lightAmbient, 0);
+            //gl.glLightfv(GL.GL_LIGHT1, GL.GL_SPECULAR, lightSpecular, 0);
+            
+            
+            gl.glEnable(GL.GL_LIGHT1);
+            gl.glEnable(GL.GL_LIGHTING);
+            //gl.glEnable(GL.GL_NORMALIZE);
+//
+            gl.glEnable(GL.GL_CULL_FACE);
+            gl.glShadeModel(GL.GL_SMOOTH);
+//            gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            
+            gl.glEnable(GL.GL_DEPTH_TEST);
+            gl.glDepthFunc(GL.GL_LEQUAL);
+            gl.glHint(GL.GL_PERSPECTIVE_CORRECTION_HINT, GL.GL_NICEST);
             
             // Get an instance of the display list renderer
             iModel3DRenderer renderer = DisplayListRenderer.getInstance();
+            
             renderer.render(gl, model.getModel());
             dc.getView().popReferenceCenter(dc);
         }

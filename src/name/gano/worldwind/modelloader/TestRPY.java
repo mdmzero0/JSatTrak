@@ -9,13 +9,17 @@ package name.gano.worldwind.modelloader;
 import gov.nasa.worldwind.Model;
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.avlist.AVKey;
+import gov.nasa.worldwind.awt.AWTInputHandler;
 import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.layers.Layer;
 import gov.nasa.worldwind.layers.placename.PlaceNameLayer;
+import gov.nasa.worldwind.view.BasicOrbitView;
 import javax.swing.JOptionPane;
 import name.gano.astro.MathUtils;
+import name.gano.worldwind.view.BasicModelView3;
+import name.gano.worldwind.view.BasicModelViewInputHandler3;
 import net.java.joglutils.model.ModelFactory;
 
 /**
@@ -27,6 +31,8 @@ public class TestRPY extends javax.swing.JFrame
 
     private WorldWindowGLCanvas wwd;
     WWModel3D_new satModel;
+    
+    BasicModelView3 bmv;
     
     /** Creates new form TestRPY */
     public TestRPY() 
@@ -69,8 +75,11 @@ public class TestRPY extends javax.swing.JFrame
 //            layer.setMaitainConstantSize(true);
 //            layer.setSize(300000);
 
-            net.java.joglutils.model.geometry.Model model3DS = ModelFactory.createModel("test/data/globalstar/Globalstar.3ds");
-            model3DS.setUseLighting(false); // turn off lighting!
+            //net.java.joglutils.model.geometry.Model model3DS = ModelFactory.createModel("test/data/globalstar/Globalstar.3ds");
+            net.java.joglutils.model.geometry.Model model3DS = ModelFactory.createModel("data/models/isscomplete/iss_v2.3ds");
+            //net.java.joglutils.model.geometry.Model model3DS = ModelFactory.createModel("data/models/shenzhou_V-full/models/russia.3ds");
+            //model3DS.setUseLighting(false); // turn off lighting!
+            
 //                for (int i=0; i<100; i++) {
 //                    layer.addModel(new WWModel3D(model3DS,
 //                            new Position(Angle.fromDegrees(generator.nextInt()%80),
@@ -87,6 +96,40 @@ public class TestRPY extends javax.swing.JFrame
             layer.addModel(satModel);
 
             m.getLayers().add(layer);
+            
+            
+            // SET VIEW
+             // create and set view
+                //bmv = new BasicModelView2( Position.fromDegrees(0, 0, 750000), wwd.getModel().getGlobe());
+                bmv = new BasicModelView3( ((BasicOrbitView)wwd.getView()).getOrbitViewModel() );
+                wwd.setView( bmv );
+                
+                BasicModelViewInputHandler3 mih = new BasicModelViewInputHandler3();
+                mih.setEventSource(wwd);
+                wwd.setInputHandler( mih );
+                mih.setSmoothViewChanges(true); // FALSE MAKES THE VIEW FAST!!
+                
+                // settings for great closeups!
+                wwd.getView().setNearClipDistance(10000);
+                wwd.getView().setFarClipDistance(5.0E7);
+                bmv.setZoom(900000);
+                bmv.setPitch(Angle.fromDegrees(270));
+                
+                // create model view input handler, assign current wwd, and set it
+//                BasicModelViewInputHandler mih = new BasicModelViewInputHandler();
+//                mih.getViewInputBroker().setWorldWindow(wwd);
+//                wwd.setInputHandler( mih );
+            
+//            // manual test
+//            OrbitView view = (OrbitView)wwd.getView();
+//            view.setCenterPosition(Position.fromDegrees(0, 0, 750000));
+//            view.setHeading(Angle.fromDegrees(270));
+//            view.setPitch(Angle.fromDegrees(60)); // limit 90?
+//            view.setZoom(900000);
+//            
+//            view.setCenterPosition(Position.fromDegrees(0, 0, 750000));
+            
+            
         }
         catch(Exception e)
         {
