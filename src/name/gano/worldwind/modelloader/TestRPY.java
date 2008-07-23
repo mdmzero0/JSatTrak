@@ -113,7 +113,7 @@ public class TestRPY extends javax.swing.JFrame
                 wwd.getView().setNearClipDistance(10000);
                 wwd.getView().setFarClipDistance(5.0E7);
                 bmv.setZoom(900000);
-                bmv.setPitch(Angle.fromDegrees(270));
+                bmv.setPitch(Angle.fromDegrees(120));
                 
                 // create model view input handler, assign current wwd, and set it
 //                BasicModelViewInputHandler mih = new BasicModelViewInputHandler();
