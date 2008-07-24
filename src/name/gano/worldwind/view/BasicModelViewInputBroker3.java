@@ -52,6 +52,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.Arrays;
+import jsattrak.objects.AbstractSatellite;
 
 
 /**
@@ -91,7 +92,7 @@ public class BasicModelViewInputBroker3
                 keyPolled((Integer) source, actionEvent.getModifiers());
             }
         });
-
+        
     public BasicModelViewInputBroker3()
     {
     }
@@ -854,7 +855,7 @@ public class BasicModelViewInputBroker3
         // Stop ViewStateIterators, so we are the only one affecting the view.
         stopViewIterators();
         
-        System.out.println("Pitch:" + newPitch.degrees);
+        //System.out.println("Pitch:" + newPitch.degrees);
 
         Angle prevTarget = this.modelViewInputSupport.getPitchTarget();
         if (smoothed && prevTarget != null)

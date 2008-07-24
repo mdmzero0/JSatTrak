@@ -86,6 +86,8 @@ import jsattrak.utilities.OrbitModelRenderable;
 import name.gano.worldwind.layers.Earth.CoverageRenderableLayer;
 import name.gano.worldwind.layers.Earth.ECEFRenderableLayer;
 import name.gano.worldwind.layers.Earth.ECIRenderableLayer;
+import name.gano.worldwind.view.BasicModelView3;
+import name.gano.worldwind.view.BasicModelViewInputHandler3;
 
 /**
  *
@@ -276,6 +278,24 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         //wwd.getView().setFarClipDistance(10000000000d); // really slow
         wwd.getView().setFarClipDistance(app.getFarClippingPlaneDist()); // 200000000d good out to geo, but slower than not setting it
         wwd.getView().setNearClipDistance(app.getNearClippingPlaneDist()); // -1 for auto adjust
+        
+        // TEST NEW VIEW -- TO MAKE WORK MUST TURN OFF ECI!
+        this.setViewModeECI(false);
+        BasicModelView3 bmv = new BasicModelView3( ((BasicOrbitView)wwd.getView()).getOrbitViewModel(), satHash.get("ISS (ZARYA)             ") );
+                wwd.setView( bmv );
+                
+                BasicModelViewInputHandler3 mih = new BasicModelViewInputHandler3();
+                mih.setEventSource(wwd);
+                wwd.setInputHandler( mih );
+                mih.setSmoothViewChanges(true); // FALSE MAKES THE VIEW FAST!!
+                
+                // settings for great closeups!
+                wwd.getView().setNearClipDistance(10000);
+                wwd.getView().setFarClipDistance(5.0E7);
+                bmv.setZoom(900000);
+                bmv.setPitch(Angle.fromDegrees(45));
+        
+        
     }
     
     private RenderableLayer createLatLongLinesLayer()

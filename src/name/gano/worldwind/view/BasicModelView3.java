@@ -20,6 +20,7 @@ import gov.nasa.worldwind.view.OrbitViewCollisionSupport;
 import gov.nasa.worldwind.view.OrbitViewModel;
 import gov.nasa.worldwind.view.ViewSupport;
 import javax.media.opengl.GL;
+import jsattrak.objects.AbstractSatellite;
 
 /**
  * @author dcollins
@@ -59,14 +60,42 @@ public class BasicModelView3 extends AbstractView implements OrbitView
     private static final double MINIMUM_FAR_DISTANCE = 100;
     private static final double COLLISION_THRESHOLD = 10;
     private static final int COLLISION_NUM_ITERATIONS = 4;
+    
+    // satellite object to follow
+    AbstractSatellite sat; 
 
     public BasicModelView3()
     {
         this(new BasicOrbitViewModel());
     }
+    
+    // --- constructor
+    public BasicModelView3(AbstractSatellite sat)
+    {
+        this(new BasicOrbitViewModel());
+        this.sat = sat;
+    }
 
     public BasicModelView3(OrbitViewModel orbitViewModel)
     {
+        if (orbitViewModel == null)
+        {
+            String message = Logging.getMessage("nullValue.OrbitViewModelIsNull");
+            Logging.logger().severe(message);
+            throw new IllegalArgumentException(message);
+        }
+
+        this.orbitViewModel = orbitViewModel;
+        this.collisionSupport.setCollisionThreshold(COLLISION_THRESHOLD);
+        this.collisionSupport.setNumIterations(COLLISION_NUM_ITERATIONS);
+        loadConfigurationValues();
+    }
+    
+    // last constructor
+    public BasicModelView3(OrbitViewModel orbitViewModel, AbstractSatellite sat)
+    {
+        this.sat = sat;
+        
         if (orbitViewModel == null)
         {
             String message = Logging.getMessage("nullValue.OrbitViewModelIsNull");
@@ -627,8 +656,18 @@ public class BasicModelView3 extends AbstractView implements OrbitView
         this.globe = this.dc.getGlobe();
         
         // ALWAYS SET CENTER -- SEG
-        setCenterPosition(Position.fromDegrees(0, 0, 750000));
-
+        System.out.println("lat:"+sat.getLatitude());
+        if(sat == null)
+        {
+            // if no sat set -- use default location
+            setCenterPosition(Position.fromDegrees(0, 0, 750000));
+        }
+        else // sat exisits
+        {    
+            System.out.println("lat:"+sat.getLatitude());
+            setCenterPosition(Position.fromDegrees(sat.getLatitude()*180.0/Math.PI, sat.getLongitude()*180.0/Math.PI, sat.getAltitude()));
+        }
+        
         //========== modelview matrix state ==========//
         // Compute the current modelview matrix.
         this.modelview = this.orbitViewModel.computeTransformMatrix(this.globe, this.center,
