@@ -542,38 +542,39 @@ public class BasicModelViewInputHandler3 extends WWObjectImpl
 
     protected void doHover(boolean reset)
     {
-        PickedObjectList pickedObjects = this.wwd.getObjectsAtCurrentPosition();
-        if (!(this.isPickListEmpty(this.hoverObjects) || this.isPickListEmpty(pickedObjects)))
-        {
-            PickedObject hover = this.hoverObjects.getTopPickedObject();
-            PickedObject last = pickedObjects.getTopPickedObject();
-
-            Object oh = hover == null ? null : hover.getObject() != null ? hover.getObject() :
-                    hover.getParentLayer() != null ? hover.getParentLayer() : null;
-            Object ol = last == null ? null : last.getObject() != null ? last.getObject() :
-                    last.getParentLayer() != null ? last.getParentLayer() : null;
-            if (oh != null && ol != null && oh.equals(ol))
-            {
-                return; // object picked is the hover object. don't do anything but wait for the timer to expire.
-            }
-        }
-
-        this.cancelHover();
-
-        if (!reset)
-        {
-            return;
-        }
-
-        if ((pickedObjects != null)
-                && (pickedObjects.getTopObject() != null)
-                && pickedObjects.getTopPickedObject().isTerrain())
-        {
-            return;
-        }
-
-        this.hoverObjects = pickedObjects;
-        this.hoverTimer.restart();
+        // SEG - removed doHover -- got Exception in thread "AWT-EventQueue-0" java.lang.NullPointerException
+//        PickedObjectList pickedObjects = this.wwd.getObjectsAtCurrentPosition();
+//        if (!(this.isPickListEmpty(this.hoverObjects) || this.isPickListEmpty(pickedObjects)))
+//        {
+//            PickedObject hover = this.hoverObjects.getTopPickedObject();
+//            PickedObject last = pickedObjects.getTopPickedObject();
+//
+//            Object oh = hover == null ? null : hover.getObject() != null ? hover.getObject() :
+//                    hover.getParentLayer() != null ? hover.getParentLayer() : null;
+//            Object ol = last == null ? null : last.getObject() != null ? last.getObject() :
+//                    last.getParentLayer() != null ? last.getParentLayer() : null;
+//            if (oh != null && ol != null && oh.equals(ol))
+//            {
+//                return; // object picked is the hover object. don't do anything but wait for the timer to expire.
+//            }
+//        }
+//
+//        this.cancelHover();
+//
+//        if (!reset)
+//        {
+//            return;
+//        }
+//
+//        if ((pickedObjects != null)
+//                && (pickedObjects.getTopObject() != null)
+//                && pickedObjects.getTopPickedObject().isTerrain())
+//        {
+//            return;
+//        }
+//
+//        this.hoverObjects = pickedObjects;
+//        this.hoverTimer.restart();
     }
 
     private void cancelHover()

@@ -21,6 +21,7 @@
  * =====================================================================
  */
 // modification of OrbitViewInputBroker.java  (gov.nasa.worldwind.awt)
+// NOTE - A double click resets the zoom (not sure where this is handled) -- may be percieved as a bug
 
 package name.gano.worldwind.view;
 
@@ -75,7 +76,7 @@ public class BasicModelViewInputBroker3
             KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT,
             KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_PAGE_UP,
             KeyEvent.VK_PAGE_DOWN, KeyEvent.VK_ADD, KeyEvent.VK_EQUALS,
-            KeyEvent.VK_SUBTRACT, KeyEvent.VK_MINUS
+            KeyEvent.VK_SUBTRACT, KeyEvent.VK_MINUS, KeyEvent.VK_R
         };
     private KeyPollTimer keyPollTimer = new KeyPollTimer(25, Arrays.asList(POLLED_KEYS),
         new ActionListener()
@@ -244,74 +245,46 @@ public class BasicModelViewInputBroker3
         int slowMask = (modifiers & InputEvent.ALT_DOWN_MASK);
         boolean slow = slowMask != 0x0;
 
-        if (areModifiersExactly(modifiers, slowMask))
-        {
-            if (isLockHeading())
-            {
-                double sinHeading = view.getHeading().sin();
-                double cosHeading = view.getHeading().cos();
-                double latFactor = 0;
-                double lonFactor = 0;
-                if (keyCode == KeyEvent.VK_LEFT)
-                {
-                    latFactor = sinHeading;
-                    lonFactor = -cosHeading;
-                }
-                else if (keyCode == KeyEvent.VK_RIGHT)
-                {
-                    latFactor = -sinHeading;
-                    lonFactor = cosHeading;
-                }
-                else if (keyCode == KeyEvent.VK_UP)
-                {
-                    latFactor = cosHeading;
-                    lonFactor = sinHeading;
-                }
-                else if (keyCode == KeyEvent.VK_DOWN)
-                {
-                    latFactor = -cosHeading;
-                    lonFactor = -sinHeading;
-                }
-                if (latFactor != 0 || lonFactor != 0)
-                {
-                    Angle latChange = computeLatOrLonChange(latFactor, slow);
-                    Angle lonChange = computeLatOrLonChange(lonFactor, slow);
-                    setCenterLatLon(
-                        this.view.getCenterPosition().getLatitude().add(latChange),
-                        this.view.getCenterPosition().getLongitude().add(lonChange));
-                    return;
-                }
-            }
-            //else
-            //{
-            //    double forwardAmount = 0;
-            //    double rightAmount = 0;
-            //    if (keyCode == KeyEvent.VK_LEFT)
-            //        rightAmount = -1;
-            //    else if (keyCode == KeyEvent.VK_RIGHT)
-            //        rightAmount = 1;
-            //    else if (keyCode == KeyEvent.VK_UP)
-            //        forwardAmount = 1;
-            //    else if (keyCode == KeyEvent.VK_DOWN)
-            //        forwardAmount = -1;
-            //
-            //    if (forwardAmount != 0 || rightAmount != 0)
-            //    {
-            //        Globe globe = this.wwd.getModel().getGlobe();
-            //        if (globe != null)
-            //        {
-            //            Angle forwardAngle = this.computeLatOrLonChange(this.view, globe, forwardAmount, slow);
-            //            Angle rightAngle = this.computeLatOrLonChange(this.view, globe, rightAmount, slow);
-            //            Quaternion forwardQuat = this.view.createRotationForward(forwardAngle);
-            //            Quaternion rightQuat = this.view.createRotationRight(rightAngle);
-            //            Quaternion quaternion = forwardQuat.multiply(rightQuat);
-            //            Quaternion rotation = this.computeNewRotation(this.view, quaternion);
-            //            this.setRotation(this.view, rotation);
-            //            return;
-            //        }
-            //    }
-            //}
-        }
+//        if (areModifiersExactly(modifiers, slowMask))
+//        {
+//            if (isLockHeading())
+//            {
+//                double sinHeading = view.getHeading().sin();
+//                double cosHeading = view.getHeading().cos();
+//                double latFactor = 0;
+//                double lonFactor = 0;
+//                if (keyCode == KeyEvent.VK_LEFT)
+//                {
+//                    latFactor = sinHeading;
+//                    lonFactor = -cosHeading;
+//                }
+//                else if (keyCode == KeyEvent.VK_RIGHT)
+//                {
+//                    latFactor = -sinHeading;
+//                    lonFactor = cosHeading;
+//                }
+//                else if (keyCode == KeyEvent.VK_UP)
+//                {
+//                    latFactor = cosHeading;
+//                    lonFactor = sinHeading;
+//                }
+//                else if (keyCode == KeyEvent.VK_DOWN)
+//                {
+//                    latFactor = -cosHeading;
+//                    lonFactor = -sinHeading;
+//                }
+//                if (latFactor != 0 || lonFactor != 0)
+//                {
+//                    Angle latChange = computeLatOrLonChange(latFactor, slow);
+//                    Angle lonChange = computeLatOrLonChange(lonFactor, slow);
+//                    setCenterLatLon(
+//                        this.view.getCenterPosition().getLatitude().add(latChange),
+//                        this.view.getCenterPosition().getLongitude().add(lonChange));
+//                    return;
+//                }
+//            }
+//            
+//        }
 
         double headingFactor = 0;
         double pitchFactor = 0;
@@ -326,8 +299,26 @@ public class BasicModelViewInputBroker3
             {
                 pitchFactor = -1;
             }
+            
+            // added here to remove need for holding shift
+            if (keyCode == KeyEvent.VK_LEFT)
+                headingFactor = -1;
+            else if (keyCode == KeyEvent.VK_RIGHT)
+                headingFactor = 1;
+            else if (keyCode == KeyEvent.VK_UP)
+                pitchFactor = -1;
+            else if (keyCode == KeyEvent.VK_DOWN)
+                pitchFactor = 1;
+            else if(keyCode == KeyEvent.VK_R) // SEG - if R is pushed, rest offsets (seems to be already in use but ok for now)
+            {
+                ((BasicModelView3)view).resetOffsets();
+                fireViewChangedEvent();
+            }
         }
         else if (areModifiersExactly(modifiers, InputEvent.SHIFT_DOWN_MASK | slowMask))
+        // SEG - remove need to hold shift
+        //else if (areModifiersExactly(modifiers, slowMask))    
+        // SHOULD MAKE THESE PAN in x/y/z axis! (shift center point)
         {
             if (keyCode == KeyEvent.VK_LEFT)
                 headingFactor = -1;
@@ -338,6 +329,10 @@ public class BasicModelViewInputBroker3
             else if (keyCode == KeyEvent.VK_DOWN)
                 pitchFactor = 1;
         }
+        
+        
+        
+        // handle moves
         if (headingFactor != 0)
         {
             Angle newHeading = computeNewHeading(4 * headingFactor, slow);
@@ -466,15 +461,7 @@ public class BasicModelViewInputBroker3
             Position pos = new Position(topPosition.getLatLon(), this.view.getCenterPosition().getElevation());
             setCenterPosition(pos, true, 0.9);
         }
-        //else
-        //{
-        //    Quaternion quaternion = this.view.createRotationBetweenPositions(
-        //        topPosition,
-        //        new Position(this.view.getLookAtLatitude(), this.view.getLookAtLongitude(), 0));
-        //    Quaternion rotation = this.computeNewRotation(this.view, quaternion);
-        //    this.view.applyStateIterator(OrbitViewInputStateIterator.createRotationIterator(
-        //        rotation, SMOOTHING, DO_COALESCE));
-        //}
+
     }
 
     public void mousePressed(MouseEvent mouseEvent)
@@ -555,70 +542,65 @@ public class BasicModelViewInputBroker3
         if (this.selectedPosition == null)
             this.updateSelectedPosition();
 
-        if (areModifiersExactly(mouseEvent, InputEvent.BUTTON1_DOWN_MASK))
+        //if (areModifiersExactly(mouseEvent, InputEvent.BUTTON1_DOWN_MASK))
+        // SEG -- not used, move to 3rd button (locked out in this view), now also zoom
+        if (areModifiersExactly(mouseEvent, InputEvent.BUTTON3_DOWN_MASK))
         {
-            if (prevMousePoint != null && curMousePoint != null)
+            // zoom
+            if (mouseMove != null)
             {
-                Position prevPosition = computePositionAtPoint(prevMousePoint.x, prevMousePoint.y);
-                Position curPosition = computePositionAtPoint(curMousePoint.x, curMousePoint.y);
-                // Keep selected position under cursor.
-                if (prevPosition != null && curPosition != null)
+                if (mouseMove.y != 0)
                 {
-                    if (!prevPosition.equals(curPosition))
-                    {
-                        if (isLockHeading())
-                        {
-                            setCenterLatLon(
-                                this.view.getCenterPosition().getLatitude().add(prevPosition.getLatitude()).subtract(curPosition.getLatitude()),
-                                this.view.getCenterPosition().getLongitude().add(prevPosition.getLongitude()).subtract(curPosition.getLongitude()));
-                        }
-                        //else
-                        //{
-                        //    Quaternion quaternion = this.view.createRotationBetweenPositions(prevPosition, curPosition);
-                        //    if (quaternion != null)
-                        //    {
-                        //        Quaternion rotation = this.computeNewRotation(this.view, quaternion);
-                        //        this.setRotation(this.view, rotation);
-                        //    }
-                        //}
-                    }
-                }
-                // Cursor is off the globe, simulate globe dragging.
-                else
-                {
-                    if (isLockHeading())
-                    {
-                        double sinHeading = this.view.getHeading().sin();
-                        double cosHeading = this.view.getHeading().cos();
-                        double latFactor = (cosHeading * mouseMove.y + sinHeading * mouseMove.x) / 10.0;
-                        double lonFactor = (sinHeading * mouseMove.y - cosHeading * mouseMove.x) / 10.0;
-                        Angle latChange = computeLatOrLonChange(latFactor, false);
-                        Angle lonChange = computeLatOrLonChange(lonFactor, false);
-                        setCenterLatLon(
-                            this.view.getCenterPosition().getLatitude().add(latChange),
-                            this.view.getCenterPosition().getLongitude().add(lonChange));
-                    }
-                    //else
-                    //{
-                    //    double forwardFactor = mouseMove.y / 10.0;
-                    //    double rightFactor = -mouseMove.x / 10.0;
-                    //    Angle forwardAngle = this.computeLatOrLonChange(this.view, globe, forwardFactor, false);
-                    //    Angle rightAngle = this.computeLatOrLonChange(this.view, globe, rightFactor, false);
-                    //    Quaternion forwardQuat = this.view.createRotationForward(forwardAngle);
-                    //    Quaternion rightQuat = this.view.createRotationRight(rightAngle);
-                    //    Quaternion quaternion = forwardQuat.multiply(rightQuat);
-                    //    Quaternion rotation = this.computeNewRotation(this.view, quaternion);
-                    //    this.setRotation(this.view, rotation);
-                    //}
-
-                    // Cursor went off the globe. Clear the selected position to ensure a new one will be
-                    // computed if the cursor returns to the globe.
-                    clearSelectedPosition();
+                    // Reduce the amount of zoom changed by mouse movement.
+                    double scaledMouseY = mouseMove.y  / 10d;
+                    double newZoom = computeNewZoom(scaledMouseY, false);
+                    setZoom(newZoom);
                 }
             }
+//            if (prevMousePoint != null && curMousePoint != null)
+//            {
+//                Position prevPosition = computePositionAtPoint(prevMousePoint.x, prevMousePoint.y);
+//                Position curPosition = computePositionAtPoint(curMousePoint.x, curMousePoint.y);
+//                // Keep selected position under cursor.
+//                if (prevPosition != null && curPosition != null)
+//                {
+//                    if (!prevPosition.equals(curPosition))
+//                    {
+//                        if (isLockHeading())
+//                        {
+//                            setCenterLatLon(
+//                                this.view.getCenterPosition().getLatitude().add(prevPosition.getLatitude()).subtract(curPosition.getLatitude()),
+//                                this.view.getCenterPosition().getLongitude().add(prevPosition.getLongitude()).subtract(curPosition.getLongitude()));
+//                        }
+//                        
+//                    }
+//                }
+//                // Cursor is off the globe, simulate globe dragging.
+//                else
+//                {
+//                    if (isLockHeading())
+//                    {
+//                        double sinHeading = this.view.getHeading().sin();
+//                        double cosHeading = this.view.getHeading().cos();
+//                        double latFactor = (cosHeading * mouseMove.y + sinHeading * mouseMove.x) / 10.0;
+//                        double lonFactor = (sinHeading * mouseMove.y - cosHeading * mouseMove.x) / 10.0;
+//                        Angle latChange = computeLatOrLonChange(latFactor, false);
+//                        Angle lonChange = computeLatOrLonChange(lonFactor, false);
+//                        setCenterLatLon(
+//                            this.view.getCenterPosition().getLatitude().add(latChange),
+//                            this.view.getCenterPosition().getLongitude().add(lonChange));
+//                    }
+//
+//                    // Cursor went off the globe. Clear the selected position to ensure a new one will be
+//                    // computed if the cursor returns to the globe.
+//                    clearSelectedPosition();
+//                }
+//            }
         }
-        else if (areModifiersExactly(mouseEvent, InputEvent.BUTTON3_DOWN_MASK)
-            || areModifiersExactly(mouseEvent, InputEvent.BUTTON1_DOWN_MASK | InputEvent.CTRL_DOWN_MASK))
+        //else if (areModifiersExactly(mouseEvent, InputEvent.BUTTON3_DOWN_MASK)
+        //    || areModifiersExactly(mouseEvent, InputEvent.BUTTON1_DOWN_MASK | InputEvent.CTRL_DOWN_MASK))
+        // SEG -- make rotation the first button (no, control+mouse1 option here)
+        else if (areModifiersExactly(mouseEvent, InputEvent.BUTTON1_DOWN_MASK))
         {
             if (mouseMove != null)
             {
@@ -644,7 +626,7 @@ public class BasicModelViewInputBroker3
                 }
             }
         }
-        else if (areModifiersExactly(mouseEvent, InputEvent.BUTTON2_DOWN_MASK))
+        else if (areModifiersExactly(mouseEvent, InputEvent.BUTTON2_DOWN_MASK)) // ZOOM
         {
             if (mouseMove != null)
             {
@@ -656,8 +638,87 @@ public class BasicModelViewInputBroker3
                     setZoom(newZoom);
                 }
             }
+        } // zoom, 2nd button down
+        // SEG -- mouse button 1 + control, moves center of rotation x-z plane
+        else if( areModifiersExactly(mouseEvent, InputEvent.BUTTON1_DOWN_MASK | InputEvent.CTRL_DOWN_MASK) )
+        {
+            // Stop ViewStateIterators, so we are the only one affecting the view.
+            stopViewIterators();
+            
+            // make updates
+             if (mouseMove.x > 0)
+             {
+                ((BasicModelView3)view).incrementXOffset(-1.0);
+             }
+            if (mouseMove.x < 0)
+             {
+                ((BasicModelView3)view).incrementXOffset(1.0);
+             }
+            
+//            // make updates
+//             if (mouseMove.y > 0)
+//             {
+//                ((BasicModelView3)view).incrementZOffset(1.0);
+//             }
+//            if (mouseMove.y < 0)
+//             {
+//                ((BasicModelView3)view).incrementZOffset(-1.0);
+//             }
+            
+            // fire change view event
+            fireViewChangedEvent();
         }
-    }
+        // SEG -- mouse button 3 + control, moves center of rotation y-z plane
+        else if( areModifiersExactly(mouseEvent, InputEvent.BUTTON3_DOWN_MASK | InputEvent.CTRL_DOWN_MASK) )
+        {
+            // Stop ViewStateIterators, so we are the only one affecting the view.
+            stopViewIterators();
+            
+            // make updates
+             if (mouseMove.x > 0)
+             {
+                ((BasicModelView3)view).incrementYOffset(-1.0);
+             }
+            if (mouseMove.x < 0)
+             {
+                ((BasicModelView3)view).incrementYOffset(1.0);
+             }
+            
+//            // make updates
+//             if (mouseMove.y > 0)
+//             {
+//                ((BasicModelView3)view).incrementZOffset(1.0);
+//             }
+//            if (mouseMove.y < 0)
+//             {
+//                ((BasicModelView3)view).incrementZOffset(-1.0);
+//             }
+            
+            // fire change view event
+            fireViewChangedEvent();
+        }
+        // mouse drag + mouse button 2 + Control = reset of offsets to 0 
+        else if( areModifiersExactly(mouseEvent, InputEvent.BUTTON2_DOWN_MASK | InputEvent.CTRL_DOWN_MASK) )
+        {
+            stopViewIterators();
+            
+//            ((BasicModelView3)view).resetOffsets();
+            
+            // make updates
+             if (mouseMove.y > 0)
+             {
+                ((BasicModelView3)view).incrementZOffset(1.0);
+             }
+            if (mouseMove.y < 0)
+             {
+                ((BasicModelView3)view).incrementZOffset(-1.0);
+             }
+            
+            fireViewChangedEvent();
+        }
+        
+        
+    } // mouse dragged
 
     public void mouseMoved(MouseEvent mouseEvent)
     {
@@ -969,22 +1030,5 @@ public class BasicModelViewInputBroker3
         return Math.exp(lonPrevTarget + logNewTarget - logCurZoom);
     }
 
-    //private void setRotation(OrbitView view, Quaternion rotation)
-    //{
-    //    if (this.isSmoothViewChanges())
-    //    {
-    //        view.applyStateIterator(OrbitViewInputStateIterator.createRotationIterator(
-    //            rotation));
-    //    }
-    //    else
-    //    {
-    //        view.setRotation(rotation);
-    //        this.updateView(view);
-    //    }
-    //}
-
-    //private Quaternion computeNewRotation(OrbitView view, Quaternion amount)
-    //{
-    //    return view.getRotation().multiply(amount);
-    //}
+    
 }

@@ -164,7 +164,9 @@ public class WWModel3D_new implements Renderable
             gl.glScaled(localSize, localSize, localSize);  /// can change the scale of the model here!!
             
             // re/un rotate ECI layer
+            //System.out.println("------------");
             gl.glRotated(-eciRotAngleDeg, 0.0, 1.0, 0.0); // -- WORKS!!?!! (re rotate because pushReferenceCenter, undoes the ECI roation?)
+            //System.out.println("ECI:" + (-eciRotAngleDeg));
             
 //            // Earth fixed Inertial  -- yes, inertial? (no, because it was spun around by ECI layer)
 //            double radius = 0.6;
@@ -209,6 +211,7 @@ public class WWModel3D_new implements Renderable
             
             // Rotation of body around velocity
             gl.glRotated(angle2Rad*180/Math.PI,0,1,0); 
+            //System.out.println("Rot-body:" + (angle2Rad*180/Math.PI));
         
             
 //            // body axis
@@ -363,7 +366,7 @@ public class WWModel3D_new implements Renderable
                                                     {t*X*Z-s*Y,t*Y*Z+s*X,t*Z*Z+c}};
         double[] resultingNormDir = MathUtils.UnitVector( MathUtils.mult(rotThroughAxis, normTop) );
         
-        double dot = MathUtils.dot(resultingNormDir, v);
+        //double dot = MathUtils.dot(resultingNormDir, v);
         //System.out.println("dot="+dot);
         testNorm = resultingNormDir;
         
@@ -372,8 +375,24 @@ public class WWModel3D_new implements Renderable
         // now to solve - paralllel with position vector component in this plane
         double[] prosProjVelPlane = MathUtils.UnitVector( MathUtils.sub(pos, MathUtils.scale(unitV,MathUtils.dot(pos, unitV)) )   );
 
+        
+        //double rndDOTppvp = MathUtils.dot(resultingNormDir, prosProjVelPlane);
         // find angle between this and the resultingNormDir
-        angle2Rad = Math.acos(MathUtils.dot(resultingNormDir, prosProjVelPlane));
+        // method 1 - less accurate (around 1/-1), faster CPU-wise
+        angle2Rad = Math.acos(MathUtils.dot(resultingNormDir, prosProjVelPlane)); // assumes smallest angle, no +/- onl 0-180
+        // method 2 - more accurate and more CPU expensive
+        //angle2Rad = Math.atan2( MathUtils.norm(MathUtils.cross(resultingNormDir, prosProjVelPlane)) , MathUtils.dot(resultingNormDir, prosProjVelPlane) );
+                
+        // check sign of angle2Rad by doting prosProjVelPlane with the body fixed x-axis
+        double[] bodyXUnit = MathUtils.UnitVector( MathUtils.mult(rotThroughAxis, new double[] {1,0,0}) );
+        
+        // correct sign of angle2Rad by checking the dot product
+        if(MathUtils.dot(prosProjVelPlane,bodyXUnit ) > 0)
+        {
+            angle2Rad = -angle2Rad; // flip sign
+        }
+        
+        System.out.println("Rot-body: " + (angle2Rad*180/Math.PI) + " " + resultingNormDir[0]+ " " + resultingNormDir[1]+ " " + resultingNormDir[2]+ " " + prosProjVelPlane[0]+ " " + prosProjVelPlane[1]+ " " + prosProjVelPlane[2]);
         
     } // setMainRotationAngleAxis
     

@@ -61,6 +61,12 @@ public class BasicModelView3 extends AbstractView implements OrbitView
     private static final double COLLISION_THRESHOLD = 10;
     private static final int COLLISION_NUM_ITERATIONS = 4;
     
+    // ofsets
+    private double xOffset = 0;
+    private double yOffset = 0;
+    private double zOffset = 0;
+    private double XYOffsetMultiplier = 0.05*Math.PI/180.0;//2500; // amount to increment each time
+    private double ZOffsetMultiplier = 2500;
     // satellite object to follow
     AbstractSatellite sat; 
 
@@ -656,16 +662,25 @@ public class BasicModelView3 extends AbstractView implements OrbitView
         this.globe = this.dc.getGlobe();
         
         // ALWAYS SET CENTER -- SEG
-        System.out.println("lat:"+sat.getLatitude());
         if(sat == null)
         {
             // if no sat set -- use default location
-            setCenterPosition(Position.fromDegrees(0, 0, 750000));
+            setCenterPosition(Position.fromRadians(0+xOffset, 0+yOffset, 750000+zOffset));
+            //Vec4 v = new Vec4(0+getXOffset(),0+getYOffset(),750000+getZOffset()+globe.getRadiusAt(Angle.ZERO,Angle.ZERO));
+            //Position p = globe.computePositionFromPoint(v);
+            //setCenterPosition(p);
         }
         else // sat exisits
-        {    
-            System.out.println("lat:"+sat.getLatitude());
-            setCenterPosition(Position.fromDegrees(sat.getLatitude()*180.0/Math.PI, sat.getLongitude()*180.0/Math.PI, sat.getAltitude()));
+        {   
+            //Vec4 v = globe.computePointFromPosition(Angle.fromRadians(sat.getLatitude()), Angle.fromRadians(sat.getLongitude()), sat.getAltitude());
+            ////Vec4 v = new Vec4(-sat.getPosMOD()[0]+getXOffset(),sat.getPosMOD()[2]+getZOffset(),sat.getPosMOD()[1]+getYOffset());
+            //Vec4 v2 = v.add3(new Vec4(xOffset,yOffset,zOffset));
+ 
+            Vec4 v = globe.computePointFromPosition(Angle.fromRadians(sat.getLatitude()+xOffset), Angle.fromRadians(sat.getLongitude()+yOffset), sat.getAltitude()+zOffset);
+            
+            Position p = globe.computePositionFromPoint(v); //v2
+            //setCenterPosition(Position.fromDegrees(sat.getLatitude()*180.0/Math.PI, sat.getLongitude()*180.0/Math.PI, sat.getAltitude()));
+            setCenterPosition(p);
         }
         
         //========== modelview matrix state ==========//
@@ -922,5 +937,57 @@ public class BasicModelView3 extends AbstractView implements OrbitView
         d = rs.getStateValueAsDouble("farClipDistance");
         if (d != null)
             setFarClipDistance(d);
+    }
+
+    public double getXOffset()
+    {
+        return xOffset;
+    }
+
+    public void setXOffset(double xOffset)
+    {
+        this.xOffset = xOffset;
+    }
+
+    public double getYOffset()
+    {
+        return yOffset;
+    }
+
+    public void setYOffset(double yOffset)
+    {
+        this.yOffset = yOffset;
+    }
+
+    public double getZOffset()
+    {
+        return zOffset;
+    }
+
+    public void setZOffset(double zOffset)
+    {
+        this.zOffset = zOffset;
+    }
+    
+    public void resetOffsets()
+    {
+        setZOffset(0);
+        setYOffset(0);
+        setXOffset(0);
+    }
+    
+    public void incrementXOffset(double multiplierPosNeg)
+    {
+        xOffset += XYOffsetMultiplier*multiplierPosNeg;
+    }
+    
+    public void incrementYOffset(double multiplierPosNeg)
+    {
+        yOffset += XYOffsetMultiplier*multiplierPosNeg;
+    }
+    
+    public void incrementZOffset(double multiplierPosNeg)
+    {
+        zOffset += ZOffsetMultiplier*multiplierPosNeg;
     }
 }
