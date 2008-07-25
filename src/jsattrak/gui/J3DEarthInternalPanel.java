@@ -29,6 +29,7 @@ import gov.nasa.worldwind.Model;
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.avlist.AVKey;
+import gov.nasa.worldwind.awt.AWTInputHandler;
 import gov.nasa.worldwind.awt.WorldWindowGLJPanel;
 import gov.nasa.worldwind.examples.WMSLayersPanel;
 import gov.nasa.worldwind.geom.Angle;
@@ -87,6 +88,8 @@ import jsattrak.utilities.OrbitModelRenderable;
 import name.gano.worldwind.layers.Earth.CoverageRenderableLayer;
 import name.gano.worldwind.layers.Earth.ECEFRenderableLayer;
 import name.gano.worldwind.layers.Earth.ECIRenderableLayer;
+import name.gano.worldwind.view.BasicModelView3;
+import name.gano.worldwind.view.BasicModelViewInputHandler3;
 
 /**
  *
@@ -129,6 +132,13 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
     // options
     private String terrainProfileSat = "";
     private double terrainProfileLongSpan = 10.0;
+    
+    // view mode options
+    private boolean modelViewMode = false; // default false
+    private String modelViewString = ""; // to hold name of satellite to view when modelViewMode=true
+    private double modelViewNearClip = 10000; // clipping pland for when in Model View mode
+    private double modelViewFarClip = 5.0E7;
+    private boolean smoothViewChanges = true; // for 3D view smoothing 
     
     /** Creates new form J3DEarthPanel
      * @param parent
@@ -756,6 +766,122 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
     {
         this.terrainProfileLongSpan = terrainProfileLongSpan;
     }
+    
+    public boolean isModelViewMode()
+    {
+        return modelViewMode;
+    }
+
+    public void setModelViewMode(boolean viewMode)
+    {
+        // see if it is changed?
+        if(viewMode == modelViewMode)
+        {
+            // no change, then do nothing
+            return;
+        }
+        
+        // save state
+        this.modelViewMode = viewMode;
+        
+        // setup correct view
+        setupView();
+        
+    } // setModelViewMode
+
+    public String getModelViewString()
+    {
+        return modelViewString;
+    }
+
+    public void setModelViewString(String modelString)
+    {
+        // if changed model name and mode view active need to update model
+        if(!modelViewString.equalsIgnoreCase(modelString) && modelViewMode)
+        {
+            setupView();
+        }
+        
+        this.modelViewString = modelString;
+    }
+
+    public double getModelViewNearClip()
+    {
+        return modelViewNearClip;
+    }
+
+    public void setModelViewNearClip(double modelViewNearClip)
+    {
+        this.modelViewNearClip = modelViewNearClip;
+        
+        if(this.isModelViewMode())
+        {
+            wwd.getView().setNearClipDistance(modelViewNearClip);
+        }
+    }
+
+    public double getModelViewFarClip()
+    {
+        return modelViewFarClip;
+    }
+
+    public void setModelViewFarClip(double modelViewFarClip)
+    {
+        this.modelViewFarClip = modelViewFarClip;
+        
+        if(this.isModelViewMode())
+        {
+            wwd.getView().setFarClipDistance(modelViewFarClip);
+        }
+    }
+    
+    private void setupView()
+    {
+        if(modelViewMode == false)
+        { // Earth View mode
+            BasicOrbitView bov = new BasicOrbitView();
+            wwd.setView(bov);
+            
+            AWTInputHandler awth = new AWTInputHandler();
+            awth.setEventSource(wwd);
+            wwd.setInputHandler(awth);
+            awth.setSmoothViewChanges(smoothViewChanges); // FALSE MAKES THE VIEW FAST!!
+            
+            // IF EARTH VIEW -- RESET CLIPPING PLANES BACK TO NORMAL SETTINGS!!!
+            wwd.getView().setNearClipDistance(app.getNearClippingPlaneDist());
+            wwd.getView().setFarClipDistance(app.getFarClippingPlaneDist());
+            
+        } // Earth View mode
+        else
+        { // Model View mode
+            
+            // TEST NEW VIEW -- TO MAKE WORK MUST TURN OFF ECI!
+            this.setViewModeECI(false);
+
+            if(!satHash.containsKey(modelViewString))
+            {
+                System.out.println("NO Current Satellite Selected, can't switch to Model Mode: " + modelViewString);
+                return;
+            }
+
+            AbstractSatellite sat = satHash.get(modelViewString);
+
+            BasicModelView3 bmv = new BasicModelView3(((BasicOrbitView)wwd.getView()).getOrbitViewModel(), sat);
+            wwd.setView(bmv);
+
+            BasicModelViewInputHandler3 mih = new BasicModelViewInputHandler3();
+            mih.setEventSource(wwd);
+            wwd.setInputHandler(mih);
+            mih.setSmoothViewChanges(smoothViewChanges); // FALSE MAKES THE VIEW FAST!!
+
+            // settings for great closeups!
+            wwd.getView().setNearClipDistance(modelViewNearClip);
+            wwd.getView().setFarClipDistance(modelViewFarClip);
+            bmv.setZoom(900000);
+            bmv.setPitch(Angle.fromDegrees(45));
+        } // model view mode
+        
+    } // setupView
     
     //    public void setWwd(WorldWindowGLCanvas wwd)
     //    {

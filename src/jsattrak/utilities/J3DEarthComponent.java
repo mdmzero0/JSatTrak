@@ -50,4 +50,13 @@ public interface  J3DEarthComponent
     public LayerList getLayerList();
     public void setFarClipDistance(double clipDist);
     public void setNearClipDistance(double clipDist);
+    public boolean isModelViewMode();
+    public void setModelViewMode(boolean modelViewMode);
+    public String getModelViewString();
+    public void setModelViewString(String modelViewString);
+    public double getModelViewNearClip();
+    public void setModelViewNearClip(double modelViewNearClip);
+    public double getModelViewFarClip();
+    public void setModelViewFarClip(double modelViewFarClip);
+    
 }
