@@ -97,8 +97,9 @@ public class SatelliteTleSGP4 extends AbstractSatellite
     
         // 3D model parameters
     private boolean use3dModel = false; // use custom 3D model (or default sphere)
-    private String threeDModelPath = ""; // path to the custom model
-    WWModel3D_new threeDModel;
+    private String threeDModelPath = "globalstar/Globalstar.3ds"; // path to the custom model, default= globalstar/Globalstar.3ds ?
+    private transient WWModel3D_new threeDModel; // DO NOT STORE when saving -- need to reload this -- TOO MUCH DATA!
+    private double threeDModelSizeFactor = 300000;
     
     /** Creates a new instance of SatelliteProps - default properties with given name and TLE lines
      * @param name name of satellite
@@ -225,6 +226,8 @@ public class SatelliteTleSGP4 extends AbstractSatellite
             } // ascending node passed
             
         } // if show ground track is true
+        
+        // if 3D model - update its properties -- NOT DONE HERE - done in OrbitModelRenderable (so it can be done for any sat)
                
     } // propogate2JulDate
     
@@ -808,15 +811,14 @@ public class SatelliteTleSGP4 extends AbstractSatellite
     {
         this.use3dModel = use3dModel;
         
-        if(use3dModel && threeDModel==null)
+        if(use3dModel && threeDModelPath.length() > 0)
         {
+            // check that file exsists? - auto done in loader
+            
             //String path = "data/models/globalstar/Globalstar.3ds";
-            String path = "data/models/isscomplete/iss_v2.3ds";
-            if(threeDModelPath.length()>0)
-            {
-                path = threeDModelPath;
-            }
-            loadNewModel(path);
+            //String path = "data/models/isscomplete/iss_complete.3ds";
+            
+            loadNewModel(threeDModelPath);
         }
     }
     
@@ -825,6 +827,10 @@ public class SatelliteTleSGP4 extends AbstractSatellite
         return threeDModelPath;
     }
     
+    /**
+     * Relative path to the model -- relative from "user.dir"/data/models/
+     * @param path
+     */
     public void setThreeDModelPath(String path)
     {
         if(use3dModel && !(path.equalsIgnoreCase(this.threeDModelPath)) )
@@ -838,9 +844,11 @@ public class SatelliteTleSGP4 extends AbstractSatellite
     
     private void loadNewModel(String path)
     {
+        String localPath = "data/models/"; // path to models root from user.dir
+        
         try
             {
-                net.java.joglutils.model.geometry.Model model3DS = ModelFactory.createModel(path);
+                net.java.joglutils.model.geometry.Model model3DS = ModelFactory.createModel(localPath + path);
                 //model3DS.setUseLighting(false); // turn off lighting!
 
                 threeDModel =  new WWModel3D_new(model3DS,
@@ -849,7 +857,10 @@ public class SatelliteTleSGP4 extends AbstractSatellite
                         this.getAltitude()));
 
                 threeDModel.setMaitainConstantSize(true);
-                threeDModel.setSize(300000); // this needs to be a property!
+                threeDModel.setSize(threeDModelSizeFactor); // this needs to be a property!
+                
+                threeDModel.updateAttitude(this); // fixes attitude intitially
+                
             }catch(Exception e)
             {
                 System.out.println("ERROR LOADING 3D MODEL");
@@ -864,6 +875,26 @@ public class SatelliteTleSGP4 extends AbstractSatellite
     public  double[] getMODVelocity()
     {
         return velMOD.clone();
+    }
+
+    public double getThreeDModelSizeFactor()
+    {
+        return threeDModelSizeFactor;
+    }
+
+    public void setThreeDModelSizeFactor(double modelSizeFactor)
+    {
+        // should the 3D model be reloaded now?
+        if(modelSizeFactor != threeDModelSizeFactor && use3dModel && threeDModelPath.length()>0)
+        {
+            //loadNewModel(threeDModelPath);
+            if(threeDModel != null)
+            {
+                threeDModel.setSize(modelSizeFactor);
+            }
+        }
+        
+        this.threeDModelSizeFactor = modelSizeFactor;
     }
     
 } // SatelliteProps

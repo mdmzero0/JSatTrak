@@ -26,10 +26,14 @@ package jsattrak.gui;
 
 import jsattrak.objects.SatelliteTleSGP4;
 import java.awt.Color;
+import java.io.File;
 import javax.swing.JColorChooser;
+import javax.swing.JFileChooser;
 import javax.swing.JInternalFrame;
 import jsattrak.objects.AbstractSatellite;
 import jsattrak.objects.CustomSatellite;
+import jsattrak.utilities.ImageFilter;
+import jsattrak.utilities.RelativePath;
 
 /**
  *
@@ -112,6 +116,9 @@ public class SatSettingsPanel extends javax.swing.JPanel implements java.io.Seri
         use3DModelCheckBox.setSelected(satProps.isUse3dModel());
         threeDModelTextField.setText(satProps.getThreeDModelPath());
         threeDModelTextField.setEditable(satProps.isUse3dModel()); // set editable
+        browseModelButton.setEnabled(use3DModelCheckBox.isSelected());
+        modelScaleTextField.setEditable(use3DModelCheckBox.isSelected());
+        modelScaleTextField.setText( satProps.getThreeDModelSizeFactor()+"" );
         
     } //iniSatProps
 
@@ -170,6 +177,9 @@ public class SatSettingsPanel extends javax.swing.JPanel implements java.io.Seri
         use3DModelCheckBox = new javax.swing.JCheckBox();
         jLabel5 = new javax.swing.JLabel();
         threeDModelTextField = new javax.swing.JTextField();
+        browseModelButton = new javax.swing.JButton();
+        jLabel6 = new javax.swing.JLabel();
+        modelScaleTextField = new javax.swing.JTextField();
         jPanel7 = new javax.swing.JPanel();
         applyButton = new javax.swing.JButton();
         okButton = new javax.swing.JButton();
@@ -442,6 +452,17 @@ public class SatSettingsPanel extends javax.swing.JPanel implements java.io.Seri
 
         jLabel5.setText("Path:");
 
+        browseModelButton.setText("Browse");
+        browseModelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                browseModelButtonActionPerformed(evt);
+            }
+        });
+
+        jLabel6.setText("Scale Factor:");
+
+        modelScaleTextField.setText("300000");
+
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
         jPanel8.setLayout(jPanel8Layout);
         jPanel8Layout.setHorizontalGroup(
@@ -450,22 +471,37 @@ public class SatSettingsPanel extends javax.swing.JPanel implements java.io.Seri
                 .addContainerGap()
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel8Layout.createSequentialGroup()
+                        .addComponent(use3DModelCheckBox)
+                        .addGap(18, 18, 18)
+                        .addComponent(browseModelButton))
+                    .addGroup(jPanel8Layout.createSequentialGroup()
                         .addGap(21, 21, 21)
-                        .addComponent(jLabel5)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(threeDModelTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(use3DModelCheckBox))
-                .addContainerGap(36, Short.MAX_VALUE))
+                        .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel8Layout.createSequentialGroup()
+                                .addComponent(jLabel6)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(modelScaleTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel8Layout.createSequentialGroup()
+                                .addComponent(jLabel5)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(threeDModelTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 214, Short.MAX_VALUE)))))
+                .addContainerGap())
         );
         jPanel8Layout.setVerticalGroup(
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel8Layout.createSequentialGroup()
-                .addComponent(use3DModelCheckBox)
+                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(use3DModelCheckBox)
+                    .addComponent(browseModelButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel5)
                     .addComponent(threeDModelTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(23, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6)
+                    .addComponent(modelScaleTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -481,7 +517,7 @@ public class SatSettingsPanel extends javax.swing.JPanel implements java.io.Seri
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(63, Short.MAX_VALUE))
+                .addContainerGap(40, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("3D Graphics", jPanel1);
@@ -624,11 +660,51 @@ public class SatSettingsPanel extends javax.swing.JPanel implements java.io.Seri
 
 private void use3DModelCheckBoxStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_use3DModelCheckBoxStateChanged
     threeDModelTextField.setEditable(use3DModelCheckBox.isSelected());
+    browseModelButton.setEnabled(use3DModelCheckBox.isSelected());
+    modelScaleTextField.setEditable(use3DModelCheckBox.isSelected());
+    
 }//GEN-LAST:event_use3DModelCheckBoxStateChanged
+
+private void browseModelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseModelButtonActionPerformed
+    // Browse for models in local dir
+    //String localPathCononical = "data/models/";
+    String localPath = "data"+File.separator+ "models" + File.separator;
+    String userDir = System.getProperty("user.dir"); // path java was run from
+    
+    final JFileChooser fc = new JFileChooser(localPath);
+    ImageFilter xmlFilter = new ImageFilter("3ds", "*.3ds");
+    ImageFilter xmlFilter2 = new ImageFilter("obj", "*.obj");
+    
+    fc.addChoosableFileFilter(xmlFilter2);
+    fc.addChoosableFileFilter(xmlFilter); // load last so 3ds is prefered
+
+    int returnVal = fc.showOpenDialog(this);
+
+    if(returnVal == JFileChooser.APPROVE_OPTION)
+    {
+        try
+        {
+            File file = fc.getSelectedFile();
+            String test = userDir + File.separator + localPath;
+            String test2 = file.getAbsolutePath();
+            String relPath = RelativePath.getRelativePath(new File(test), new File(test2)); // returns conanical rel path
+
+            threeDModelTextField.setText(relPath);
+     
+        }
+        catch(Exception e)
+        {
+            System.out.println("ERROR Selecting Model File: " + e.toString());
+        }
+    } // if file choosen
+    
+    
+}//GEN-LAST:event_browseModelButtonActionPerformed
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton applyButton;
+    private javax.swing.JButton browseModelButton;
     private javax.swing.JButton cancelButton;
     private javax.swing.JButton colorButton;
     private javax.swing.JPanel colorPanel;
@@ -644,6 +720,7 @@ private void use3DModelCheckBoxStateChanged(javax.swing.event.ChangeEvent evt) {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -655,6 +732,7 @@ private void use3DModelCheckBoxStateChanged(javax.swing.event.ChangeEvent evt) {
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextField lagTrackTextField;
     private javax.swing.JTextField leadTrackTextField;
+    private javax.swing.JTextField modelScaleTextField;
     private javax.swing.JButton okButton;
     private javax.swing.JCheckBox showFootPrintCheckBox;
     private javax.swing.JCheckBox showGroundTrackCheckBox;
@@ -760,6 +838,7 @@ private void use3DModelCheckBoxStateChanged(javax.swing.event.ChangeEvent evt) {
         if(use3DModelCheckBox.isSelected())
         {
             satProps.setThreeDModelPath(threeDModelTextField.getText());
+            satProps.setThreeDModelSizeFactor( Double.parseDouble(modelScaleTextField.getText()) );
         }  
         
         return updateMapData;

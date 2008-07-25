@@ -8,12 +8,16 @@
 
 package name.gano.worldwind.modelloader;
 
+import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Vec4;
 import gov.nasa.worldwind.render.DrawContext;
 import gov.nasa.worldwind.render.Renderable;
 import javax.media.opengl.GL;
+import jsattrak.objects.AbstractSatellite;
+import name.gano.astro.AstroConst;
 import name.gano.astro.MathUtils;
+import name.gano.worldwind.layers.Earth.ECIRenderableLayer;
 import net.java.joglutils.model.examples.DisplayListRenderer;
 import net.java.joglutils.model.geometry.Model;
 import net.java.joglutils.model.iModel3DRenderer;
@@ -392,7 +396,7 @@ public class WWModel3D_new implements Renderable
             angle2Rad = -angle2Rad; // flip sign
         }
         
-        System.out.println("Rot-body: " + (angle2Rad*180/Math.PI) + " " + resultingNormDir[0]+ " " + resultingNormDir[1]+ " " + resultingNormDir[2]+ " " + prosProjVelPlane[0]+ " " + prosProjVelPlane[1]+ " " + prosProjVelPlane[2]);
+        //System.out.println("Rot-body: " + (angle2Rad*180/Math.PI) + " " + resultingNormDir[0]+ " " + resultingNormDir[1]+ " " + resultingNormDir[2]+ " " + prosProjVelPlane[0]+ " " + prosProjVelPlane[1]+ " " + prosProjVelPlane[2]);
         
     } // setMainRotationAngleAxis
     
@@ -422,5 +426,28 @@ public class WWModel3D_new implements Renderable
     {
         this.eciRotAngleDeg = eciRotAngleDeg;
     }
+    
+    // update axis and alll rotational things when time updates -- currently only runs when new 3D model is loaded - otherwise similar functions run from OrbitModelRenderable to reduce CPU expense
+    public void updateAttitude( AbstractSatellite sat)
+    {
+        double MJD = sat.getCurrentJulDate() - AstroConst.JDminusMJD;
+        
+         setPosition(new Position(Angle.fromRadians(sat.getLatitude()),
+                Angle.fromRadians(sat.getLongitude()),
+                sat.getAltitude()));
+        // set roll pitch yaw (assume user wants LVLH, velcorty aligned)
+
+        // calculate MOD velocity and set rotation angles and axis
+        setMainRotationAngleAxis(sat.getMODVelocity(), sat.getPosMOD());
+
+        // set velcoity for test plotting
+        this.velUnitVec = MathUtils.UnitVector(sat.getMODVelocity());
+
+        // Set ECI angle
+        double T = (MJD-51544.5)/36525.0;  // centuries since J2000.0
+        double rotateECIdeg =  ( (280.46061837 + 360.98564736629*(MJD-51544.5)) + 0.000387933*T*T - T*T*T/38710000.0 + ECIRenderableLayer.offsetRotdeg) % 360.0;
+        setEciRotAngleDeg(rotateECIdeg);
+    }
+     
     
 }

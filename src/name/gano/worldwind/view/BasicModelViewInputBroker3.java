@@ -22,6 +22,7 @@
  */
 // modification of OrbitViewInputBroker.java  (gov.nasa.worldwind.awt)
 // NOTE - A double click resets the zoom (not sure where this is handled) -- may be percieved as a bug
+// -- UPDATE -- DO HOVER PROBLEMS WHEN HOVERING OVER 3D NAME!!!!!
 
 package name.gano.worldwind.view;
 

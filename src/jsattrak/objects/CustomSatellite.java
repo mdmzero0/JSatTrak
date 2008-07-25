@@ -111,7 +111,8 @@ public class CustomSatellite  extends AbstractSatellite
     // 3D model parameters
     private boolean use3dModel = false; // use custom 3D model (or default sphere)
     private String threeDModelPath = ""; // path to the custom model
-    WWModel3D_new threeDModel;
+    private transient WWModel3D_new threeDModel;
+    private double threeDModelSizeFactor = 300000; // DO NOT STORE when saving -- need to reload this
     
 //    // Constructors
 //    public CustomSatellite()
@@ -1141,5 +1142,25 @@ public class CustomSatellite  extends AbstractSatellite
     public  double[] getMODVelocity()
     {
         return new double[3];
+    }
+    
+    public double getThreeDModelSizeFactor()
+    {
+        return threeDModelSizeFactor;
+    }
+
+    public void setThreeDModelSizeFactor(double modelSizeFactor)
+    {
+        // should the 3D model be reloaded now?
+        if(modelSizeFactor != threeDModelSizeFactor && use3dModel && threeDModelPath.length()>0)
+        {
+            //loadNewModel(threeDModelPath);
+            if(threeDModel != null)
+            {
+                threeDModel.setSize(modelSizeFactor);
+            }
+        }
+        
+        this.threeDModelSizeFactor = modelSizeFactor;
     }
 }

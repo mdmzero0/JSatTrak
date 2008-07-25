@@ -105,7 +105,7 @@ public class BasicModelViewInputHandler3 extends WWObjectImpl
             {
                 if (event.getEventAction().equals(SelectEvent.ROLLOVER))
                 {
-                    doHover(true);
+                   // doHover(true);
                 }
             }
         };
@@ -379,7 +379,7 @@ public class BasicModelViewInputHandler3 extends WWObjectImpl
         {
             this.viewInputBroker.mouseReleased(mouseEvent);
         }
-        this.doHover(true);
+        //this.doHover(true);
         this.cancelDrag();
     }
 

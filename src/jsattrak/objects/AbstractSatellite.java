@@ -179,5 +179,10 @@ public abstract class AbstractSatellite implements Serializable
     public abstract WWModel3D_new getThreeDModel();
     
     public abstract double[] getMODVelocity();
+    
+    public abstract double getThreeDModelSizeFactor();
+    
+    public abstract void setThreeDModelSizeFactor(double modelSizeFactor);
+    
 
 }

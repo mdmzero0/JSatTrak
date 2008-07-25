@@ -46,7 +46,10 @@ public class ECIRenderableLayer extends RenderableLayer
     
     
     // ECI rotation variable
-    private final double offsetRotdeg = -90.0; // jogl coordinate Greenwich to ECI x-axis offset 
+    /**
+     * jogl coordinate Greenwich to ECI x-axis offset
+     */
+    public static final double offsetRotdeg = -90.0; // jogl coordinate Greenwich to ECI x-axis offset
     private double rotateECIdeg = 280.46061837+offsetRotdeg; // rotation in degrees (default j2k)
     private double currentMJD = 51544.5; // current modified julian date, universal time (default J2k)
 

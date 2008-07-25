@@ -257,30 +257,29 @@ public class OrbitModelRenderable implements Renderable
     {
         for (AbstractSatellite sat : satHash.values()) // search through all sat nodes
         {
-            // set position -- should NOT DO THIS HERE! (should do this only when needs updat - when time changes
+            // set position 
             // DIES HERE IF NO 3D MODEL  - I.E. 3D model not selected either!
-            sat.getThreeDModel().setPosition(new Position(Angle.fromRadians(sat.getLatitude()),
-                    Angle.fromRadians(sat.getLongitude()),
-                    sat.getAltitude()));
-            // set roll pitch yaw (assume user wants LVLH, velcorty aligned)
-//                        sat.getThreeDModel().setYawDeg(-(90-sat.getKeplarianElements()[2]*180.0/Math.PI));
-//                        //sat.getThreeDModel().setYawDeg(-(90-51.6-10)); ///90-
-//                        sat.getThreeDModel().setPitchDeg(-sat.getLatitude());
-//                        sat.getThreeDModel().setRollDeg(sat.getLongitude());
+            if(sat.isUse3dModel())
+            {
+                if(sat.getThreeDModel() != null)
+                {
+                sat.getThreeDModel().setPosition(new Position(Angle.fromRadians(sat.getLatitude()),
+                        Angle.fromRadians(sat.getLongitude()),
+                        sat.getAltitude()));
+                // set roll pitch yaw (assume user wants LVLH, velcorty aligned)
 
+                // calculate MOD velocity and set rotation angles and axis
+                sat.getThreeDModel().setMainRotationAngleAxis(sat.getMODVelocity(), sat.getPosMOD());
 
-            // REALLY NEED MOD VELOCITY!!
-            sat.getThreeDModel().setMainRotationAngleAxis(sat.getMODVelocity(),sat.getPosMOD());
-            // set velcoity for test plotting
-            sat.getThreeDModel().velUnitVec = MathUtils.UnitVector(sat.getMODVelocity());
-        //Vec4 vec = dc.getGlobe().computePointFromPosition(sat.getThreeDModel().getPosition());
-        //System.out.println("MOD Pos:" + vec.x +"," + vec.y +"," +vec.z);
+                // set velcoity for test plotting
+                sat.getThreeDModel().velUnitVec = MathUtils.UnitVector(sat.getMODVelocity());
+                
+                // Set ECI angle
+                sat.getThreeDModel().setEciRotAngleDeg(eciRotDeg);
+                }
 
-        //System.out.println("unit V:" + sat.getThreeDModel().velUnitVec[0] +"," + sat.getThreeDModel().velUnitVec[1] +"," +sat.getThreeDModel().velUnitVec[2]);
-            
-            // Set ECI angle
-            sat.getThreeDModel().setEciRotAngleDeg(eciRotDeg);
-        }
+            } // 3D model           
+        } // for each sat
          
          
     } // update MJD

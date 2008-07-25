@@ -130,7 +130,7 @@ public class ConsoleDialog extends javax.swing.JDialog implements ConsoleListene
 
         // Keep the text area down to a certain character size
         int idealSize = 25000;
-        int maxExcess = 100;
+        int maxExcess = 200;
         int excess = textArea.getDocument().getLength() - idealSize;
         if (excess >= maxExcess)
         {
