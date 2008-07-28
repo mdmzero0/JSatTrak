@@ -69,7 +69,7 @@
  *          3.2.1 - (22 May 2008) - unsucessful try to remove dependency on JMF
  *                  ? view following sat (very preliminary) and 3D models?
  *             // bug - does CoverageAnalyzer save and open in 2d window correctly?? use dialog maybe to fix this?
- *  Version 3.3.0 - 15 July 2008 -- Added 3D models  (in progress) - fixed bug: 3d view in ECI reverted back to North up when time advanced (J3DEarthPanel.java, and internal)
+ *  Version 3.5.0 - 25 July 2008 -- Added 3D models  (in progress), added model view mode - fixed bug: 3d view in ECI reverted back to North up when time advanced (J3DEarthPanel.java, and internal)
  *           
  * 
  */
@@ -178,7 +178,7 @@ import name.gano.file.FileTypeFilter;
  */
 public class JSatTrak extends javax.swing.JFrame implements InternalFrameListener, WindowListener, Serializable
 {
-    private String versionString = "Version 3.3.0 alpha (15 July 2008)"; // Version of app
+    private String versionString = "Version 3.5.0 alpha (25 July 2008)"; // Version of app
     
     // hastable to store all the statelites currently being processed
     private Hashtable<String,AbstractSatellite> satHash = new Hashtable<String,AbstractSatellite>();
@@ -366,6 +366,8 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         if( (new File(tleDownloader.getLocalPath()).exists()) && (new File(tleDownloader.getTleFilePath(0)).exists()) )
         {
             addSat2ListByName("ISS (ZARYA)             ");
+            satHash.get("ISS (ZARYA)             ").setThreeDModelPath("isscomplete/iss_complete.3ds");// set default 3d model
+            
         }
                 
         

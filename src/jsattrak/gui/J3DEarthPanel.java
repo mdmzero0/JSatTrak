@@ -798,6 +798,7 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         // if changed model name and mode view active need to update model
         if(!modelViewString.equalsIgnoreCase(modelString) && modelViewMode)
         {
+            this.modelViewString = modelString; // save first
             setupView();
         }
         
@@ -845,10 +846,14 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
             awth.setEventSource(wwd);
             wwd.setInputHandler(awth);
             awth.setSmoothViewChanges(smoothViewChanges); // FALSE MAKES THE VIEW FAST!!
-            
+                        
             // IF EARTH VIEW -- RESET CLIPPING PLANES BACK TO NORMAL SETTINGS!!!
             wwd.getView().setNearClipDistance(app.getNearClippingPlaneDist());
             wwd.getView().setFarClipDistance(app.getFarClippingPlaneDist());
+            
+            // change class for inputHandler
+            Configuration.setValue(AVKey.INPUT_HANDLER_CLASS_NAME, 
+                        AWTInputHandler.class.getName());
             
         } // Earth View mode
         else
@@ -865,7 +870,16 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
 
             AbstractSatellite sat = satHash.get(modelViewString);
 
-            BasicModelView3 bmv = new BasicModelView3(((BasicOrbitView)wwd.getView()).getOrbitViewModel(), sat);
+            BasicModelView3 bmv;
+            if(wwd.getView() instanceof BasicOrbitView)
+            {
+                bmv = new BasicModelView3(((BasicOrbitView)wwd.getView()).getOrbitViewModel(), sat);
+            }
+            else
+            {
+                bmv = new BasicModelView3(((BasicModelView3)wwd.getView()).getOrbitViewModel(), sat);
+            }
+            
             wwd.setView(bmv);
 
             BasicModelViewInputHandler3 mih = new BasicModelViewInputHandler3();
@@ -878,6 +892,11 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
             wwd.getView().setFarClipDistance(modelViewFarClip);
             bmv.setZoom(900000);
             bmv.setPitch(Angle.fromDegrees(45));
+            
+            // change class for inputHandler
+            Configuration.setValue(AVKey.INPUT_HANDLER_CLASS_NAME, 
+                        BasicModelViewInputHandler3.class.getName());
+            
         } // model view mode
         
     } // setupView

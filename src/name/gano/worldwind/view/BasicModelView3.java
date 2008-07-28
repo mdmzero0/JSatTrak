@@ -68,7 +68,7 @@ public class BasicModelView3 extends AbstractView implements OrbitView
     private double XYOffsetMultiplier = 0.05*Math.PI/180.0;//2500; // amount to increment each time
     private double ZOffsetMultiplier = 2500;
     // satellite object to follow
-    AbstractSatellite sat; 
+    private AbstractSatellite sat; 
 
     public BasicModelView3()
     {
@@ -989,5 +989,16 @@ public class BasicModelView3 extends AbstractView implements OrbitView
     public void incrementZOffset(double multiplierPosNeg)
     {
         zOffset += ZOffsetMultiplier*multiplierPosNeg;
+    }
+
+    public // satellite object to follow
+    AbstractSatellite getSat()
+    {
+        return sat;
+    }
+
+    public void setSat(AbstractSatellite sat)
+    {
+        this.sat = sat;
     }
 }

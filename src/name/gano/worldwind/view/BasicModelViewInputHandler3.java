@@ -105,7 +105,7 @@ public class BasicModelViewInputHandler3 extends WWObjectImpl
             {
                 if (event.getEventAction().equals(SelectEvent.ROLLOVER))
                 {
-                   // doHover(true);
+                    //doHover(true);
                 }
             }
         };
@@ -542,6 +542,8 @@ public class BasicModelViewInputHandler3 extends WWObjectImpl
 
     protected void doHover(boolean reset)
     {
+        //
+        
         // SEG - removed doHover -- got Exception in thread "AWT-EventQueue-0" java.lang.NullPointerException
 //        PickedObjectList pickedObjects = this.wwd.getObjectsAtCurrentPosition();
 //        if (!(this.isPickListEmpty(this.hoverObjects) || this.isPickListEmpty(pickedObjects)))

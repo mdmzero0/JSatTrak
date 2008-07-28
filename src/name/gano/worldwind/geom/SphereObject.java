@@ -54,7 +54,7 @@ public final class SphereObject implements Extent, Renderable
     
     private int numDivisions = 20; // number of horizontal and verticle divisions in the sphere
 
-    boolean plotFixedAxis = true;
+    boolean plotFixedAxis = false;
     
     /**
      * Creates a sphere that completely contains a set of points.

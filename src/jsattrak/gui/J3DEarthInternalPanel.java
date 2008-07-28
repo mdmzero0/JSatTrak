@@ -799,6 +799,7 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
         // if changed model name and mode view active need to update model
         if(!modelViewString.equalsIgnoreCase(modelString) && modelViewMode)
         {
+            this.modelViewString = modelString; // save first
             setupView();
         }
         
@@ -866,7 +867,16 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
 
             AbstractSatellite sat = satHash.get(modelViewString);
 
-            BasicModelView3 bmv = new BasicModelView3(((BasicOrbitView)wwd.getView()).getOrbitViewModel(), sat);
+            BasicModelView3 bmv;
+            if(wwd.getView() instanceof BasicOrbitView)
+            {
+                bmv = new BasicModelView3(((BasicOrbitView)wwd.getView()).getOrbitViewModel(), sat);
+            }
+            else
+            {
+                bmv = new BasicModelView3(((BasicModelView3)wwd.getView()).getOrbitViewModel(), sat);   
+            }
+            
             wwd.setView(bmv);
 
             BasicModelViewInputHandler3 mih = new BasicModelViewInputHandler3();

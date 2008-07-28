@@ -168,10 +168,12 @@ public class OrbitModelRenderable implements Renderable
             {
                 AnnotationAttributes geoAttr = createFontAttribs(sat.getSatColor());
                 GlobeAnnotation an = new GlobeAnnotation(sat.getName(), Position.fromRadians(sat.getLatitude(), sat.getLongitude(), sat.getAltitude()), geoAttr);
+                
                 // annotation - without any attribs, gives a bubble box
                 // annotation doesn't strech well in GLCanvas
                 //GlobeAnnotation an = new GlobeAnnotation(gs.getStationName(), Position.fromDegrees(gs.getLatitude(), gs.getLongitude(), gs.getAltitude()));
                 an.render(dc);
+                
             }
             
             // draw earth footprint
