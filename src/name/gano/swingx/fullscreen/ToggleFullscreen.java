@@ -50,6 +50,10 @@ public class ToggleFullscreen extends JFrame {
 	//private JPanel drawingArea = null;
         
         J3DEarthPanel test;
+        
+        KeyAdapter keyAdp;
+        
+        Component contents; // so key listener can be removed
 	
 	/**
 	 * The function that first removes the window border and
@@ -64,6 +68,7 @@ public class ToggleFullscreen extends JFrame {
 		super();
 
                 this.test = test;
+                this.contents = contents;
                 
 		//get a reference to the device.
 		this.device = gd;
@@ -84,7 +89,7 @@ public class ToggleFullscreen extends JFrame {
 		getContentPane().add(contents); // drawingArea
 		
 		//add keylistener so that we may exit.
-		this.addKeyListener(new KeyAdapter() {
+                keyAdp = new KeyAdapter() {
 			public void keyReleased(KeyEvent e) {
 				if( e.getKeyCode() == KeyEvent.VK_ESCAPE ) {
 					//do all cleanup before closing the program
@@ -96,21 +101,11 @@ public class ToggleFullscreen extends JFrame {
                                         onExit();
 				}
 			}
-		});
+		};
                 
-                contents.addKeyListener(new KeyAdapter() {
-			public void keyReleased(KeyEvent e) {
-				if( e.getKeyCode() == KeyEvent.VK_ESCAPE ) {
-					//do all cleanup before closing the program
-					onExit();
-				}else if( e.getKeyCode() == (KeyEvent.VK_F) ) {
-					//toggle fullscreen mode.
-					//setFullscreen( !isFullscreen() );
-                                        // now just exit
-                                        onExit();
-				}
-			}
-		});
+		this.addKeyListener(keyAdp);
+                
+                contents.addKeyListener(keyAdp); // add it to the WWJ oject too 
 
 		//add the window listener to detect when the window is closing.
 		addWindowListener(
@@ -131,6 +126,7 @@ public class ToggleFullscreen extends JFrame {
 		//show the JFrame.
 		setVisible(true);
                 
+                // auto matically go to full screen mode
                 this.setFullscreen(true);
 	}
 	
@@ -141,7 +137,10 @@ public class ToggleFullscreen extends JFrame {
 	public void onExit() {
 		
                 // NEED TO REMOVE KEY LISTENER FROM WWJ componemet
-            
+                this.removeKeyListener(keyAdp);
+                contents.removeKeyListener(keyAdp);
+                
+                
 		//immediately hide the window (no falling apart windows)
 		setVisible(false);
 //		
