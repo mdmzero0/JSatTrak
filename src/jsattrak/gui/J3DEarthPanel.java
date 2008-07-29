@@ -165,8 +165,10 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         Configuration.setValue(AVKey.INITIAL_HEADING, 0.0);
         Configuration.setValue(AVKey.INITIAL_PITCH, 0.0);
 
+        // make a new instace from the shared wwj resource!
+        wwd = new WorldWindowGLCanvas(app.getWwd());
+        
         // add WWJ to panel
-        wwd = new WorldWindowGLCanvas();
         wwd.setPreferredSize(new java.awt.Dimension(600, 400));
         this.add(wwd, java.awt.BorderLayout.CENTER);
         //wwd.setModel(new BasicModel());
@@ -843,7 +845,7 @@ private void fullScreenButtonActionPerformed(java.awt.event.ActionEvent evt) {//
             AWTInputHandler awth = new AWTInputHandler();
             awth.setEventSource(wwd);
             wwd.setInputHandler(awth);
-            awth.setSmoothViewChanges(smoothViewChanges); // FALSE MAKES THE VIEW FAST!! -- MIGHT WANT TO ADD THIS OPTION FOR NORMAL VIEW and MAKE IT GUI Chooseable
+            awth.setSmoothViewChanges(smoothViewChanges); // FALSE MAKES THE VIEW FAST!! -- MIGHT WANT TO MAKE IT GUI Chooseable
                         
             // IF EARTH VIEW -- RESET CLIPPING PLANES BACK TO NORMAL SETTINGS!!!
             wwd.getView().setNearClipDistance(app.getNearClippingPlaneDist());
@@ -872,6 +874,7 @@ private void fullScreenButtonActionPerformed(java.awt.event.ActionEvent evt) {//
             if(wwd.getView() instanceof BasicOrbitView)
             {
                 bmv = new BasicModelView3(((BasicOrbitView)wwd.getView()).getOrbitViewModel(), sat);
+                //bmv = new BasicModelView3(sat);
             }
             else
             {

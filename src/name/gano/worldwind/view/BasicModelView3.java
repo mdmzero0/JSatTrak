@@ -112,7 +112,7 @@ public class BasicModelView3 extends AbstractView implements OrbitView
         this.orbitViewModel = orbitViewModel;
         this.collisionSupport.setCollisionThreshold(COLLISION_THRESHOLD);
         this.collisionSupport.setNumIterations(COLLISION_NUM_ITERATIONS);
-        loadConfigurationValues();
+        loadConfigurationValues();        
     }
 
     private void loadConfigurationValues()

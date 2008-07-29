@@ -166,6 +166,7 @@ public class OrbitModelRenderable implements Renderable
             // draw name
             if(sat.isShow3DName())
             {
+                // this may be REALLY slow creating this every repaint! - maybe store in sat object and update its position?
                 AnnotationAttributes geoAttr = createFontAttribs(sat.getSatColor());
                 GlobeAnnotation an = new GlobeAnnotation(sat.getName(), Position.fromRadians(sat.getLatitude(), sat.getLongitude(), sat.getAltitude()), geoAttr);
                 

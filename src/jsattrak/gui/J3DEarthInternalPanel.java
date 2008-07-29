@@ -30,6 +30,7 @@ import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.awt.AWTInputHandler;
+import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
 import gov.nasa.worldwind.awt.WorldWindowGLJPanel;
 import gov.nasa.worldwind.examples.WMSLayersPanel;
 import gov.nasa.worldwind.geom.Angle;
@@ -164,10 +165,12 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
         Configuration.setValue(AVKey.INITIAL_ALTITUDE, 1.913445320360136E7);
         Configuration.setValue(AVKey.INITIAL_HEADING, 0.0);
         Configuration.setValue(AVKey.INITIAL_PITCH, 0.0);
-        
+
+        // make a new instace from the shared wwj resource!
+        wwd = new WorldWindowGLJPanel(app.getWwd());
         
         // add WWJ to panel
-        wwd = new WorldWindowGLJPanel(); // lightweight component
+        //wwd = new WorldWindowGLJPanel(); // lightweight component
         wwd.setPreferredSize(new java.awt.Dimension(600, 400));
         this.add(wwd, java.awt.BorderLayout.CENTER);
         //wwd.setModel(new BasicModel());

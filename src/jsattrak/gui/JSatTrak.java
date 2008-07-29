@@ -71,7 +71,7 @@
  *             // bug - does CoverageAnalyzer save and open in 2d window correctly?? use dialog maybe to fix this?
  *  Version 3.5.0 - 25 July 2008 -- Added 3D models  (in progress), added model view mode - fixed bug: 3d view in ECI reverted back to North up when time advanced (J3DEarthPanel.java, and internal)
  *                                  added full screen exclusice mode (sorta buggy though?), GUI updates - double click on object opens properties, Custom Sat icons in new locations.
- *                                  added nimbus look and feel choice, if java6u10 or greater!
+ *                                  added nimbus look and feel choice, if java6u10 or greater! (updated" jgoodies, swingx, xstream)
  * 
  */
 // notes: not good to use rk78 in a solver loop because direvatives inaccurate, because solution changes slightly near end.?
@@ -116,6 +116,7 @@ import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 import com.jgoodies.looks.plastic.theme.ExperienceBlue;
 import com.thoughtworks.xstream.XStream;
 import commandclient.CommandClientGUI;
+import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -180,7 +181,7 @@ import name.gano.file.FileTypeFilter;
  */
 public class JSatTrak extends javax.swing.JFrame implements InternalFrameListener, WindowListener, Serializable
 {
-    private String versionString = "Version 3.5.0 alpha (25 July 2008)"; // Version of app
+    private String versionString = "Version 3.5.0 beta (29 July 2008)"; // Version of app
     
     // hastable to store all the statelites currently being processed
     private Hashtable<String,AbstractSatellite> satHash = new Hashtable<String,AbstractSatellite>();
@@ -195,7 +196,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
     // Satellite property vector to store all the windows (so they can be updated)
     Vector<SatPropertyPanel> satPropWindowVec = new Vector<SatPropertyPanel>(); 
     // 3D windows
-    Vector<J3DEarthInternalPanel> threeDInternalWindowVec = new Vector<J3DEarthInternalPanel>();
+    private Vector<J3DEarthInternalPanel> threeDInternalWindowVec = new Vector<J3DEarthInternalPanel>();
     int threeDInternalWindowCount = 0; // running count (for naming)
     private Vector<J3DEarthPanel> threeDWindowVec = new Vector<J3DEarthPanel>();
     int threeDWindowCount = 0; // running count (for naming)
@@ -273,7 +274,10 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
      private double farClippingPlaneDist = 200000000d; // good out to geo, but slow for LEO
      private double nearClippingPlaneDist = -1; // -1 value Means auto adjusting
     
-    
+     // WorldWindGLCanvas so all 3D windows can share resources like 3D models
+     private WorldWindowGLCanvas wwd; // intially null - only created when needed
+     
+     
     /** Creates new form JSatTrak */
     public JSatTrak()
     {
@@ -3033,7 +3037,17 @@ private void coverageMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
                     this.nearClippingPlaneDist = openClass.getNearClippingPlaneDist();
                     
                     
-                    // create all needed 3D windos:
+                    // create all needed 3D windows:
+                     
+                    // create all 3D external windows needed
+                    for( J3DEarthlPanelSave j3dp : openClass.getThreeDExtWindowSaveVec() )
+                    {
+                        Container iframe = createNew3dWindow();
+                        J3DEarthPanel newPanel = threeDWindowVec.lastElement(); // get window just created
+                        
+                        j3dp.copySettings2PanelAndFrame(newPanel,iframe); // copy settings to this window
+                    }
+                    // create all 3D internal windows needed
                     for( J3DEarthlPanelSave j3dp : openClass.getThreeDWindowSaveVec() )
                     {
                         JInternalFrame iframe = createNew3DInternalWindow(); // create new window
@@ -3041,17 +3055,7 @@ private void coverageMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
                         
                         j3dp.copySettings2PanelAndFrame(newPanel, iframe); // copy settings to this window
                     }
-                    
-                    // create all 3D external windows needed
-                     for( J3DEarthlPanelSave j3dp : openClass.getThreeDExtWindowSaveVec() )
-                    {
-                        Container iframe = createNew3dWindow();
-                        J3DEarthPanel newPanel = threeDWindowVec.lastElement(); // get window just created
-                        
-                        j3dp.copySettings2PanelAndFrame(newPanel,iframe); // copy settings to this window
-                    }
-                   
-              
+           
                     setStatusMessage("Opened file: " + file.getAbsolutePath());
                     
                 }
@@ -3482,6 +3486,25 @@ private void coverageMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         // open properties panel
         objListPanel.openCurrentOptions(prop);
     }
+
+    public // 3D windows
+    Vector<J3DEarthInternalPanel> getThreeDInternalWindowVec()
+    {
+        return threeDInternalWindowVec;
+    }
+
+    public // -1 value Means auto adjusting
+    // WorldWindGLCanvas so all 3D windows can share resources like 3D models
+    WorldWindowGLCanvas getWwd()
+    {
+        // if current wwd is null - create one!
+        if(wwd == null)
+        {
+            wwd = new WorldWindowGLCanvas(); // make first one
+        }
+        
+        return wwd;
+    } // get wwd
     
     
 }
