@@ -58,5 +58,7 @@ public interface  J3DEarthComponent
     public void setModelViewNearClip(double modelViewNearClip);
     public double getModelViewFarClip();
     public void setModelViewFarClip(double modelViewFarClip);
+     public void resetWWJdisplay();
+    
     
 }

@@ -446,7 +446,8 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         });
         jToolBar1.add(genMovieButton);
 
-        fullScreenButton.setText("fullScreen");
+        fullScreenButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/other/fullscreen.png"))); // NOI18N
+        fullScreenButton.setToolTipText("Fullscreen Mode - press Esc to exit");
         fullScreenButton.setFocusable(false);
         fullScreenButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         fullScreenButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -842,7 +843,7 @@ private void fullScreenButtonActionPerformed(java.awt.event.ActionEvent evt) {//
             AWTInputHandler awth = new AWTInputHandler();
             awth.setEventSource(wwd);
             wwd.setInputHandler(awth);
-            awth.setSmoothViewChanges(smoothViewChanges); // FALSE MAKES THE VIEW FAST!!
+            awth.setSmoothViewChanges(smoothViewChanges); // FALSE MAKES THE VIEW FAST!! -- MIGHT WANT TO ADD THIS OPTION FOR NORMAL VIEW and MAKE IT GUI Chooseable
                         
             // IF EARTH VIEW -- RESET CLIPPING PLANES BACK TO NORMAL SETTINGS!!!
             wwd.getView().setNearClipDistance(app.getNearClippingPlaneDist());
@@ -1234,8 +1235,6 @@ private void fullScreenButtonActionPerformed(java.awt.event.ActionEvent evt) {//
   
         // repaint!
         super.repaint();
-        
-
     }
     
 }

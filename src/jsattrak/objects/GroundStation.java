@@ -304,4 +304,10 @@ public class GroundStation implements Serializable
         this.currentJulianDate = currentJulianDate;
     }
     
+    @Override
+    public String toString()
+    {
+        return this.stationName;
+    }
+    
 }

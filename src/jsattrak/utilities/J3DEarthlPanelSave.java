@@ -24,8 +24,6 @@
 
 package jsattrak.utilities;
 
-import gov.nasa.worldwind.Configuration;
-import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.layers.Layer;
 import gov.nasa.worldwind.view.OrbitView;
@@ -56,19 +54,9 @@ public class J3DEarthlPanelSave implements Serializable
     private String terrainProfileSat;
     private double terrainProfileLongSpan;
     
-    // -- to get working
     
     // 3D view point
     String viewStateInXml;
-//   double eyePosLat;viewStateInXml = view.getRestorableState();
-//   double eyePosLon;
-//   double eyePosElv; 
-//   double viewCenterLat;
-//   double viewCenterLon;
-//   double viewCenterElv;
-//   double viewZoom; // working
-//   double viewPitch;
-//   double viewHeading;
    
    // title of frame
    String frameTitle = "";
@@ -78,7 +66,12 @@ public class J3DEarthlPanelSave implements Serializable
     Hashtable<String,Boolean> layerEnabledHT;
     
     // web map services
-    
+    // view mode options
+    private boolean modelViewMode; // default false
+    private String modelViewString; // to hold name of satellite to view when modelViewMode=true
+    private double modelViewNearClip; // clipping pland for when in Model View mode
+    private double modelViewFarClip ;
+    private boolean smoothViewChanges ; // for 3D view smoothing 
     
     
     /** Creates a new instance of J2DEarthPanelSave */
@@ -108,29 +101,15 @@ public class J3DEarthlPanelSave implements Serializable
         }
         
         // 3D view camera location and 
-//        viewLat = ((OrbitView) panel.getWwd().getView()).getLatitude().getDegrees();
-//        viewLon = ((OrbitView) panel.getWwd().getView()).getLongitude().getDegrees();
         // UPDATE using v0.5
           viewStateInXml = ((OrbitView) panel.getWwd().getView()).getRestorableState();
-//        eyePosLat = ((OrbitView) panel.getWwd().getView()).getCurrentEyePosition().getLatitude().getDegrees();
-//        eyePosLon = ((OrbitView) panel.getWwd().getView()).getCurrentEyePosition().getLongitude().getDegrees();
-//        eyePosElv = ((OrbitView) panel.getWwd().getView()).getCurrentEyePosition().getElevation();
-//
-//        viewCenterLat = ((OrbitView) panel.getWwd().getView()).getCenterPosition().getLatitude().getDegrees();
-//        viewCenterLon = ((OrbitView) panel.getWwd().getView()).getCenterPosition().getLongitude().getDegrees();
-//        viewCenterElv = ((OrbitView) panel.getWwd().getView()).getCenterPosition().getElevation();
-//        
-//        viewPitch = ((OrbitView) panel.getWwd().getView()).getPitch().getDegrees();
-//        viewHeading = ((OrbitView) panel.getWwd().getView()).getHeading().getDegrees();
-//        viewZoom = ((OrbitView)panel.getWwd().getView()).getZoom();
-        
-       
-        
-          
-//        viewQuat = ((OrbitView)panel.getWwd().getView()).getRotation();
-//        
-//        eyePos = ((OrbitView)panel.getWwd().getView()).getEyePosition();
-//        
+
+         // save view type (model) options
+        modelViewMode = panel.isModelViewMode(); // default false
+        modelViewString = panel.getModelViewString(); // to hold name of satellite to view when modelViewMode=true
+        modelViewNearClip = panel.getModelViewNearClip(); // clipping pland for when in Model View mode
+        modelViewFarClip = panel.getModelViewFarClip();
+        //smoothViewChanges = panel.get ; // for 3D view smoothing 
         
         // save title
        frameTitle = panel.getDialogTitle();
@@ -165,6 +144,12 @@ public class J3DEarthlPanelSave implements Serializable
             }
         }
         
+        
+        // view mode options
+       newPanel.setModelViewString(modelViewString); // to hold name of satellite to view when modelViewMode=true
+       newPanel.setModelViewNearClip(modelViewNearClip); // clipping pland for when in Model View mode
+       newPanel.setModelViewFarClip(modelViewFarClip);
+       newPanel.setModelViewMode(modelViewMode);  // set last! (in model view mode section)        
         
         // Stop iterators first
 //        ((OrbitView)newPanel.getWwd().getView()).stopStateIterators();

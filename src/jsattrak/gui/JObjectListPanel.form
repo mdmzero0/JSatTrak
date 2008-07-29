@@ -16,15 +16,18 @@
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
-              <Component id="removeSatButton" min="-2" max="-2" attributes="0"/>
+              <Component id="removeSatButton" min="-2" pref="33" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="2" max="-2" attributes="0"/>
+              <Component id="infoSatButton" min="-2" pref="33" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="infoSatButton" min="-2" max="-2" attributes="0"/>
+              <Component id="optionsSatButton" min="-2" pref="30" max="-2" attributes="0"/>
+              <EmptySpace pref="89" max="32767" attributes="0"/>
+              <Component id="addSatButton" min="-2" pref="30" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="optionsSatButton" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="20" max="32767" attributes="0"/>
-              <Component id="addCustomSatButton" min="-2" max="-2" attributes="0"/>
+              <Component id="addCustomSatButton" min="-2" pref="30" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
-          <Component id="jScrollPane1" alignment="0" pref="228" max="32767" attributes="0"/>
+          <Component id="jScrollPane1" alignment="0" pref="269" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
@@ -33,10 +36,11 @@
               <Component id="jScrollPane1" pref="300" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
+                  <Component id="addCustomSatButton" min="-2" max="-2" attributes="0"/>
+                  <Component id="addSatButton" min="-2" max="-2" attributes="0"/>
                   <Component id="removeSatButton" min="-2" max="-2" attributes="0"/>
                   <Component id="infoSatButton" min="-2" max="-2" attributes="0"/>
                   <Component id="optionsSatButton" min="-2" max="-2" attributes="0"/>
-                  <Component id="addCustomSatButton" min="-2" max="-2" attributes="0"/>
               </Group>
           </Group>
       </Group>
@@ -48,7 +52,7 @@
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
           <Image iconType="3" name="/icons/other/Delete16.gif"/>
         </Property>
-        <Property name="toolTipText" type="java.lang.String" value="Delete Satellite"/>
+        <Property name="toolTipText" type="java.lang.String" value="Delete Object"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="removeSatButtonActionPerformed"/>
@@ -59,7 +63,7 @@
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
           <Image iconType="3" name="/icons/gnome_2_18/preferences-desktop.png"/>
         </Property>
-        <Property name="toolTipText" type="java.lang.String" value="Satellite Settings"/>
+        <Property name="toolTipText" type="java.lang.String" value="Object Settings"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="optionsSatButtonActionPerformed"/>
@@ -70,7 +74,7 @@
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
           <Image iconType="3" name="/icons/other/Information16.gif"/>
         </Property>
-        <Property name="toolTipText" type="java.lang.String" value="Satellite Information"/>
+        <Property name="toolTipText" type="java.lang.String" value="Object Information"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="infoSatButtonActionPerformed"/>
@@ -84,6 +88,9 @@
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
         <Component class="javax.swing.JTree" name="objectTree">
+          <Events>
+            <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="objectTreeMouseClicked"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>
@@ -96,6 +103,17 @@
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="addCustomSatButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="addSatButton">
+      <Properties>
+        <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+          <Image iconType="3" name="/icons/custom/sat_icon.png"/>
+        </Property>
+        <Property name="toolTipText" type="java.lang.String" value="Add Satellite"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="addSatButtonActionPerformed"/>
       </Events>
     </Component>
   </SubComponents>

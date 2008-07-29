@@ -14,17 +14,15 @@ package name.gano.swingx.fullscreen;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.DisplayMode;
-import java.awt.Graphics;
 import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import jsattrak.gui.J3DEarthPanel;
+import jsattrak.utilities.J3DEarthComponent;
 
 /**
  * This class was created to show how to setup a fullscreen window and how
@@ -49,11 +47,11 @@ public class ToggleFullscreen extends JFrame {
 	//needed because the JFrame area changes.
 	//private JPanel drawingArea = null;
         
-        J3DEarthPanel test;
+        private J3DEarthComponent test; // panel were the component came from
         
-        KeyAdapter keyAdp;
+        private KeyAdapter keyAdp;
         
-        Component contents; // so key listener can be removed
+        private Component contents; // so key listener can be removed
 	
 	/**
 	 * The function that first removes the window border and
@@ -64,7 +62,8 @@ public class ToggleFullscreen extends JFrame {
 	 * @param gd A valid GraphicsDevice to be used for this 
 	 *           application.
 	 */
-	public ToggleFullscreen(GraphicsDevice gd, Component contents, J3DEarthPanel test) {
+	public ToggleFullscreen(GraphicsDevice gd, Component contents, J3DEarthComponent test) 
+        {
 		super();
 
                 this.test = test;
@@ -136,22 +135,19 @@ public class ToggleFullscreen extends JFrame {
 	 */
 	public void onExit() {
 		
-                // NEED TO REMOVE KEY LISTENER FROM WWJ componemet
+                // NEED TO REMOVE KEY LISTENER FROM WWJ componet
                 this.removeKeyListener(keyAdp);
                 contents.removeKeyListener(keyAdp);
-                
-                
+                         
 		//immediately hide the window (no falling apart windows)
 		setVisible(false);
-//		
+		
 //                this.removeAll();
                 test.resetWWJdisplay();
                 
 		//cleanup and destroy the window threads
 		dispose();
                 
-                //test.resetWWJdisplay();
-		
 		//exit the application without an error
 		//System.exit(0); // removed because it shouldn't close the  whole app when used internally
 	}

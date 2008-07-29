@@ -21,6 +21,8 @@
 
 package jsattrak.objects;
 
+import gov.nasa.worldwind.geom.Angle;
+import gov.nasa.worldwind.geom.Position;
 import java.awt.Color;
 import java.awt.Toolkit;
 import java.util.Vector;
@@ -38,6 +40,7 @@ import name.gano.astro.time.Time;
 import name.gano.math.interpolation.LagrangeInterp;
 import name.gano.swingx.treetable.CustomTreeTableNode;
 import name.gano.worldwind.modelloader.WWModel3D_new;
+import net.java.joglutils.model.ModelFactory;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 
 /**
@@ -69,6 +72,7 @@ public class CustomSatellite  extends AbstractSatellite
     private double[] j2kVel;// = new double[3];
     // MOD Mean of Date (or actually mean of Epoch Date)
     private double[] posMOD;// = new double[3];  // mean of date position for LLA calcs
+    private double[] velMOD = new double[3];
     
     // current lat,long,alt  [radians, radians, km/m ?]
     private double[] lla;// = new double[3];
@@ -110,9 +114,9 @@ public class CustomSatellite  extends AbstractSatellite
     
     // 3D model parameters
     private boolean use3dModel = false; // use custom 3D model (or default sphere)
-    private String threeDModelPath = ""; // path to the custom model
-    private transient WWModel3D_new threeDModel;
-    private double threeDModelSizeFactor = 300000; // DO NOT STORE when saving -- need to reload this
+    private String threeDModelPath = "globalstar/Globalstar.3ds"; // path to the custom model, default= globalstar/Globalstar.3ds ?
+    private transient WWModel3D_new threeDModel; // DO NOT STORE when saving -- need to reload this -- TOO MUCH DATA!
+    private double threeDModelSizeFactor = 300000;
     
 //    // Constructors
 //    public CustomSatellite()
@@ -291,6 +295,7 @@ public class CustomSatellite  extends AbstractSatellite
                 
                 // convert to LLA -- time in days since J2000
                 posMOD = CoordinateConversion.EquatorialEquinoxFromJ2K( currentMJDtime , j2kPos);
+                velMOD = CoordinateConversion.EquatorialEquinoxFromJ2K( currentMJDtime , j2kVel);
                 
                 
                 // save old lat/long for ascending node check
@@ -1122,6 +1127,16 @@ public class CustomSatellite  extends AbstractSatellite
     public void setUse3dModel(boolean use3dModel)
     {
         this.use3dModel = use3dModel;
+        
+        if(use3dModel && threeDModelPath.length() > 0)
+        {
+            // check that file exsists? - auto done in loader
+            
+            //String path = "data/models/globalstar/Globalstar.3ds";
+            //String path = "data/models/isscomplete/iss_complete.3ds";
+            
+            loadNewModel(threeDModelPath);
+        }
     }
     
     public String getThreeDModelPath()
@@ -1129,21 +1144,56 @@ public class CustomSatellite  extends AbstractSatellite
         return threeDModelPath;
     }
     
+    /**
+     * Relative path to the model -- relative from "user.dir"/data/models/
+     * @param path
+     */
     public void setThreeDModelPath(String path)
     {
-        this.threeDModelPath = path;
+        if(use3dModel && !(path.equalsIgnoreCase(this.threeDModelPath)) )
+        {
+            // need to load the model
+            loadNewModel(path);//"test/data/globalstar/Globalstar.3ds");
+        }
+        
+        this.threeDModelPath = path; // save path no matter
+    }
+    
+    private void loadNewModel(String path)
+    {
+        String localPath = "data/models/"; // path to models root from user.dir
+        
+        try
+            {
+                net.java.joglutils.model.geometry.Model model3DS = ModelFactory.createModel(localPath + path);
+                //model3DS.setUseLighting(false); // turn off lighting!
+
+                threeDModel =  new WWModel3D_new(model3DS,
+                        new Position(Angle.fromRadians(this.getLatitude()),
+                        Angle.fromRadians(this.getLongitude()),
+                        this.getAltitude()));
+
+                threeDModel.setMaitainConstantSize(true);
+                threeDModel.setSize(threeDModelSizeFactor); // this needs to be a property!
+                
+                threeDModel.updateAttitude(this); // fixes attitude intitially
+                
+            }catch(Exception e)
+            {
+                System.out.println("ERROR LOADING 3D MODEL");
+            }
     }
     
     public WWModel3D_new getThreeDModel()
     {
         return threeDModel;
-    }
+    }    
     
     public  double[] getMODVelocity()
     {
-        return new double[3];
+        return velMOD.clone();
     }
-    
+
     public double getThreeDModelSizeFactor()
     {
         return threeDModelSizeFactor;
@@ -1162,5 +1212,11 @@ public class CustomSatellite  extends AbstractSatellite
         }
         
         this.threeDModelSizeFactor = modelSizeFactor;
+    }
+    
+    @Override
+    public String toString()
+    {
+        return this.getName();
     }
 }

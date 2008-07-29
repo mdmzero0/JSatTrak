@@ -70,7 +70,8 @@
  *                  ? view following sat (very preliminary) and 3D models?
  *             // bug - does CoverageAnalyzer save and open in 2d window correctly?? use dialog maybe to fix this?
  *  Version 3.5.0 - 25 July 2008 -- Added 3D models  (in progress), added model view mode - fixed bug: 3d view in ECI reverted back to North up when time advanced (J3DEarthPanel.java, and internal)
- *           
+ *                                  added full screen exclusice mode (sorta buggy though?), GUI updates - double click on object opens properties, Custom Sat icons in new locations.
+ *                                  added nimbus look and feel choice, if java6u10 or greater!
  * 
  */
 // notes: not good to use rk78 in a solver loop because direvatives inaccurate, because solution changes slightly near end.?
@@ -158,6 +159,7 @@ import jguiserver.GuiServer;
 import jsattrak.coverage.CoverageAnalyzer;
 import jsattrak.coverage.JSatTrakTimeDependent;
 import jsattrak.objects.AbstractSatellite;
+import jsattrak.objects.CustomSatellite;
 import jsattrak.objects.SatelliteTleSGP4;
 import jsattrak.utilities.ConsoleDialog;
 import jsattrak.utilities.ImageFilter;
@@ -278,8 +280,10 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
 //        // setup look and feel first
         // DO THIS FIRST -- uses jgoodies looks
         //PlasticLookAndFeel.setPlasticTheme(new ExperienceGreen());
+        
         PlasticLookAndFeel.setPlasticTheme(new ExperienceBlue());
         PlasticLookAndFeel.setTabStyle("Metal"); // makes tabes look much better
+        
         //PlasticLookAndFeel.setHighContrastFocusColorsEnabled(true);
         //PlasticLookAndFeel.setPlasticTheme(new SkyBlue());
         //PlasticLookAndFeel.setPlasticTheme(new Silver());
@@ -288,10 +292,24 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
             UIManager.setLookAndFeel(new PlasticLookAndFeel());
             //UIManager.setLookAndFeel(new PlasticXPLookAndFeel());
             //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); // bar buttons look good
+            //UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+            
+            // new in java 6u10? - I think I like it :) -- see below for sperate try
+            //UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+
         } 
         catch (Exception ex) 
         {
             ex.printStackTrace();
+        }
+        
+        // if User has java 6u10 or greater that means NimbusLookAndFeel is supported!
+        try{
+            UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+        }
+        catch(Exception ex2)
+        {
+            System.out.println("Sorry no Nimbus LookAndFeel needs java 6u10 or higher!");
         }
         
         // set locale for decimal seperator issue?
@@ -452,7 +470,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
             System.out.println("Error saving main object to bean shell:" + e.toString());
         }
         
-        // fire resize function - to correct "dissapearing or transparent windows" issues
+                
         // display window in the center of the screen
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         Point p = this.getLocation();
@@ -460,7 +478,6 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         int y = (dim.height- this.getHeight())/2;
         //System.out.println("h" + this.getHeight());
         this.setBounds(x, y, this.getWidth(), this.getHeight()+1);
-        
         
         // check for plugin scripts
         checkAndInstallPlugins();
@@ -479,6 +496,11 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
             twoDWindowVec.get(0).setDrawSun(false);
             twoDWindowVec.get(0).setShowDateTime(false);
         }
+        
+        // fire resize function - to correct "dissapearing or transparent windows" issues
+        int sizeJump = 1;
+        this.setSize(this.getSize().width+sizeJump, this.getSize().height+sizeJump);
+        this.setSize(this.getSize().width-sizeJump, this.getSize().height-sizeJump);
         
         
     } // constructor
@@ -1976,7 +1998,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
     public void showSatBrowserInternalFrame()
     {
         // show satellite browser window
-        JSatBrowser satBrowser = new JSatBrowser(this, false); // non-modal version
+        JSatBrowser satBrowser = new JSatBrowser(this, false, this); // non-modal version
         
         //satBrowser.setVisible(true); // show window
         
@@ -2490,7 +2512,7 @@ private void coverageMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
     public void updateTleDataInCurrentList()
     {
         // update TLE data in current list  - used mostly after updating TLEs
-        JSatBrowser newBrowswer = new JSatBrowser(this, false);
+        JSatBrowser newBrowswer = new JSatBrowser(this, false, this);
         Hashtable<String,TLE> tleHash = newBrowswer.getTleHash();
         
         for (AbstractSatellite sat : satHash.values() )
@@ -2515,7 +2537,7 @@ private void coverageMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
     public void addSat2ListByName(String satName)
     {
         // add sat to list if TLE exsits by name
-        JSatBrowser newBrowswer = new JSatBrowser(this, false);
+        JSatBrowser newBrowswer = new JSatBrowser(this, false, this);
         
         Hashtable<String,TLE> tleHash = newBrowswer.getTleHash();
         
@@ -2920,6 +2942,7 @@ private void coverageMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
                     for(String key : tempHash.keySet() )
                     {
                         satHash.put(key, tempHash.get(key)); // copy manually
+                        satHash.get(key).setUse3dModel( satHash.get(key).isUse3dModel() ); // auto-loads 3D models if they are used
                     }
                     
                     // populate ground station hash
@@ -3401,6 +3424,63 @@ private void coverageMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
     public CoverageAnalyzer getCoverageAnalyzer()
     {
         return coverageAnalyzer;
+    }
+    
+    
+    public void addCustomSat()
+    {
+        // start status bar animation
+        startStatusAnimation();
+        
+        // get a name from the user:
+        String name = JOptionPane.showInputDialog(this,"Custom Satellite Name");
+        
+         stopStatusAnimation();
+         
+         // call overloaded function with name
+         addCustomSat(name);
+    }
+    
+    public void addCustomSat(String name)
+    {
+        // add new custom sat to the list
+        // is not already in list
+        // add to hashTable
+        
+        
+        
+        // if nothing given:
+        if(name == null || name.equalsIgnoreCase(""))
+        {
+            //System.out.println("returned");
+            this.setStatusMessage("Custom Satellite Canceled: Either by user or not supplying a name.");
+            return;
+        }
+        
+        CustomSatellite prop = new CustomSatellite(name,this.getScenarioEpochDate());
+        
+        satHash.put(name, prop);
+
+        // set satellite time to current date
+        prop.propogate2JulDate(this.getCurrentJulTime());
+
+        // add item to the Object list tree
+        objListPanel.addSat2List(prop);
+        
+//        //topSatTreeNode.add( new IconTreeNode(name) );
+//        IconTreeNode newNode = new IconTreeNode(name);
+//        // assign icon to node
+//        newNode.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/icons/custom/sat_icon_cst.png"))));
+//
+//        treeModel.insertNodeInto(newNode, topSatTreeNode, topSatTreeNode.getChildCount());
+//
+//
+//        //System.out.println("node added: " + name);                   
+//        objectTree.scrollPathToVisible(getPath(newNode));
+        
+        this.setStatusMessage("Custom Satellite Added: " + name );
+        // open properties panel
+        objListPanel.openCurrentOptions(prop);
     }
     
     

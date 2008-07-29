@@ -897,4 +897,10 @@ public class SatelliteTleSGP4 extends AbstractSatellite
         this.threeDModelSizeFactor = modelSizeFactor;
     }
     
+    @Override
+    public String toString()
+    {
+        return this.tle.getSatName();
+    }
+    
 } // SatelliteProps
