@@ -72,7 +72,7 @@
  *  Version 3.5.0 - 25 July 2008 -- Added 3D models  (in progress), added model view mode - fixed bug: 3d view in ECI reverted back to North up when time advanced (J3DEarthPanel.java, and internal)
  *                                  added full screen exclusice mode (sorta buggy though?), GUI updates - double click on object opens properties, Custom Sat icons in new locations.
  *                                  added nimbus look and feel choice, if java6u10 or greater! (updated" jgoodies, swingx, xstream)
- * 
+ *                                  -- bug? 3d model only stays in full screen mode if two 3d windows are open before?
  */
 // notes: not good to use rk78 in a solver loop because direvatives inaccurate, because solution changes slightly near end.?
 //
