@@ -398,7 +398,7 @@ public class SolverPanel extends javax.swing.JPanel
         AddInputVar panel = new AddInputVar(sNode,this); // non-modal version
 
         iframe.setContentPane( panel );
-        iframe.setSize(180,300); // w,h
+        iframe.setSize(180+40,300); // w,h
         iframe.setLocation(5,5);
               
         app.addInternalFrame(iframe);
@@ -429,7 +429,7 @@ public class SolverPanel extends javax.swing.JPanel
         AddGoalParam panel = new AddGoalParam(sNode,this); // non-modal version
 
         iframe.setContentPane( panel );
-        iframe.setSize(180,300); // w,h
+        iframe.setSize(180+40,300); // w,h
         iframe.setLocation(5,5);
               
         app.addInternalFrame(iframe);

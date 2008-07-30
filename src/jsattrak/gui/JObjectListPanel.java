@@ -225,7 +225,7 @@ public class JObjectListPanel extends javax.swing.JPanel
             JInternalFrame iframe = new JInternalFrame(windowName,true,true,true,true);
             
             iframe.setContentPane( newPanel ); // set contents pane
-            iframe.setSize(365,355); // set size
+            iframe.setSize(365,355+10); // set size
             
             iframe.setVisible(true);
             parentApp.addInternalFrame(iframe);
@@ -297,7 +297,13 @@ public class JObjectListPanel extends javax.swing.JPanel
             newPanel.setInternalFrame(iframe);
             
             iframe.setContentPane( newPanel ); // set contents pane
-            iframe.setSize(340,380); // set size w,h
+            iframe.setSize(340,380+80); // set size w,h (+80 for Nimbus)
+            
+            if(prop instanceof CustomSatellite)
+            {
+                // it needs a bigger panel!
+                iframe.setSize(340+35,380+80); // set size w,h (+80 for Nimbus)
+            }
             
             iframe.setVisible(true);
             parentApp.addInternalFrame(iframe);

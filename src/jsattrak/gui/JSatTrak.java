@@ -181,7 +181,7 @@ import name.gano.file.FileTypeFilter;
  */
 public class JSatTrak extends javax.swing.JFrame implements InternalFrameListener, WindowListener, Serializable
 {
-    private String versionString = "Version 3.5.0 beta (29 July 2008)"; // Version of app
+    private String versionString = "Version 3.5.0 beta (30 July 2008)"; // Version of app
     
     // hastable to store all the statelites currently being processed
     private Hashtable<String,AbstractSatellite> satHash = new Hashtable<String,AbstractSatellite>();
@@ -475,6 +475,9 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         }
         
                 
+        // make the GUI large by default -- Nimbus look and feel needs it!
+        this.setSize(this.getWidth(), 650);
+        
         // display window in the center of the screen
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         Point p = this.getLocation();
@@ -506,7 +509,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         this.setSize(this.getSize().width+sizeJump, this.getSize().height+sizeJump);
         this.setSize(this.getSize().width-sizeJump, this.getSize().height-sizeJump);
         
-        
+                
     } // constructor
         
     public void checkAndInstallPlugins()
@@ -593,6 +596,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         recenterToggleButton = new javax.swing.JToggleButton();
         screenShotButton = new javax.swing.JButton();
         createMovieButton = new javax.swing.JButton();
+        toolbar3DWindowButton = new javax.swing.JButton();
         desktopPanel = new javax.swing.JPanel();
         desktopScrollPane = new javax.swing.JScrollPane();
         mainDesktopPane = new javax.swing.JDesktopPane();
@@ -767,7 +771,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
 
         dateTextField.setText("Date/Time"); // NOI18N
         dateTextField.setToolTipText("UTC Date/Time"); // NOI18N
-        dateTextField.setMaximumSize(new java.awt.Dimension(250, 2147483647));
+        dateTextField.setPreferredSize(new java.awt.Dimension(180, 27));
         dateTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 dateTextFieldActionPerformed(evt);
@@ -844,6 +848,18 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         });
         jToolBar.add(createMovieButton);
 
+        toolbar3DWindowButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/other/emblem-web.png"))); // NOI18N
+        toolbar3DWindowButton.setToolTipText("New 3D Window (External)");
+        toolbar3DWindowButton.setFocusable(false);
+        toolbar3DWindowButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        toolbar3DWindowButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        toolbar3DWindowButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                toolbar3DWindowButtonActionPerformed(evt);
+            }
+        });
+        jToolBar.add(toolbar3DWindowButton);
+
         jPanel3.add(jToolBar, java.awt.BorderLayout.NORTH);
 
         desktopPanel.setAutoscrolls(true);
@@ -862,11 +878,11 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         satListInternalFrame.getContentPane().setLayout(satListInternalFrameLayout);
         satListInternalFrameLayout.setHorizontalGroup(
             satListInternalFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 174, Short.MAX_VALUE)
+            .addGap(0, 180, Short.MAX_VALUE)
         );
         satListInternalFrameLayout.setVerticalGroup(
             satListInternalFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 323, Short.MAX_VALUE)
+            .addGap(0, 315, Short.MAX_VALUE)
         );
 
         satListInternalFrame.setBounds(610, 5, 190, 350);
@@ -918,7 +934,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
                 .addComponent(jSeparator7, javax.swing.GroupLayout.PREFERRED_SIZE, 5, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(1, 1, 1)
                 .addGroup(statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(statusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 17, Short.MAX_VALUE)
+                    .addComponent(statusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
                     .addComponent(statusAnimationLabel)
                     .addComponent(statusProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
@@ -1057,7 +1073,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         utilitiesMenu.add(jSeparator6);
 
         trackToolMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, java.awt.event.InputEvent.CTRL_MASK));
-        trackToolMenuItem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/other/gnome-dev-dvd.png"))); // NOI18N
+        trackToolMenuItem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/other/network-wireless.png"))); // NOI18N
         trackToolMenuItem.setText("Tracking Tool"); // NOI18N
         trackToolMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1373,7 +1389,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         JInternalFrame iframe = new JInternalFrame("Simulation Properties",true,true,true,true);
         
         iframe.setContentPane( propPanel );
-        iframe.setSize(305,335); // w, h
+        iframe.setSize(305+35,335+115); // w, h
         iframe.setLocation(15, 20);
         
         // save frame
@@ -2204,7 +2220,7 @@ private void coverageMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         JInternalFrame iframe = new JInternalFrame(windowName,true,true,true,true);
         
         iframe.setContentPane(coverageBrowser );
-        iframe.setSize(530,330); // w,h
+        iframe.setSize(530+35,330+85); // w,h
         iframe.setLocation(10,10);
         
         coverageBrowser.setIframe(iframe);
@@ -2221,6 +2237,10 @@ private void coverageMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         catch (java.beans.PropertyVetoException e)
         {}
 }//GEN-LAST:event_coverageMenuItemActionPerformed
+
+private void toolbar3DWindowButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toolbar3DWindowButtonActionPerformed
+    createNew3dWindow();
+}//GEN-LAST:event_toolbar3DWindowButtonActionPerformed
     
     public void openTrackingToolSelectorWindow()
     {
@@ -2237,7 +2257,7 @@ private void coverageMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         JInternalFrame iframe = new JInternalFrame(windowName,true,true,true,true);
         
         iframe.setContentPane(trackingBrowser );
-        iframe.setSize(400,320); // w,h
+        iframe.setSize(400+25,320+25); // w,h
         iframe.setLocation(10,10);
         
         // add close action listener -- to remove window from hash
@@ -2380,6 +2400,7 @@ private void coverageMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
     private javax.swing.JMenuItem sysPropsMenuItem;
     private javax.swing.JLabel timeStepLabel;
     private javax.swing.JMenuItem tleLoaderMenuItem;
+    private javax.swing.JButton toolbar3DWindowButton;
     private javax.swing.JMenuItem trackToolMenuItem;
     private javax.swing.JMenuItem twoDwindowPropMenuItem;
     private javax.swing.JMenuItem utcTimeMenuItem;
@@ -2722,7 +2743,7 @@ private void coverageMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         JInternalFrame iframe = new JInternalFrame("2D Earth Window Prop.",true,true,true,true);
         
         iframe.setContentPane( propPanel );
-        iframe.setSize(605,377); // w, h
+        iframe.setSize(605,377+30); // w, h
         iframe.setLocation(pt.x + 15, pt.y + 20);
         
         // save frame

@@ -106,7 +106,7 @@ public class SolverNode extends CustomTreeTableNode implements NonLinearEquation
         //panel.setIframe(iframe);        
         
         iframe.setContentPane( panel );
-        iframe.setSize(410,380); // w,h
+        iframe.setSize(410+75,380+20); // w,h
         iframe.setLocation(5,5);
         
         app.addInternalFrame(iframe);

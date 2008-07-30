@@ -106,7 +106,7 @@ public class InitialConditionsNode extends CustomTreeTableNode
         gsBrowser.setIframe(iframe);        
         
         iframe.setContentPane( gsBrowser );
-        iframe.setSize(365,304); // w,h
+        iframe.setSize(365,304+50); // w,h
         iframe.setLocation(5,5);
         
         app.addInternalFrame(iframe);

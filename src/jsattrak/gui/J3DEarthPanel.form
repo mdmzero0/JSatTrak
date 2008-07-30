@@ -115,7 +115,7 @@
         <Component class="javax.swing.JButton" name="fullScreenButton">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/icons/other/fullscreen.png"/>
+              <Image iconType="3" name="/icons/other/view-fullscreen.png"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Fullscreen Mode - press Esc to exit"/>
             <Property name="focusable" type="boolean" value="false"/>

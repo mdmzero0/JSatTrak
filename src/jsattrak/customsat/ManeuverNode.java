@@ -161,7 +161,7 @@ public class ManeuverNode  extends CustomTreeTableNode
         panel.setIframe(iframe);        
         
         iframe.setContentPane( panel );
-        iframe.setSize(300,200); // w,h
+        iframe.setSize(300,200+25); // w,h
         iframe.setLocation(5,5);
         
         app.addInternalFrame(iframe);

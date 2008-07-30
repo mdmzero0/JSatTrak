@@ -448,7 +448,7 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         });
         jToolBar1.add(genMovieButton);
 
-        fullScreenButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/other/fullscreen.png"))); // NOI18N
+        fullScreenButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/other/view-fullscreen.png"))); // NOI18N
         fullScreenButton.setToolTipText("Fullscreen Mode - press Esc to exit");
         fullScreenButton.setFocusable(false);
         fullScreenButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -523,7 +523,7 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         // add to dialog
         cp.add(jsp);
 
-        iframe.setSize(200, 350);
+        iframe.setSize(200+50, 350+40);
 
         Point p = parent.getLocation();
         iframe.setLocation(p.x + 15, p.y + 15);
@@ -618,7 +618,7 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         JDialog iframe = new JDialog(parent, windowName, false);
 
         iframe.setContentPane(newPanel); // set contents pane
-        iframe.setSize(220, 260); // set size w,h
+        iframe.setSize(220+40, 260+65); // set size w,h
         
         Point p = this.getLocationOnScreen();
         iframe.setLocation(p.x + 15, p.y + 55);
@@ -842,6 +842,9 @@ private void fullScreenButtonActionPerformed(java.awt.event.ActionEvent evt) {//
             BasicOrbitView bov = new BasicOrbitView();
             wwd.setView(bov);
             
+            // remove the rest of the old input handler  (does this need a remove of hover listener? - maybe it is now completely removed?)
+            wwd.getInputHandler().setEventSource(null);
+            
             AWTInputHandler awth = new AWTInputHandler();
             awth.setEventSource(wwd);
             wwd.setInputHandler(awth);
@@ -875,17 +878,28 @@ private void fullScreenButtonActionPerformed(java.awt.event.ActionEvent evt) {//
             {
                 bmv = new BasicModelView3(((BasicOrbitView)wwd.getView()).getOrbitViewModel(), sat);
                 //bmv = new BasicModelView3(sat);
+                // deactivate the old hover select listener
+                ((AWTInputHandler) wwd.getInputHandler()).removeHoverSelectListener();
             }
             else
             {
                 bmv = new BasicModelView3(((BasicModelView3)wwd.getView()).getOrbitViewModel(), sat);
+                // deactivate the old hover select listener
+                ((BasicModelViewInputHandler3) wwd.getInputHandler()).removeHoverSelectListener();
             }
             
+            // set view
             wwd.setView(bmv);
 
+            // remove the rest of the old input handler
+            wwd.getInputHandler().setEventSource(null);
+             
+            // add new input handler
             BasicModelViewInputHandler3 mih = new BasicModelViewInputHandler3();
             mih.setEventSource(wwd);
             wwd.setInputHandler(mih);
+            
+            // view smooth?
             mih.setSmoothViewChanges(smoothViewChanges); // FALSE MAKES THE VIEW FAST!!
 
             // settings for great closeups!
