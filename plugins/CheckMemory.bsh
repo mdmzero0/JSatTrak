@@ -1,0 +1,20 @@
+// Shawn E. Gano
+// 29 July 2008
+// Example plugin script
+// Checks total and free memory, runs garbage collector, tuns memory checks again
+
+totMem1 = java.lang.Runtime.getRuntime().totalMemory();
+freeMem1 = java.lang.Runtime.getRuntime().freeMemory();
+
+System.gc();
+
+totMem2 = java.lang.Runtime.getRuntime().totalMemory();
+freeMem2 = java.lang.Runtime.getRuntime().freeMemory();
+
+String message = "Memory:\n" + "Total Before Garbage Collection:" + totMem1 + "\n" 
+                             + "Free Before Garbage Collection:" + freeMem1 + "\n\n" 
+                             + "Total After Garbage Collection:" + totMem2 + "\n" 
+                             + "Free After Garbage Collection:" + freeMem2 ;
+System.out.println(message+"\n\n"); // can see this in the log Console
+
+JOptionPane.showMessageDialog(jsattrak, message);
