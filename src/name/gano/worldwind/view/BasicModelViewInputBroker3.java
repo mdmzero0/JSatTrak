@@ -21,8 +21,8 @@
  * =====================================================================
  */
 // modification of OrbitViewInputBroker.java  (gov.nasa.worldwind.awt)
-// NOTE - A double click resets the zoom (not sure where this is handled) -- may be percieved as a bug
-// -- UPDATE -- DO HOVER PROBLEMS WHEN HOVERING OVER 3D NAME!!!!!
+// NOTE - inital zoom changes when view first initalized -- BUG
+//
 
 package name.gano.worldwind.view;
 
@@ -451,16 +451,17 @@ public class BasicModelViewInputBroker3
             || !pickedObjects.getTopPickedObject().isTerrain())
             return;
 
-        PickedObject top = pickedObjects.getTopPickedObject();
-        Position topPosition = top.getPosition();
-
-        if (isLockHeading())
-        {
-            this.modelViewInputSupport.setCenterTarget(null);
-            // TODO: it's possible to use picked elevation as center elevation, but is this what we want?
-            Position pos = new Position(topPosition.getLatLon(), this.view.getCenterPosition().getElevation());
-            setCenterPosition(pos, true, 0.9);
-        }
+        // SEG -- uncommented to keep view from recenter/zooming when user clicks on globe
+//        PickedObject top = pickedObjects.getTopPickedObject();
+//        Position topPosition = top.getPosition();
+//
+//        if (isLockHeading())
+//        {
+//            this.modelViewInputSupport.setCenterTarget(null);
+//            // TODO: it's possible to use picked elevation as center elevation, but is this what we want?
+//            Position pos = new Position(topPosition.getLatLon(), this.view.getCenterPosition().getElevation());
+//            setCenterPosition(pos, true, 0.9);
+//        }
 
     }
 
