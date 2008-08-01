@@ -975,7 +975,8 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
             } // 2 disconnect points
             
         } // fill foot print
-    }
+        
+    } // drawFootPrint
     
 // ========= FOOTPRINT ===========================================================================
 //================================================================================================

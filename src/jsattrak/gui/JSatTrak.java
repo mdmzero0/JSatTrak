@@ -72,6 +72,7 @@
  *  Version 3.5.0 - 25 July 2008 -- Added 3D models  (in progress), added model view mode - fixed bug: 3d view in ECI reverted back to North up when time advanced (J3DEarthPanel.java, and internal)
  *                                  added full screen exclusice mode (sorta buggy though?), GUI updates - double click on object opens properties, Custom Sat icons in new locations.
  *                                  added nimbus look and feel choice, if java6u10 or greater! (updated" jgoodies, swingx, xstream)
+ *                                  add ability to choose any 2D map image.
  *                                  -- bug? 3d model only stays in full screen mode if two 3d windows are open before? - some quirks with the model view
  */
 // notes: not good to use rk78 in a solver loop because direvatives inaccurate, because solution changes slightly near end.?
@@ -771,7 +772,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
 
         dateTextField.setText("Date/Time"); // NOI18N
         dateTextField.setToolTipText("UTC Date/Time"); // NOI18N
-        dateTextField.setPreferredSize(new java.awt.Dimension(180, 27));
+        dateTextField.setPreferredSize(new java.awt.Dimension(200, 27));
         dateTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 dateTextFieldActionPerformed(evt);

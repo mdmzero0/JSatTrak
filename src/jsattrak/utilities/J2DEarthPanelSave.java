@@ -46,8 +46,10 @@ public class J2DEarthPanelSave implements Serializable
     
     // panel options
     private Color backgroundColor;
-    private int imageMapNum;
+    //private int imageMapNum;
     private int imageScalingOption;
+    private String backgroundImagePath;
+    
     //private JulianDay currentTime;
     // label options
     private boolean showDateTime;
@@ -82,7 +84,8 @@ public class J2DEarthPanelSave implements Serializable
         
         //panel options
         backgroundColor = panel.getBackgroundColor();
-        imageMapNum = panel.getImageMapNum();
+        //imageMapNum = panel.getImageMapNum();
+        backgroundImagePath = panel.getTwoDMap(); // map path
         imageScalingOption = panel.getImageScalingOption();
         //currentTime = ;
         // label options
@@ -119,7 +122,8 @@ public class J2DEarthPanelSave implements Serializable
         
         // set panel options
         newPanel.setBackgroundColor(backgroundColor);
-        newPanel.setImageMapNum(imageMapNum);
+        //newPanel.setImageMapNum(imageMapNum); 
+        newPanel.setTwoDMap(backgroundImagePath);
         newPanel.setImageScalingOption(imageScalingOption);
         
         // set label options

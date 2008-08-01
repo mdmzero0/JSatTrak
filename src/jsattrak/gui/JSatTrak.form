@@ -576,7 +576,7 @@
                 <Property name="text" type="java.lang.String" value="Date/Time" noResource="true"/>
                 <Property name="toolTipText" type="java.lang.String" value="UTC Date/Time" noResource="true"/>
                 <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                  <Dimension value="[180, 27]"/>
+                  <Dimension value="[200, 27]"/>
                 </Property>
               </Properties>
               <Events>

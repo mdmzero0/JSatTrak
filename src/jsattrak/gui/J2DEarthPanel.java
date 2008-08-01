@@ -32,9 +32,9 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 import java.awt.image.*;
+import java.io.File;
 import java.util.Hashtable;
 import java.util.Vector;
-import jsattrak.coverage.CoverageAnalyzer;
 import jsattrak.coverage.JSatTrakRenderable;
 import jsattrak.objects.AbstractSatellite;
 import jsattrak.utilities.LandMassRegions;
@@ -46,18 +46,20 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
     // options
     private Color backgroundColor = new Color(236,233,216); //Color.LIGHT_GRAY;
         
-    private transient ImageIcon planetImage;
+    //private transient ImageIcon planetImage;
     //private JLabel imageMap;
     private J2dEarthLabel2 imageMap;
     
     public transient JPopupMenu popup;
-    private transient JMenuItem latlonLinesMenu, earthPeMenu, earthNoaaMenu, moreOptionsMenu;
+    private transient JMenuItem latlonLinesMenu, moreOptionsMenu; // , earthPeMenu, earthNoaaMenu
     private transient ImageIcon checkMark;
     
-    private int imageMapNum = 0; //0=blue marble, 1=NOAA
+    //private int imageMapNum = 0; //0=blue marble, 1=NOAA
     
     
     private transient BufferedImage bimage;
+    
+    private String backgroundImagePath = "/images/Earth_PE_small.jpg"; // default image
     
     private double aspectRatio = 2.0; // width/height
     
@@ -133,7 +135,7 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
         //...Create the GUI and put it in the window...
         
         //Create the first label.
-        planetImage = createImageIcon("/images/Earth_PE_small.png","Earth");
+        ImageIcon planetImage = createImageIcon(backgroundImagePath,"Earth");//"/images/Earth_PE_small.png","Earth");
         bimage = getBufferedImage(planetImage);
         
         //imageMap = new JLabel(planetImage);
@@ -173,29 +175,31 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
                     imageMap.showLatLong = !imageMap.showLatLong; // toogle lat long
                     imageMap.repaint();
                 } 
-                else if( event.getSource() == earthPeMenu)
-                {
-                    // Toolkit.getDefaultToolkit().getImage(getClass().getResource("/toolbarButtonGraphics/custom/sattrak.png"))
-                    ImageIcon temp = createImageIcon("/images/Earth_PE_small.png","Earth");
-                    //ImageIcon temp = createImageIcon(Toolkit.getDefaultToolkit().getImage(getClass().getResource("../images/Earth_PE_small.png")),"Earth");
-                    bimage = getBufferedImage(temp);
-                    ScaleImageMap(); // repaint the image
-                    earthNoaaMenu.setIcon(null);
-                    earthPeMenu.setIcon(checkMark);
-                    
-                    imageMapNum = 0; //0=PE, 1=NOAA
-                    
-                }
-                else if( event.getSource() == earthNoaaMenu)
-                {
-                    ImageIcon temp = createImageIcon("/images/Earth_NOAA_NGDC_small.png","Earth");
-                    bimage = getBufferedImage(temp);
-                    ScaleImageMap(); // repaint the image
-                    earthNoaaMenu.setIcon(checkMark);
-                    earthPeMenu.setIcon(null);
-                    
-                    imageMapNum =1; //0=PE, 1=NOAA
-                }
+//                else if( event.getSource() == earthPeMenu)
+//                {
+//                    // Toolkit.getDefaultToolkit().getImage(getClass().getResource("/toolbarButtonGraphics/custom/sattrak.png"))
+//                    backgroundImagePath = "/images/Earth_PE_small.png";
+//                    ImageIcon temp = createImageIcon(backgroundImagePath,"Earth");
+//                    //ImageIcon temp = createImageIcon(Toolkit.getDefaultToolkit().getImage(getClass().getResource("../images/Earth_PE_small.png")),"Earth");
+//                    bimage = getBufferedImage(temp);
+//                    ScaleImageMap(); // repaint the image
+//                    earthNoaaMenu.setIcon(null);
+//                    earthPeMenu.setIcon(checkMark);
+//                    
+//                    imageMapNum = 0; //0=PE, 1=NOAA
+//                    
+//                }
+//                else if( event.getSource() == earthNoaaMenu)
+//                {
+//                    backgroundImagePath = "/images/Earth_NOAA_NGDC_small.png";
+//                    ImageIcon temp = createImageIcon(backgroundImagePath,"Earth");
+//                    bimage = getBufferedImage(temp);
+//                    ScaleImageMap(); // repaint the image
+//                    earthNoaaMenu.setIcon(checkMark);
+//                    earthPeMenu.setIcon(null);
+//                    
+//                    imageMapNum =1; //0=PE, 1=NOAA
+//                }
                 else if( event.getSource() == moreOptionsMenu)
                 {
                     // open more options
@@ -217,19 +221,19 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
         
         popup.addSeparator();
         
-        checkMark = createImageIcon("/icons/other/emblem-default.png","check");
-        
-        earthPeMenu = new JMenuItem("Blue Marble Image",checkMark);
-        popup.add(earthPeMenu);
-        earthPeMenu.setHorizontalTextPosition(JMenuItem.RIGHT);
-        earthPeMenu.addActionListener(menuListener);
-        
-        earthNoaaMenu = new JMenuItem("NOAA NGDC Image"); //,checkMark
-        popup.add(earthNoaaMenu);
-        earthNoaaMenu.setHorizontalTextPosition(JMenuItem.RIGHT);
-        earthNoaaMenu.addActionListener(menuListener);
-        
-        popup.addSeparator();
+//        checkMark = createImageIcon("/icons/other/emblem-default.png","check");
+//        
+//        earthPeMenu = new JMenuItem("Blue Marble Image",checkMark);
+//        popup.add(earthPeMenu);
+//        earthPeMenu.setHorizontalTextPosition(JMenuItem.RIGHT);
+//        earthPeMenu.addActionListener(menuListener);
+//        
+//        earthNoaaMenu = new JMenuItem("NOAA NGDC Image"); //,checkMark
+//        popup.add(earthNoaaMenu);
+//        earthNoaaMenu.setHorizontalTextPosition(JMenuItem.RIGHT);
+//        earthNoaaMenu.addActionListener(menuListener);
+//        
+//        popup.addSeparator();
         
         moreOptionsMenu = new JMenuItem("More Options..."); //,checkMark
         popup.add(moreOptionsMenu);
@@ -268,18 +272,28 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
     }
   */
     /** Returns an ImageIcon, or null if the path was invalid. */
-    protected static ImageIcon createImageIcon(String path,
-            String description)
+    //protected static ImageIcon createImageIcon(String path, String description)
+    public ImageIcon createImageIcon(String path, String description)        
     {
         java.net.URL imgURL = J2DEarthPanel.class.getResource(path);
         if (imgURL != null)
         {
-            return new ImageIcon(imgURL, description);
+            return new ImageIcon(imgURL, description); // first check in the JAR
         }
         else
         {
-            System.err.println("Couldn't find file: " + path);
-            return null;
+            if( (new File(path)).exists() ) // see if file exsists on system
+            {
+                ImageIcon imag =  new ImageIcon(path, description); // load from file system
+                return imag; 
+            }
+            
+            // Can't find file so revert to default - stored in JAR!
+            System.out.println("Couldn't find 2d pixmap file: " + path + " -- Reverting to default");
+            this.backgroundImagePath = "/images/Earth_PE_small.jpg";
+            imgURL = J2DEarthPanel.class.getResource(backgroundImagePath);
+            
+            return new ImageIcon(imgURL, description);
         }
     }
     
@@ -683,41 +697,54 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
         imageMap.repaint();
     }
     
-    public int getTwoDMap()
+    public String getTwoDMap()
     {
-        return imageMapNum; //0=PE, 1=NOAA
+        //return imageMapNum; //0=PE, 1=NOAA
+        return backgroundImagePath;
     }
     
-    public void setTwoDMap(int map)
+    //public void setTwoDMap(int map)
+    public void setTwoDMap(String map)
     {
-        switch(map)
+        if(map.equalsIgnoreCase(backgroundImagePath))
         {
-            case 0:
-                ImageIcon temp = createImageIcon("/images/Earth_PE_small.png","Earth");
-                bimage = getBufferedImage(temp);
-                ScaleImageMap(); // repaint the image
-                earthNoaaMenu.setIcon(null);
-                earthPeMenu.setIcon(checkMark);
-                imageMapNum = 0; //0=PE, 1=NOAA
-                break;
-            case 1:
-                temp = createImageIcon("/images/Earth_NOAA_NGDC_small.png","Earth");
-                bimage = getBufferedImage(temp);
-                ScaleImageMap(); // repaint the image
-                earthNoaaMenu.setIcon(checkMark);
-                earthPeMenu.setIcon(null);
-                imageMapNum = 1; //0=PE, 1=NOAA
-                break;
-            default:
-                temp = createImageIcon("/images/Earth_NOAA_NGDC_small.png","Earth");
-                bimage = getBufferedImage(temp);
-                ScaleImageMap(); // repaint the image
-                earthNoaaMenu.setIcon(checkMark);
-                earthPeMenu.setIcon(null);
-                imageMapNum = 1; //0=PE, 1=NOAA
-                break;
-        } // switch
-    }
+            // do nothing
+            return;
+        }
+        
+        backgroundImagePath = map;
+        ImageIcon temp = createImageIcon(backgroundImagePath,"Earth");
+        bimage = getBufferedImage(temp);
+        ScaleImageMap(); // repaint the image
+        
+//        switch(map)
+//        {
+//            case 0:
+//                ImageIcon temp = createImageIcon("/images/Earth_PE_small.png","Earth");
+//                bimage = getBufferedImage(temp);
+//                ScaleImageMap(); // repaint the image
+//                earthNoaaMenu.setIcon(null);
+//                earthPeMenu.setIcon(checkMark);
+//                imageMapNum = 0; //0=PE, 1=NOAA
+//                break;
+//            case 1:
+//                temp = createImageIcon("/images/Earth_NOAA_NGDC_small.png","Earth");
+//                bimage = getBufferedImage(temp);
+//                ScaleImageMap(); // repaint the image
+//                earthNoaaMenu.setIcon(checkMark);
+//                earthPeMenu.setIcon(null);
+//                imageMapNum = 1; //0=PE, 1=NOAA
+//                break;
+//            default:
+//                temp = createImageIcon("/images/Earth_NOAA_NGDC_small.png","Earth");
+//                bimage = getBufferedImage(temp);
+//                ScaleImageMap(); // repaint the image
+//                earthNoaaMenu.setIcon(checkMark);
+//                earthPeMenu.setIcon(null);
+//                imageMapNum = 1; //0=PE, 1=NOAA
+//                break;
+//        } // switch
+    } // setTwoDMap
 
     public Color getBackgroundColor()
     {
@@ -732,38 +759,38 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
         imageMap.setBackgroundColor(backgroundColor);
     }
 
-    public int getImageMapNum()
-    {
-        return imageMapNum;
-    }
+//    public int getImageMapNum()
+//    {
+//        return imageMapNum;
+//    }
 
-    public void setImageMapNum(int imageMapNum)
-    {
-        this.imageMapNum = imageMapNum;
-        
-        if( imageMapNum == 0)
-        {
-            ImageIcon temp = createImageIcon("/images/Earth_PE_small.png","Earth");
-            bimage = getBufferedImage(temp);
-            ScaleImageMap(); // repaint the image
-            earthNoaaMenu.setIcon(null);
-            earthPeMenu.setIcon(checkMark);
-            
-            imageMapNum = 0; //0=PE, 1=NOAA
-            
-        }
-        
-        if( imageMapNum == 1)
-        {
-            ImageIcon temp = createImageIcon("/images/Earth_NOAA_NGDC_small.png","Earth");
-            bimage = getBufferedImage(temp);
-            ScaleImageMap(); // repaint the image
-            earthNoaaMenu.setIcon(checkMark);
-            earthPeMenu.setIcon(null);
-            
-            imageMapNum =1; //0=PE, 1=NOAA
-        }
-    } // setImageMapNum
+//    public void setImageMapNum(int imageMapNum)
+//    {
+//        this.imageMapNum = imageMapNum;
+//        
+//        if( imageMapNum == 0)
+//        {
+//            ImageIcon temp = createImageIcon("/images/Earth_PE_small.png","Earth");
+//            bimage = getBufferedImage(temp);
+//            ScaleImageMap(); // repaint the image
+//            earthNoaaMenu.setIcon(null);
+//            earthPeMenu.setIcon(checkMark);
+//            
+//            imageMapNum = 0; //0=PE, 1=NOAA
+//            
+//        }
+//        
+//        if( imageMapNum == 1)
+//        {
+//            ImageIcon temp = createImageIcon("/images/Earth_NOAA_NGDC_small.png","Earth");
+//            bimage = getBufferedImage(temp);
+//            ScaleImageMap(); // repaint the image
+//            earthNoaaMenu.setIcon(checkMark);
+//            earthPeMenu.setIcon(null);
+//            
+//            imageMapNum =1; //0=PE, 1=NOAA
+//        }
+//    } // setImageMapNum
     
     
     // Graw on landmasses
