@@ -52,12 +52,13 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
     
     public transient JPopupMenu popup;
     private transient JMenuItem latlonLinesMenu, moreOptionsMenu; // , earthPeMenu, earthNoaaMenu
-    private transient ImageIcon checkMark;
+    //private transient ImageIcon checkMark;
     
     //private int imageMapNum = 0; //0=blue marble, 1=NOAA
     
     
-    private transient BufferedImage bimage;
+    private transient BufferedImage bimage; // stores full res Earth image map
+    private transient BufferedImage bimageScaled; // stores scaled Earth image map - added for Earth Lights Option
     
     private String backgroundImagePath = "/images/Earth_PE_small.jpg"; // default image
     
@@ -90,6 +91,10 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
 //    boolean showLandMassOutlines = false;
 //    Color landOutlineColor = Color.WHITE;
     
+    // Earth Lights Mask data
+    private transient BufferedImage earthLightsFullRes; // full res image stored
+    private transient BufferedImage earthLightsCurrentMask; // current mask of earth lights
+    private String earthLightsMaskImagePath = "/images/earth_lights_lrg.jpg"; //saves path to earth lights image in JAR
     
     // bean -- no inputs
     public J2DEarthPanel()
@@ -128,6 +133,9 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
 //            landMass = new LandMassRegions();
 //        }
                
+        // DEBUG
+        //setShowEarthLightsMask(true);
+        
     } // TwoDFrame
     
     private void iniObject(Hashtable<String,AbstractSatellite> satHash, Hashtable<String,GroundStation> gsHash)
@@ -139,7 +147,7 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
         bimage = getBufferedImage(planetImage);
         
         //imageMap = new JLabel(planetImage);
-        imageMap = new J2dEarthLabel2(planetImage,aspectRatio, satHash, gsHash, backgroundColor, currentTime, sun);
+        imageMap = new J2dEarthLabel2(planetImage,aspectRatio, satHash, gsHash, backgroundColor, currentTime, sun, this);
         imageMap.setHorizontalAlignment(JLabel.CENTER);
         //JScrollPane tableScrollPane = new JScrollPane(imageMap);
         
@@ -305,11 +313,182 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
         
         //BufferedImage bimage = getBufferedImage(planetImage);
         
-        ScaleImageMap();
+        rescaleAndSetBackgroundImage();
         
     }
     
-    public void ScaleImageMap()
+    public void drawFuzzyLine(Graphics2D g2, Shape path, int thickness)
+    {
+        //float minThreshehold = 0.05f; // smallest color value visible
+        
+//       g2.setColor( new Color(0,true));
+//       g2.fillRect(0, 0, SIDE1, SIDE2);
+       
+        BasicStroke newStroke;
+        
+        for(int t=thickness;t>=1;t=t-2)
+        {
+            float c = 1.0f-1.0f*t/thickness;
+            //if(c<minThreshehold)
+            //    c= minThreshehold;
+            //System.out.println("t="+t+"c="+c);
+            g2.setColor(new Color(1-c,1-c,1-c,c)); // ,c
+            //newStroke = new BasicStroke(t, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+            newStroke = new BasicStroke(t, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
+            g2.setStroke(newStroke);
+            g2.draw(path);
+        } // for
+    } // drawFuzzyLine
+    
+     /**
+    * Takes value from blue channel and copies it to all color channels including alpha channel
+    * meant to take a black and white image and using the black level as the transparency level
+    * @param dimg buffered image
+    */
+   public static void makeBlueChannelAlphaValue(BufferedImage dimg)
+    {
+        //BufferedImage image = loadImage(ref);
+//        BufferedImage dimg = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+//        Graphics2D g = dimg.createGraphics();
+//        //g.setComposite(AlphaComposite.Src);
+//        g.drawImage(image, null, 0, 0);
+//        g.dispose();
+        for(int i = 0; i < dimg.getHeight(); i++)
+        {
+            for(int j = 0; j < dimg.getWidth(); j++)
+            {
+                
+                int blue = dimg.getRGB(j, i) & 0x000000FF; // current blue value (should be same as other channels)
+               
+                    Color c = new Color(blue,blue,blue,blue); // 255-blue
+                    dimg.setRGB(j, i, c.getRGB());    
+
+//              int a2 = (dimg.getRGB(j, i) >> 24) & 0xff;
+//		int r2 = (dimg.getRGB(j, i) >> 16) & 0xff;
+//		int gr2 = (dimg.getRGB(j, i) >> 8) & 0xff;
+//		int b2 = (dimg.getRGB(j, i) ) & 0xff;
+                
+            }
+        }
+        //return dimg;
+    } // makeBlueChannelAlphaValue
+   
+   // assumes both day and night image are already scaled properly, 
+   // this just computes a new image mask based on the current time and saves the image to
+   // icon setting.
+   // THIS IS VERY SLOW (AND MEMORY CONSUMING) -- SEEMS LIKE THERE SHOULD BE A WAY TO IMPROVE
+   public void updateEarthLightMaskAndRecombineImage()
+   {
+       // this better be true if called
+       if(this.isShowEarthLightsMask()) // need to scale Earth Lights mask 
+       {
+           // copy earthLightsCurrentMask so mask isn't applied over and over
+           BufferedImage earthLightsCurrentMaskTemp  = new BufferedImage(earthLightsCurrentMask.getWidth(), 
+                                                   earthLightsCurrentMask.getHeight(),
+                                                   BufferedImage.TYPE_INT_ARGB);
+           Graphics2D gg = earthLightsCurrentMaskTemp.createGraphics();
+           gg.drawImage(earthLightsCurrentMask, 0, 0, null);
+           gg.dispose();
+           
+            // --- create day/night mask ---
+            BufferedImage dayNightMask = new BufferedImage(earthLightsCurrentMask.getWidth(), 
+                                                   earthLightsCurrentMask.getHeight(),
+                                                   BufferedImage.TYPE_INT_ARGB);
+            Graphics2D maskG2D = dayNightMask.createGraphics();
+            maskG2D.setColor(new Color(255, 255, 255)); // white
+            // fill background with white
+            maskG2D.fillRect(0, 0, earthLightsCurrentMask.getWidth(), earthLightsCurrentMask.getHeight());
+            
+            // get the shape of the dark region
+            double[] lla = sun.getCurrentDarkLLA();
+            Polygon[] pgons = imageMap.getFootPrintPolygons(lla[0], lla[1], lla[2], imageMap.getNumPtsSunFootPrint());
+            
+            // draw lines around edges
+            int shadowThickness = (int)(imageMap.getZoomFactor()*earthLightsCurrentMask.getWidth()/20.0);// MAKE THIS SETABLE
+            for(Polygon p : pgons)
+            {
+                drawFuzzyLine(maskG2D, p, shadowThickness);
+            }
+            // fill in polygons with black
+            maskG2D.setColor(Color.BLACK);
+            for(Polygon p : pgons)
+            {
+                maskG2D.fill(p);
+            }
+            
+            // done with the 2d graphics object - clean it
+            maskG2D.dispose();
+            
+            // last step, now take black and white image and make alpha channel that matches black intensity
+            // had to do this because otherwise when drawing fuzzy line (over and over) tansparency adds up
+            makeBlueChannelAlphaValue(dayNightMask);
+            
+            // --- apply mask to night image ---  
+            Graphics2D topG2D = earthLightsCurrentMaskTemp.createGraphics();
+            AlphaComposite ac =
+                    AlphaComposite.getInstance(AlphaComposite.DST_OUT);
+            topG2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+            topG2D.setComposite(ac);
+            topG2D.drawImage(dayNightMask, 0, 0, earthLightsCurrentMask.getWidth(), earthLightsCurrentMask.getHeight(), null);
+            topG2D.dispose();      
+            
+            // --- combine day/night images --- 
+            BufferedImage combinedImage = new BufferedImage(earthLightsCurrentMask.getWidth(), 
+                                                   earthLightsCurrentMask.getHeight(),
+                                                   BufferedImage.TYPE_INT_RGB);
+            Graphics2D g =  combinedImage.createGraphics();
+            g.drawImage(bimageScaled, 0, 0, null);
+            g.drawImage(earthLightsCurrentMaskTemp, 0, 0, null);
+            //g.drawImage(dayNightMask,0,0,null);
+            //g.drawImage(earthLightsCurrentMask,0,0,null); //earthLightsCurrentMask ,earthLightsFullRes
+            g.dispose();
+            
+            // --- set image icon --- 
+            imageMap.setIcon(new ImageIcon(combinedImage));
+       } // if show earth light mask
+   } // updateEarthLightMaskAndRecombineImage
+    
+    public void rescaleAndSetBackgroundImage()
+    {
+        // this is called when the screen has been resize, or zoomed
+        // rescales background image and if neeeded earth lights and recreates background image
+        bimageScaled = scaleImageMap(bimage);
+        
+        if(this.isShowEarthLightsMask()) // need to scale Earth Lights mask 
+        {
+            // first rescale lights image - insure it has an alpha channel
+            earthLightsCurrentMask = this.scaleImageMap(earthLightsFullRes,BufferedImage.TYPE_INT_ARGB);
+            //earthLightsCurrentMask = this.scaleImageMap(earthLightsFullRes);
+            
+            // does most of the work :] and sets image to Icon
+            updateEarthLightMaskAndRecombineImage();    
+        }
+        else
+        {
+            // just set image icon
+            imageMap.setIcon(new ImageIcon(bimageScaled));
+        }
+        
+        // ALSO NEED A FUNCTION that doesn't scale... just updates image because Earth Light effect is enambled and new background image is required
+        
+    }
+    
+    // overloaded - default to RGB image
+    public BufferedImage scaleImageMap(BufferedImage fullResImage)
+    {
+        return scaleImageMap(fullResImage, java.awt.image.BufferedImage.TYPE_INT_RGB);
+    }
+    
+    /**
+     * Scales the image map based on current window size - maintains aspect ratio 
+     * of map, returns correctly scaled image. Also auto sets the imagemap lable the 
+     * current scale size. Also scales for appropriate zoom level and center.
+     * @param fullResImage Input image that is full res.
+     * @param imageType image type
+     * @return image scaled appropriatly
+     */
+    public BufferedImage scaleImageMap(BufferedImage fullResImage, int imageType)
     {
         
         //System.out.println("HERE");
@@ -339,11 +518,11 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
             // gunna need orginal image size, new image size, total image size... etc.
             // center lat,long... zoomfactor.
             
-            int midHeight = (int)Math.round( bimage.getHeight()/imageMap.getZoomFactor() );
-            int midWidth = (int)Math.round( bimage.getWidth()/imageMap.getZoomFactor() );
+            int midHeight = (int)Math.round( fullResImage.getHeight()/imageMap.getZoomFactor() );
+            int midWidth = (int)Math.round( fullResImage.getWidth()/imageMap.getZoomFactor() );
             // uper left corner of image
-            int midXupLeft = (int)Math.round( (bimage.getWidth()-midWidth)/2.0 + bimage.getWidth()*imageMap.getCenterLong()/360.0);
-            int midYupLeft = (int)Math.round( (bimage.getHeight()-midHeight)/2.0 - bimage.getHeight()*imageMap.getCenterLat()/180.0);
+            int midXupLeft = (int)Math.round( (fullResImage.getWidth()-midWidth)/2.0 + fullResImage.getWidth()*imageMap.getCenterLong()/360.0);
+            int midYupLeft = (int)Math.round( (fullResImage.getHeight()-midHeight)/2.0 - fullResImage.getHeight()*imageMap.getCenterLat()/180.0);
             
             // make sure sub image height/width are not <= 0!!
             if(midHeight <= 0)
@@ -365,46 +544,46 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
                 //System.out.println("midXupLeft ini: " + midXupLeft);
                 
                 // new center long value: (solve midXupLeft == 0, for centerLong)
-                double newCenterLong = (0.0-(bimage.getWidth()-midWidth)/2.0)*360.0/bimage.getWidth();
+                double newCenterLong = (0.0-(fullResImage.getWidth()-midWidth)/2.0)*360.0/fullResImage.getWidth();
                 imageMap.setCenterLong( newCenterLong );
                                 
                 // recalc sub image calculations
-                midXupLeft = (int)Math.round( (bimage.getWidth()-midWidth)/2.0 + bimage.getWidth()*imageMap.getCenterLong()/360.0);
+                midXupLeft = (int)Math.round( (fullResImage.getWidth()-midWidth)/2.0 + fullResImage.getWidth()*imageMap.getCenterLong()/360.0);
                 //System.out.println("midXupLeft final: " + midXupLeft);
             }
-            else if(midXupLeft + midWidth > bimage.getWidth())
+            else if(midXupLeft + midWidth > fullResImage.getWidth())
             {
-                // solve  midXupLeft + midWidth == bimage.getWidth(), for centerLong
+                // solve  midXupLeft + midWidth == fullResImage.getWidth(), for centerLong
                 // too close to right side
-                double newCenterLong = ((bimage.getWidth()-midWidth)-(bimage.getWidth()-midWidth)/2.0)*360.0/bimage.getWidth();
+                double newCenterLong = ((fullResImage.getWidth()-midWidth)-(fullResImage.getWidth()-midWidth)/2.0)*360.0/fullResImage.getWidth();
                 imageMap.setCenterLong( newCenterLong );
                 
                 // recalc sub image calculations
-                midXupLeft = (int)Math.round( (bimage.getWidth()-midWidth)/2.0 + bimage.getWidth()*imageMap.getCenterLong()/360.0);
+                midXupLeft = (int)Math.round( (fullResImage.getWidth()-midWidth)/2.0 + fullResImage.getWidth()*imageMap.getCenterLong()/360.0);
             }
             
             // check y direction for image corner not at the corner
             if(midYupLeft < 0) // too close to top
             {
-                // midYupLeft =  (bimage.getHeight()-midHeight)/2.0 - bimage.getHeight()*imageMap.getCenterLat()/180.0;
-                double newCenterLat =  -((0.0) - (bimage.getHeight()-midHeight)/2.0)*180.0/bimage.getHeight();
+                // midYupLeft =  (fullResImage.getHeight()-midHeight)/2.0 - fullResImage.getHeight()*imageMap.getCenterLat()/180.0;
+                double newCenterLat =  -((0.0) - (fullResImage.getHeight()-midHeight)/2.0)*180.0/fullResImage.getHeight();
                 imageMap.setCenterLat( newCenterLat );
                 
                 // recalc sub image calculations
-                midYupLeft = (int)Math.round( (bimage.getHeight()-midHeight)/2.0 - bimage.getHeight()*imageMap.getCenterLat()/180.0);
+                midYupLeft = (int)Math.round( (fullResImage.getHeight()-midHeight)/2.0 - fullResImage.getHeight()*imageMap.getCenterLat()/180.0);
             }
-            else if(midYupLeft + midHeight >= bimage.getHeight())
+            else if(midYupLeft + midHeight >= fullResImage.getHeight())
             {
                 // too close to bottom
-                double newCenterLat =  -((bimage.getHeight()-midHeight) - (bimage.getHeight()-midHeight)/2.0)*180.0/bimage.getHeight();
+                double newCenterLat =  -((fullResImage.getHeight()-midHeight) - (fullResImage.getHeight()-midHeight)/2.0)*180.0/fullResImage.getHeight();
                 imageMap.setCenterLat( newCenterLat );
                 
                 // recalc sub image calculations
-                midYupLeft = (int)Math.round( (bimage.getHeight()-midHeight)/2.0 - bimage.getHeight()*imageMap.getCenterLat()/180.0);
+                midYupLeft = (int)Math.round( (fullResImage.getHeight()-midHeight)/2.0 - fullResImage.getHeight()*imageMap.getCenterLat()/180.0);
             }
             
             // get sub image that will be scaled to fit window
-            BufferedImage midImage = bimage.getSubimage(midXupLeft, midYupLeft, midWidth, midHeight);
+            BufferedImage midImage = fullResImage.getSubimage(midXupLeft, midYupLeft, midWidth, midHeight);
             
             
 //            // draw region outlines if required:
@@ -415,37 +594,54 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
 //            }
             
             // incon image used to set icon with
-            ImageIcon im; 
-                        
+            //ImageIcon im; 
+            // buffered image that will be returned            
+            BufferedImage bim;
+            
             // draw region outlines if required:
             if(landMass.isShowLandMassOutlines())
             {
                 // get a scaled version of them image to workwith
                 Image scaledImage = midImage.getScaledInstance(newWidth,newHeight,imageScalingOption);
-                BufferedImage bim = new BufferedImage(newWidth, newHeight, java.awt.image.BufferedImage.TYPE_INT_RGB);
+                bim = new BufferedImage(newWidth, newHeight, imageType);
                 bim.createGraphics().drawImage(scaledImage, 0, 0, null);
                 
                 Graphics2D g2 = (Graphics2D)bim.getGraphics();
                 drawLandMasses(g2, newWidth, newHeight);
+                g2.dispose(); // done drawing.
                 
-                im = new ImageIcon(bim); // create image icon
+                //im = new ImageIcon(bim); // create image icon
             }
             else // no land mass drawing
             {
+                // is this slow?
+                Image scaledImage = midImage.getScaledInstance(newWidth,newHeight,imageScalingOption);
+                bim = new BufferedImage(newWidth, newHeight, imageType);
+                bim.createGraphics().drawImage(scaledImage, 0, 0, null);
+                
                 // just resize buffered image and get going
-                im = new ImageIcon(midImage.getScaledInstance(newWidth,newHeight,imageScalingOption));
+                //im = new ImageIcon(bim);
             }
              
+            // let the imageMap know the current width and height for scale
             imageMap.setImageWidth(newWidth);
             imageMap.setImageHeight(newHeight);
-            imageMap.setIcon(im);  
+            
+            // set the icon of the imageMap
+            //imageMap.setIcon(im);  
+            // return buffered image
+            return bim;
             
         }
         else
         {
-            System.out.println("Height=0");
+            System.out.println("- 2D Image Height=0");
+            System.err.println("- 2D Image Height=0");
+            return null;
         }
-    }
+        
+        //return
+    } // ScaleImageMap
     
     public BufferedImage getBufferedImage(ImageIcon img)
     {
@@ -454,7 +650,7 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
         
         
         Image image = img.getImage();
-        BufferedImage bimage = null;
+        BufferedImage bimageIN = null;
         
         boolean hasAlpha = hasAlpha(image);
         
@@ -471,7 +667,7 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
             // Create the buffered image
             GraphicsDevice gs = ge.getDefaultScreenDevice();
             GraphicsConfiguration gc = gs.getDefaultConfiguration();
-            bimage = gc.createCompatibleImage(
+            bimageIN = gc.createCompatibleImage(
                     image.getWidth(null), image.getHeight(null), transparency);
         }
         catch (HeadlessException e2)
@@ -479,7 +675,7 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
             // The system does not have a screen
         }
         
-        if (bimage == null)
+        if (bimageIN == null)
         {
             // Create a buffered image using the default color model
             int type = BufferedImage.TYPE_INT_RGB;
@@ -487,17 +683,17 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
             {
                 type = BufferedImage.TYPE_INT_ARGB;
             }
-            bimage = new BufferedImage(image.getWidth(null), image.getHeight(null), type);
+            bimageIN = new BufferedImage(image.getWidth(null), image.getHeight(null), type);
         }
         
         // Copy image to buffered image
-        Graphics g = bimage.createGraphics();
+        Graphics g = bimageIN.createGraphics();
         
         // Paint the image onto the buffered image
         g.drawImage(image, 0, 0, null);
         g.dispose();
         
-        return bimage;
+        return bimageIN;
         
     }
     
@@ -507,8 +703,8 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
         // If buffered image, the color model is readily available
         if (image instanceof BufferedImage)
         {
-            BufferedImage bimage = (BufferedImage)image;
-            return bimage.getColorModel().hasAlpha();
+            BufferedImage bimage2 = (BufferedImage)image;
+            return bimage2.getColorModel().hasAlpha();
         }
         
         // Use a pixel grabber to retrieve the image's color model;
@@ -572,7 +768,7 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
                 imageMap.setCenterLong(ll[1]);
                 
                 // rescale
-                ScaleImageMap();
+                rescaleAndSetBackgroundImage();
                 
             } // zoom in
             
@@ -603,7 +799,7 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
                 //System.out.println("Zoom Factor: " + imageMap.getZoomFactor());
                 
                 // rescale
-                ScaleImageMap();
+                rescaleAndSetBackgroundImage();
             }
             
             if(e.getButton() == 1 && recenterToggleButton.isSelected())
@@ -616,7 +812,7 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
                 imageMap.setCenterLong(ll[1]);
                     
                 // rescale
-                ScaleImageMap();
+                rescaleAndSetBackgroundImage();
                 
             }
             
@@ -631,7 +827,7 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
                 imageMap.setCenterLong(0.0);
                 
                 // rescale
-                ScaleImageMap();
+                rescaleAndSetBackgroundImage();
             }
             
             // if middle button hit, turn off zoom in/out  buttons
@@ -715,7 +911,7 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
         backgroundImagePath = map;
         ImageIcon temp = createImageIcon(backgroundImagePath,"Earth");
         bimage = getBufferedImage(temp);
-        ScaleImageMap(); // repaint the image
+        rescaleAndSetBackgroundImage(); // repaint the image
         
 //        switch(map)
 //        {
@@ -1023,7 +1219,7 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
         // see if any changes
         if(!oldName.equalsIgnoreCase(fileName) || preBool != bool || prevColor != color)
         {
-            ScaleImageMap(); // repaint the image
+            rescaleAndSetBackgroundImage(); // repaint the image
         }
         
     } // setRegionDrawingOptions
@@ -1067,4 +1263,47 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
             }
         }
     }
+    
+    // earth lights options and data - images stored in the Panel
+    public boolean isShowEarthLightsMask()
+    {
+        return imageMap.isShowEarthLightsMask();
+    }
+
+    public void setShowEarthLightsMask(boolean showEarthLights)
+    {
+        // see if the value has changed, if so take care of this
+        if( showEarthLights != isShowEarthLightsMask())
+        {
+            // set value to the label 
+            imageMap.setShowEarthLightsMask(showEarthLights);
+            
+            if(showEarthLights) // if show effect
+            {
+                // do we need to load the image? (could have already been loaded)
+                if(earthLightsFullRes == null)
+                {
+                    ImageIcon lightsImage = createImageIcon(earthLightsMaskImagePath,"Earth Lights");
+                    earthLightsFullRes = getBufferedImage(lightsImage);
+                }
+                
+                // need to resize and rescale image
+                rescaleAndSetBackgroundImage();
+            }
+            else// no light effect
+            {
+                // remove data
+                //earthLightsFullRes = null; // delete // save in case we need it later
+                this.earthLightsCurrentMask = null; // delete
+                
+                // need to resize and rescale image - reset!
+                rescaleAndSetBackgroundImage();
+                
+            } // no light effect
+                
+        } // if there is a change
+        
+        
+        
+    } // setShowEarthLightsMask
 }

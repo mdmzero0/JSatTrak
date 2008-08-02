@@ -74,16 +74,24 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
     // vector of renderable objects to be drawn - SEG 26-April-2008
     Vector<JSatTrakRenderable> renderableObjects = new Vector<JSatTrakRenderable>();
     
+    // earth lights options and data - images stored in the Panel
+    private boolean showEarthLightsMask = false; // default
+    private double earthLightsLastUpdateMJD = 0; // last time the earth lights mask was update
+    
 
     private transient Time currentTime; // object storing the current time
     
-    public J2dEarthLabel2(ImageIcon image, double aspect, Hashtable<String,AbstractSatellite> satHash, Hashtable<String,GroundStation> gsHash, Color backgroundColor, Time currentTime, Sun sun)
+    // need a copy of the parent J2DEarthPanel -- just for Earth lights function
+    private transient J2DEarthPanel earthPanel;
+    
+    public J2dEarthLabel2(ImageIcon image, double aspect, Hashtable<String,AbstractSatellite> satHash, Hashtable<String,GroundStation> gsHash, Color backgroundColor, Time currentTime, Sun sun, J2DEarthPanel earthPanel)
     {
         //super(image);
         aspectRatio = aspect;
         this.satHash = satHash;
         this.gsHash = gsHash;
         this.sun = sun;
+        this.earthPanel = earthPanel;
         
         // create rendering options -- anti-aliasing
         renderHints = new RenderingHints(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
@@ -98,7 +106,7 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
         this.backgroundColor = backgroundColor; 
         
         this.currentTime = currentTime;
-        
+               
 //        // TEMP try out the LandMassRegions -- move this to top class, so each map doesn't have their own? or leave it this way so each can be customized
 //        if(showLandMassOutlines)
 //        {
@@ -115,6 +123,20 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
     
     public void paintComponent(Graphics g)
     {
+        // paint the "Earth Lights" where the earth is in shadow - if effect is choosen
+        // use Scaling Options from J2DEarthPath
+        if(showEarthLightsMask)
+        {
+            // check here if the time has been advanced
+            if(earthLightsLastUpdateMJD != this.currentTime.getMJD())
+            {
+                // MUST UPDATE WHEN TIME UPDATES... but only darkness mask and recombine!
+                earthPanel.updateEarthLightMaskAndRecombineImage();
+                earthLightsLastUpdateMJD = this.currentTime.getMJD();
+            }    
+        } // if showEarthLightsMask
+        
+        // now back to normal -----------------
         super.paintComponent(g);  // repaints what is already on the buffer
         
         Graphics2D g2 = (Graphics2D)g; // cast to a @D graphics object
@@ -125,7 +147,7 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
         // save last width/height
         lastTotalWidth = w;
         lastTotalHeight = h;
-        
+                
         // sent rendering options
         //g2.setRenderingHints(Graphics2D.ANTIALIASING,Graphics2D.ANTIALIAS_ON);
         g2.setRenderingHints(renderHints);
@@ -981,6 +1003,359 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
 // ========= FOOTPRINT ===========================================================================
 //================================================================================================
     
+    // ======================================================
+    // Get footprint polygons - gets the shape(s) of the foot prints - similar to drawFootprint but no drawing
+    // Assumes total width and total height match image size, doesn't take into account placement on page...
+    //  the above assumption is for J2DEarthPanel!! because it on't draws on the image exactly
+    public Polygon[] getFootPrintPolygons(double lat, double lon, double alt, int numPtsFootPrint)
+    {
+        
+        // vars: ===============================
+        // draw footprints of satellites
+        Polygon footprint;
+        // varaibles for fixing disconnect around international date line (for filled footprints)
+        int disconnectCount = 0; // how many disconnect points, 0=good, 1= far away sat, sees north/south pole, 2= spans date line
+        int disconnectIndex1 = 0; // first index of disconnect
+        int disconnectIndex2 = 0; // second index of disconnect
+        int[] disconnect1pos = new int[2]; // corrected x,y point at each discontinutiy
+        int[] disconnect1neg = new int[2];
+        int[] disconnect2pos = new int[2];
+        int[] disconnect2neg = new int[2];
+        
+        // size
+        // save last width/height
+        // READ ASSUMPTION NEAR FUNCTION START
+        int w = imageWidth;//lastTotalWidth;
+        int h = imageHeight;//lastTotalHeight;
+        
+        //========================================
+        
+        //disconnectCount = 0; // reset disconnect count
+        
+        // Polygon shape -- for filling?
+        footprint = new Polygon();
+        
+        double lambda0 = Math.acos(AstroConst.R_Earth/(AstroConst.R_Earth+alt));
+        
+        double beta = (90*Math.PI/180.0-lat); // latitude center (pitch)
+        double gamma = -lon+180.0*Math.PI/180.0; // longitude (yaw)
+        
+        // rotation matrix
+        double[][] M = new double[][] {{Math.cos(beta)*Math.cos(gamma), Math.sin(gamma), -Math.sin(beta)*Math.cos(gamma)},
+        {-Math.cos(beta)*Math.sin(gamma),Math.cos(gamma), Math.sin(beta)*Math.sin(gamma)},
+        {Math.sin(beta), 0.0, Math.cos(beta)}};
+        double theta = 0+Math.PI/2.0; // with extra offset of pi/2 so circle starts left of center going counter clockwise
+        double phi = lambda0;
+        
+        // position
+        double[] pos = new double[3];
+        pos[0] = AstroConst.R_Earth*Math.cos(theta)*Math.sin(phi);
+        pos[1] = AstroConst.R_Earth*Math.sin(theta)*Math.sin(phi);
+        pos[2] = AstroConst.R_Earth*Math.cos(phi);
+        
+        // rotate to center around satellite sub point
+        pos = mult(M,pos);
+        
+        // calculate Lat Long of point (first time save it)
+        double[] llaOld = ecef2lla(pos);
+        //llaOld[1] = llaOld[1] - 90.0*Math.PI/180.0;
+        double[] lla = new double[3]; // prepare array
+        
+        // copy of orginal point
+        double[] lla0 = new double[3];
+        int[] xy0 = new int[2];
+        lla0[0] = llaOld[0];
+        lla0[1] = llaOld[1];
+        lla0[2] = llaOld[2];
+        
+        // point
+        int[] xy;
+        
+        // original point
+        int[] xy_old = findXYfromLL(lla0[0]*180.0/Math.PI, lla0[1]*180.0/Math.PI, w, h, imageWidth, imageHeight);
+        xy0[0] = xy_old[0];
+        xy0[1] = xy_old[1];
+        
+        // add to polygon
+        footprint.addPoint(xy_old[0],xy_old[1]);
+        
+        // footprint parameters
+        double dt = 2.0*Math.PI/(numPtsFootPrint-1.0);
+        
+        for(int j=1;j<numPtsFootPrint;j++)
+        {
+            theta = j*dt+Math.PI/2.0; // +Math.PI/2.0 // offset so it starts at the side
+            //phi = lambda0;
+            
+            // find position - unrotated about north pole
+            pos[0] = AstroConst.R_Earth*Math.cos(theta)*Math.sin(phi);
+            pos[1] = AstroConst.R_Earth*Math.sin(theta)*Math.sin(phi);
+            pos[2] = AstroConst.R_Earth*Math.cos(phi);
+            
+            // rotate to center around satellite sub point
+            pos = mult(M,pos);
+            
+            // find lla
+            lla = ecef2lla(pos);
+            //lla[1] = lla[1]-90.0*Math.PI/180.0;
+            //System.out.println("ll=" +lla[0]*180.0/Math.PI + "," + (lla[1]*180.0/Math.PI));
+            
+            xy = findXYfromLL(lla[0]*180.0/Math.PI, lla[1]*180.0/Math.PI, w, h, imageWidth, imageHeight);
+            
+            // draw line (only if not accross the screen)
+            if( Math.abs(lla[1] - llaOld[1]) < 4.0)
+            {
+                
+                //g2.drawLine(xy_old[0],xy_old[1],xy[0],xy[1]);
+                //System.out.println("" +lla[0] + " " + lla[1]);
+            }
+            else
+            {
+                // draw line in correctly ======================
+                double newLat = linearInterpDiscontLat(llaOld[0], llaOld[1], lla[0], lla[1]);
+                
+                // get xy points for both the old and new side (positive and negative long)
+                int[] xyMid_pos = findXYfromLL(newLat*180.0/Math.PI, 180.0, w, h, imageWidth, imageHeight);
+                int[] xyMid_neg = findXYfromLL(newLat*180.0/Math.PI, -180.0, w, h, imageWidth, imageHeight);
+                
+                // draw 2 lines - one for each side of the date line
+//                if(llaOld[1] > 0) // then the old one is on the positive side
+//                {
+//                    g2.drawLine(xy_old[0],xy_old[1],xyMid_pos[0],xyMid_pos[1]);
+//                    g2.drawLine(xy[0],xy[1],xyMid_neg[0],xyMid_neg[1]);
+//                }
+//                else // the new one is on the positive side
+//                {
+//                    g2.drawLine(xy[0],xy[1],xyMid_pos[0],xyMid_pos[1]);
+//                    g2.drawLine(xy_old[0],xy_old[1],xyMid_neg[0],xyMid_neg[1]);
+//                }
+                //==============================================
+                
+                // save info about disconnect
+                disconnectCount++;
+                if(disconnectCount == 1)
+                {
+                    disconnectIndex1 = j;
+                    //System.out.println("Disconnect 1 found:"+disconnectIndex1);
+                    disconnect1pos = xyMid_pos; // save this point
+                    disconnect1neg = xyMid_neg;
+                }
+                else if(disconnectCount == 2)
+                {
+                    disconnectIndex2 = j;
+                    //System.out.println("Disconnect 2 found:"+disconnectIndex2);
+                    disconnect2pos = xyMid_pos; // save this point
+                    disconnect2neg = xyMid_neg;
+                }
+                
+            } // disconnect in line
+            
+            // save point
+            xy_old[0]=xy[0];
+            xy_old[1]=xy[1];
+            llaOld[0] = lla[0];
+            llaOld[1] = lla[1];
+            llaOld[2] = lla[2];
+            
+            // add point to polygon
+            footprint.addPoint(xy_old[0],xy_old[1]);
+            
+        } // for each point around footprint
+        
+        // draw point from last point back to first
+//        if( Math.abs(llaOld[1]-lla0[1]) < 4.0)
+//        {
+//            g2.drawLine(xy_old[0],xy_old[1],xy0[0],xy0[1]);
+//        }
+        
+        // draw polygon -- won't work when part of the foot print is on other side
+        // seems not to work for GEO sats too, fills wrong side at times
+        // see if polygon should be split into two polygons
+        // -- could be divited up 4 seperate peices!
+        // NEED to make this very transparent
+        if( true ) 
+        {
+//            Color satCol = FillColor;
+//            Color transColor = new Color(satCol.getRed()/255.0f,satCol.getGreen()/255.0f,satCol.getBlue()/255.0f,alpha);
+//            g2.setPaint( transColor );
+            
+            if(disconnectCount == 0)
+            {
+                // no disconnects fill like normal
+                //g2.fill(footprint);
+                Polygon[] pgons = new Polygon[1];
+                pgons[0] = footprint;
+                
+                return pgons; // return normal
+            }
+            else if(disconnectCount == 1)
+            {
+                // okay this is at a pole, add in edges and fill in
+                // figure out N or S based on sat position ( lat > 0 or < 0)
+                boolean northPoleVisible = ( lat > 0);
+                
+                int[] ptPos = new int[2];
+                int[] ptNeg = new int[2];
+                
+                Polygon fullFootPrint = new Polygon();
+                
+                if(northPoleVisible)
+                {
+                    
+                    ptPos = findXYfromLL(90.0, 180.0, w, h, imageWidth, imageHeight);
+                    ptNeg = findXYfromLL(90.0, -180.0, w, h, imageWidth, imageHeight);
+                    
+                    // counter clockwise - add points
+                    for(int k=0; k<disconnectIndex1;k++)
+                    {
+                        fullFootPrint.addPoint(footprint.xpoints[k],footprint.ypoints[k]);
+                    }
+                    fullFootPrint.addPoint(disconnect1pos[0],disconnect1pos[1]);
+                    fullFootPrint.addPoint(ptPos[0],ptPos[1]);
+                    fullFootPrint.addPoint(ptNeg[0],ptNeg[1]);
+                    fullFootPrint.addPoint(disconnect1neg[0],disconnect1neg[1]);
+                    for(int k=disconnectIndex1; k<footprint.npoints;k++)
+                    {
+                        fullFootPrint.addPoint(footprint.xpoints[k],footprint.ypoints[k]);
+                    }
+                    
+                }
+                else
+                {
+                    // counter clockwise - add points
+                    ptPos = findXYfromLL(-90.0, 180.0, w, h, imageWidth, imageHeight);
+                    ptNeg = findXYfromLL(-90.0, -180.0, w, h, imageWidth, imageHeight);
+                    
+                    for(int k=0; k<disconnectIndex1;k++)
+                    {
+                        fullFootPrint.addPoint(footprint.xpoints[k],footprint.ypoints[k]);
+                    }
+                    
+                    fullFootPrint.addPoint(disconnect1neg[0],disconnect1neg[1]);
+                    fullFootPrint.addPoint(ptNeg[0],ptNeg[1]);
+                    fullFootPrint.addPoint(ptPos[0],ptPos[1]);
+                    fullFootPrint.addPoint(disconnect1pos[0],disconnect1pos[1]);
+                    
+                    for(int k=disconnectIndex1; k<footprint.npoints;k++)
+                    {
+                        fullFootPrint.addPoint(footprint.xpoints[k],footprint.ypoints[k]);
+                    }
+                    
+                }// south pole visible
+                
+                // fill full print
+                //g2.fill(fullFootPrint);
+                Polygon[] pgons = new Polygon[1];
+                pgons[0] = fullFootPrint;
+                
+                return pgons; // return normal
+                
+                
+            }
+            else if(disconnectCount == 2)
+            {
+                // two polygons for this shape
+                Polygon[] pgons = new Polygon[2];
+                
+                // this is the case when a sat spans the international dateline
+                // make two polygons to fill
+                
+                // polygon starts left of center and goes counter clockwise
+                
+                // check to see if this is a standard case (discontinuity
+                // 1 is vertically lower than discon #2) (y is backwards in java)
+                if( disconnect1neg[1]  >= disconnect2neg[1])
+                {
+                    // STANDARD drawing case for 2 discontinuities
+                    
+                    
+                    
+                    // new polygon - part on left side
+                    Polygon footprintPartLeft = new Polygon();
+                    
+                    // get both sides of discontinuity 1
+                    footprintPartLeft.addPoint( disconnect1neg[0], disconnect1neg[1]); // first point at left edge
+                    for(int k=disconnectIndex1;k<disconnectIndex2;k++)
+                    {
+                        
+                        footprintPartLeft.addPoint(footprint.xpoints[k],footprint.ypoints[k]);
+                    }
+                    footprintPartLeft.addPoint( disconnect2neg[0], disconnect2neg[1]);
+                    
+                    //g2.fill(footprintPartLeft);
+                    pgons[0] = footprintPartLeft;
+                    
+                    // now create Right side of the polygon
+                    Polygon footprintPartRight = new Polygon();
+                    // fill in first part
+                    for(int k=0;k<disconnectIndex1;k++)
+                    {
+                        
+                        footprintPartRight.addPoint(footprint.xpoints[k],footprint.ypoints[k]);
+                    }
+                    // add disconnect points
+                    footprintPartRight.addPoint( disconnect1pos[0], disconnect1pos[1]);
+                    footprintPartRight.addPoint( disconnect2pos[0], disconnect2pos[1]);
+                    // fill in last part
+                    for(int k=disconnectIndex2;k<footprint.npoints;k++)
+                    {
+                        
+                        footprintPartRight.addPoint(footprint.xpoints[k],footprint.ypoints[k]);
+                    }
+                    //g2.fill(footprintPartRight);
+                    pgons[1] = footprintPartRight;
+                    
+                    return pgons; // done!
+                    
+                }// standard 2-discont drawing
+                else  // non standard discont 1 is above discont 2
+                {
+                    // new polygon - part on left side
+                    Polygon footprintPartLeft = new Polygon();
+                    
+                    for(int k=0;k<disconnectIndex1;k++)
+                    {
+                        
+                        footprintPartLeft.addPoint(footprint.xpoints[k],footprint.ypoints[k]);
+                    }
+                    footprintPartLeft.addPoint( disconnect1neg[0], disconnect1neg[1]); // left edge top
+                    footprintPartLeft.addPoint( disconnect2neg[0], disconnect2neg[1]); // left edge bottom
+                    for(int k=disconnectIndex2;k<footprint.npoints;k++)
+                    {
+                        
+                        footprintPartLeft.addPoint(footprint.xpoints[k],footprint.ypoints[k]);
+                    }
+                    //g2.fill(footprintPartLeft);
+                    pgons[0] = footprintPartLeft;
+                    
+                    // Right part of foot print
+                    Polygon footprintPartRight = new Polygon();
+                    footprintPartRight.addPoint( disconnect1pos[0], disconnect1pos[1]);
+                    for(int k=disconnectIndex1;k<disconnectIndex2;k++)
+                    {
+                        
+                        footprintPartRight.addPoint(footprint.xpoints[k],footprint.ypoints[k]);
+                    }
+                    footprintPartRight.addPoint( disconnect2pos[0], disconnect2pos[1]);
+                    //g2.fill(footprintPartRight);
+                    pgons[1] = footprintPartRight;
+                    
+                    return pgons;
+                    
+                }// non standard 2-discont drawing
+                
+            } // 2 disconnect points
+            
+        } // fill foot print
+        
+        // shouldn't get to this point
+        return null;
+        
+    } // getFootPrintPolygons
+    
+    // ===  get footprint polygons ===================================================
+    
+    
     
     public double getCenterLat()
     {
@@ -1152,5 +1527,22 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
     public Vector<JSatTrakRenderable> getRenderableObjects()
     {
         return renderableObjects;
+    }
+
+    // earth lights options and data - images stored in the Panel
+    public boolean isShowEarthLightsMask()
+    {
+        return showEarthLightsMask;
+    }
+
+    public void setShowEarthLightsMask(boolean showEarthLightsMask)
+    {
+        this.showEarthLightsMask = showEarthLightsMask;
+        
+        if(showEarthLightsMask)
+        {
+            // set intial time
+            earthLightsLastUpdateMJD = this.currentTime.getMJD();
+        }
     }
 }

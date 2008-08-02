@@ -2,19 +2,22 @@
 // 29 July 2008
 // Example plugin script
 // Checks total and free memory, runs garbage collector, tuns memory checks again
+import java.text.DecimalFormat;
 
-totMem1 = java.lang.Runtime.getRuntime().totalMemory();
-freeMem1 = java.lang.Runtime.getRuntime().freeMemory();
+df = new DecimalFormat("#,##0.000");
+
+totMem1 = java.lang.Runtime.getRuntime().totalMemory() / 1048576.0 ; // Megabytes
+freeMem1 = java.lang.Runtime.getRuntime().freeMemory() / 1048576.0 ;
 
 System.gc();
 
-totMem2 = java.lang.Runtime.getRuntime().totalMemory();
-freeMem2 = java.lang.Runtime.getRuntime().freeMemory();
+totMem2 = java.lang.Runtime.getRuntime().totalMemory() / 1048576.0 ;
+freeMem2 = java.lang.Runtime.getRuntime().freeMemory() / 1048576.0 ;
 
-String message = "Memory:\n" + "Total Before Garbage Collection:" + totMem1 + "\n" 
-                             + "Free Before Garbage Collection:" + freeMem1 + "\n\n" 
-                             + "Total After Garbage Collection:" + totMem2 + "\n" 
-                             + "Free After Garbage Collection:" + freeMem2 ;
+String message = "Memory (Megabytes):\n" + "Total Before Garbage Collection:" + df.format(totMem1) + "\n" 
+                             + "Total After Garbage Collection:  " + df.format(totMem2) + "\n\n"
+                             + "Free Before Garbage Collection:" + df.format(freeMem1) + "\n"
+                             + "Free After Garbage Collection:  " + df.format(freeMem2) ;
 System.out.println(message+"\n\n"); // can see this in the log Console
 
 JOptionPane.showMessageDialog(jsattrak, message);
