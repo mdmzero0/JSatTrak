@@ -211,7 +211,7 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
                 else if( event.getSource() == moreOptionsMenu)
                 {
                     // open more options
-                    app.open2dWindowOptions();
+                    getApp().open2dWindowOptions();
                     
                 }
                 
@@ -731,6 +731,11 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
     {}
     public void componentShown(ComponentEvent e)
     {}
+
+    public JSatTrak getApp()
+    {
+        return app;
+    }
     
     // PopUp Menu ------------------------
 //  An inner class to check whether mouse events are the popup trigger

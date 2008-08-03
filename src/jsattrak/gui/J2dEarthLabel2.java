@@ -24,6 +24,8 @@ package jsattrak.gui;
 
 import jsattrak.objects.GroundStation;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.text.DecimalFormat;
 import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.*;
@@ -65,7 +67,7 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
     // sun drawing options
     private boolean drawSun = true;
     private Color sunColor = Color.DARK_GRAY;//Color.BLACK;
-    private int numPtsSunFootPrint = 101;
+    private int numPtsSunFootPrint = 51; // used to be 101
     private float sunAlpha = 0.55f;
     
     // sun
@@ -84,14 +86,18 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
     // need a copy of the parent J2DEarthPanel -- just for Earth lights function
     private transient J2DEarthPanel earthPanel;
     
-    public J2dEarthLabel2(ImageIcon image, double aspect, Hashtable<String,AbstractSatellite> satHash, Hashtable<String,GroundStation> gsHash, Color backgroundColor, Time currentTime, Sun sun, J2DEarthPanel earthPanel)
+    // hidden option -- mostly for debug -- Toggle this using "f" key when a 2D window is active
+    public boolean showFPS = false;
+    private final DecimalFormat df = new DecimalFormat("#,##0.000");
+    
+    public J2dEarthLabel2(ImageIcon image, double aspect, Hashtable<String,AbstractSatellite> satHash, Hashtable<String,GroundStation> gsHash, Color backgroundColor, Time currentTime, Sun sun, J2DEarthPanel earthPanel1)
     {
         //super(image);
         aspectRatio = aspect;
         this.satHash = satHash;
         this.gsHash = gsHash;
         this.sun = sun;
-        this.earthPanel = earthPanel;
+        this.earthPanel = earthPanel1;
         
         // create rendering options -- anti-aliasing
         renderHints = new RenderingHints(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
@@ -112,6 +118,20 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
 //        {
 //            landMass = new LandMassRegions();
 //        }
+        
+        // add key binding to toggle FPS counter using the f key
+        Action toggleShowFPS = new AbstractAction()
+        {
+
+            public void actionPerformed(ActionEvent e)
+            {
+                showFPS = !showFPS;
+                earthPanel.repaint();
+            }
+        };
+        // add key action
+        this.getInputMap().put(KeyStroke.getKeyStroke("F"),"toggleShowFPS");
+        this.getActionMap().put("toggleShowFPS", toggleShowFPS);
         
     }
     
@@ -455,6 +475,13 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
             g2.drawString( currentTime.getDateTimeStr() ,(int)((getWidth()-imageWidth)/2.0)+xDateTimeOffset,(int)((getHeight()-imageHeight)/2.0+imageHeight-yDateTimeOffset));
             
         } // show time and date
+        
+        //
+        if(showFPS)
+        {
+            g2.setPaint( dateTimeColor );
+            g2.drawString( "FPS: " +  df.format(earthPanel.getApp().getFpsAnimation()),(int)(getWidth()-75),(int)((getHeight()-imageHeight)/2.0+imageHeight-yDateTimeOffset));
+        }
         
     } //paintComponent
     

@@ -70,11 +70,11 @@ public class SatelliteTleSGP4 extends AbstractSatellite
     private Color satColor = Color.RED; // randomize in future
     private boolean plot2DFootPrint = true;
     private boolean fillFootPrint = true;
-    private int numPtsFootPrint = 101; // number of points in footprint
+    private int numPtsFootPrint = 41; // number of points in footprint, used to be 101
     
     // ground track options  -- grounds tracks draw to asending nodes, re-calculated at acending nodes
     boolean showGroundTrack = true;
-    private int grnTrkPointsPerPeriod = 121; // equally space in time >=2
+    private int grnTrkPointsPerPeriod = 81; // equally space in time >=2 // used to be 121
     private double groundTrackLeadPeriodMultiplier = 2.0;  // how far forward to draw ground track - in terms of periods
     private double groundTrackLagPeriodMultiplier = 1.0;  // how far behind to draw ground track - in terms of periods
     double[][] latLongLead; // leading lat/long coordinates for ground track

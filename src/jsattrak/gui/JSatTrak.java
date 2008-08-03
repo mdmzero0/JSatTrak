@@ -279,6 +279,10 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
      // WorldWindGLCanvas so all 3D windows can share resources like 3D models
      private WorldWindowGLCanvas wwd; // intially null - only created when needed
      
+     // FPS variables
+     private long lastFPSms;
+     private double fpsAnimation;
+     
      
     /** Creates new form JSatTrak */
     public JSatTrak()
@@ -1636,12 +1640,19 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         
         stopHit = false;
         //Create a timer.
+        lastFPSms = System.currentTimeMillis();
         playTimer = new Timer(animationRefreshRateMs, new ActionListener()
         {
             public void actionPerformed(ActionEvent evt)
             {
                 // take one time step in the aimation
                 updateTime(); // animate
+                long stopTime = System.currentTimeMillis();
+                
+                fpsAnimation = 1.0 / ((stopTime-lastFPSms)/1000.0); // fps calculation
+                lastFPSms = stopTime;
+                // goal FPS:
+                //fpsAnimation = 1.0 / (animationRefreshRateMs/1000.0);
                 
                 if (stopHit)
                 {
@@ -3530,6 +3541,11 @@ private void toolbar3DWindowButtonActionPerformed(java.awt.event.ActionEvent evt
         
         return wwd;
     } // get wwd
+
+    public double getFpsAnimation()
+    {
+        return fpsAnimation;
+    }
     
     
 }
