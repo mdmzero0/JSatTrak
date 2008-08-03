@@ -73,8 +73,10 @@
  *                                  added full screen exclusice mode (sorta buggy though?), GUI updates - double click on object opens properties, Custom Sat icons in new locations.
  *                                  added nimbus look and feel choice, if java6u10 or greater! (updated" jgoodies, swingx, xstream)
  *                                  Added ability to choose any 2D map image.
- *                                  Added 2D Earth Lights night image effect    
+ *                                  Added 2D Earth Lights night image effect  
+ *                                  Added FPS info (press f when a 2D window is active), added memory status bar (+plugin)  
  *                                  -- bug? 3d model only stays in full screen mode if two 3d windows are open before? - some quirks with the model view
+ *                                  --bug? loading mode view mode?
  */
 // notes: not good to use rk78 in a solver loop because direvatives inaccurate, because solution changes slightly near end.?
 //
