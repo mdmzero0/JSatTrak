@@ -40,11 +40,12 @@ public class MemoryStatusPanel extends javax.swing.JPanel implements MouseListen
             public void actionPerformed(ActionEvent evt)
             {
                 updateStatus();
+                //System.out.println("Mem update");    
                 
                 if (stopTimer)
                 {
                     playTimer.stop();
-                                        
+                    //System.out.println("Mem stopped!");                                     
                 }
             }
         });
@@ -93,9 +94,10 @@ public class MemoryStatusPanel extends javax.swing.JPanel implements MouseListen
         
         memProgressBar.setToolTipText("Free Memory: " + df.format(freeMem1) + " MB");
         
-        if(!this.isVisible())
+        if(!memProgressBar.isShowing())
         {
             stopTimer = true; // stop updates
+            memProgressBar.setString("STOPPED - click to restart");
         }
     } // updateStatus
     
@@ -126,6 +128,12 @@ public class MemoryStatusPanel extends javax.swing.JPanel implements MouseListen
         System.gc();
         updateStatus();
         //System.out.println("GC");
+        // if stopped - restart
+        if(stopTimer == true)
+        {
+            stopTimer = false; 
+            playTimer.start();
+        }
     }
     
 

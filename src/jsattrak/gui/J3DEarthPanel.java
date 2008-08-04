@@ -878,13 +878,19 @@ private void fullScreenButtonActionPerformed(java.awt.event.ActionEvent evt) {//
             {
                 bmv = new BasicModelView3(((BasicOrbitView)wwd.getView()).getOrbitViewModel(), sat);
                 //bmv = new BasicModelView3(sat);
-                // deactivate the old hover select listener
-                ((AWTInputHandler) wwd.getInputHandler()).removeHoverSelectListener();
             }
             else
             {
                 bmv = new BasicModelView3(((BasicModelView3)wwd.getView()).getOrbitViewModel(), sat);
-                // deactivate the old hover select listener
+            }
+            
+            // remove the old hover listener -- depending on this instance of the input handler class type
+            if( wwd.getInputHandler() instanceof AWTInputHandler)
+            {
+                ((AWTInputHandler) wwd.getInputHandler()).removeHoverSelectListener();
+            }
+            else if( wwd.getInputHandler() instanceof BasicModelViewInputHandler3)
+            {
                 ((BasicModelViewInputHandler3) wwd.getInputHandler()).removeHoverSelectListener();
             }
             
