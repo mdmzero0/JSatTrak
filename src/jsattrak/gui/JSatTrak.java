@@ -887,11 +887,11 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         satListInternalFrame.getContentPane().setLayout(satListInternalFrameLayout);
         satListInternalFrameLayout.setHorizontalGroup(
             satListInternalFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 180, Short.MAX_VALUE)
+            .addGap(0, 174, Short.MAX_VALUE)
         );
         satListInternalFrameLayout.setVerticalGroup(
             satListInternalFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 315, Short.MAX_VALUE)
+            .addGap(0, 323, Short.MAX_VALUE)
         );
 
         satListInternalFrame.setBounds(610, 5, 190, 350);
@@ -943,7 +943,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
                 .addComponent(jSeparator7, javax.swing.GroupLayout.PREFERRED_SIZE, 5, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(1, 1, 1)
                 .addGroup(statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(statusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
+                    .addComponent(statusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 17, Short.MAX_VALUE)
                     .addComponent(statusAnimationLabel)
                     .addComponent(statusProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
@@ -2379,7 +2379,7 @@ private void toolbar3DWindowButtonActionPerformed(java.awt.event.ActionEvent evt
     private javax.swing.JToolBar jToolBar;
     private javax.swing.JMenuItem localTimeMenuItem;
     private javax.swing.JCheckBox localTimeZoneCheckBox;
-    private javax.swing.JDesktopPane mainDesktopPane;
+    public javax.swing.JDesktopPane mainDesktopPane;
     private javax.swing.JMenuItem movieWholeAppMenuItem;
     private javax.swing.JMenuItem new2DWindowMenuItem;
     private javax.swing.JMenu new3DwindowMenu;

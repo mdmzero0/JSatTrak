@@ -1,5 +1,5 @@
 // Shawn E. Gano
-// 3 August 2008
+// 5 August 2008
 // Example plugin script
 // Opens an Internal Frame with a memory status bar
 // Checks total, used, and free memory also runs garbage collector (when clicked on)
@@ -9,20 +9,21 @@ import javax.swing.JFrame;
 import name.gano.swingx.memstatus.MemoryStatusPanel;       
 import javax.swing.JInternalFrame;
         
-        //JInternalFrame
-        appJFrame = new JInternalFrame("Memory Status",true,true,true,true);
+//JInternalFrame
+appJFrame = new JInternalFrame("Memory Status",true,true,true,true);
 
-        appJFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); //JFrame.EXIT_ON_CLOSE
+appJFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); //JFrame.EXIT_ON_CLOSE
 
-        MemoryStatusPanel mp = new MemoryStatusPanel();
+MemoryStatusPanel mp = new MemoryStatusPanel();
 
-        appJFrame.getContentPane().add(mp, BorderLayout.CENTER);
+appJFrame.getContentPane().add(mp, BorderLayout.CENTER);
 
-        appJFrame.pack();
-        
-        appJFrame.setSize(250,70);
-        
-        appJFrame.setVisible(true);
-        
-        jsattrak.addInternalFrame(appJFrame);
-        
+appJFrame.pack();
+appJFrame.setSize(250,70);     
+appJFrame.setVisible(true);
+
+     
+jsattrak.addInternalFrame(appJFrame);
+   
+// set location to lower right     
+appJFrame.setLocation( jsattrak.mainDesktopPane.getSize().width-250,jsattrak.mainDesktopPane.getSize().height-70);
