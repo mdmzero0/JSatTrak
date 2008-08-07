@@ -76,6 +76,16 @@
  *                                  Added 2D Earth Lights night image effect  
  *                                  Added FPS info (press f when a 2D window is active), added memory status bar (+plugin)  
  *                                  -- bug? 3d model only stays in full screen mode if two 3d windows are open before? - some quirks with the model view
+ * 
+ *                              Ideas for next versions: (no particular order)
+ *                                  - 3D "Earth Night Lights" mask / 1/2 sphere transparent night shell
+ *                                  - Add Objects (Abstract Satellites) like Moon, Sun, Panets maybe (can set view to center on them as well)?
+ *                                  - Satellite Orbit Lifetime Estimator
+ *                                  - Launch Vehicle "Simple Ascent" (or missile - Ballistic) 
+ *                                  - Orbit Dertermination tool
+ * 
+ * 
+ *          
  */
 // notes: not good to use rk78 in a solver loop because direvatives inaccurate, because solution changes slightly near end.?
 //
