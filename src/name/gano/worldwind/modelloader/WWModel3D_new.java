@@ -325,6 +325,11 @@ public class WWModel3D_new implements Renderable
     
     public void setMainRotationAngleAxis(double[] v, double[] pos)
     {
+        if(v == null || pos == null)
+        {
+            return; // do nothing
+        }
+        
         double[] orgOrientation = new double[] {0,0,1};
         //double[] orgOrientation = new double[] {0,1,0};
     
