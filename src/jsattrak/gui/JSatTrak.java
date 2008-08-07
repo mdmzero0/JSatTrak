@@ -69,7 +69,7 @@
  *          3.2.1 - (22 May 2008) - unsucessful try to remove dependency on JMF
  *                  ? view following sat (very preliminary) and 3D models?
  *             // bug - does CoverageAnalyzer save and open in 2d window correctly?? use dialog maybe to fix this?
- *  Version 3.5.0 - 25 July 2008 -- Added 3D models  (in progress), added model view mode - fixed bug: 3d view in ECI reverted back to North up when time advanced (J3DEarthPanel.java, and internal)
+ *  Version 3.5.0 - 7 August 2008 -- Added 3D models  (in progress), added model view mode - fixed bug: 3d view in ECI reverted back to North up when time advanced (J3DEarthPanel.java, and internal)
  *                                  added full screen exclusive mode, GUI updates - double click on object opens properties, Custom Sat icons in new locations.
  *                                  added nimbus look and feel choice, if java6u10 or greater! (updated" jgoodies, swingx, xstream)
  *                                  Added ability to choose any 2D map image.
@@ -184,7 +184,7 @@ import name.gano.file.FileTypeFilter;
  */
 public class JSatTrak extends javax.swing.JFrame implements InternalFrameListener, WindowListener, Serializable
 {
-    private String versionString = "Version 3.5.0 beta (30 July 2008)"; // Version of app
+    private String versionString = "Version 3.5.0 (7 August 2008)"; // Version of app
     
     // hastable to store all the statelites currently being processed
     private Hashtable<String,AbstractSatellite> satHash = new Hashtable<String,AbstractSatellite>();

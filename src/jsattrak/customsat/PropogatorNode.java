@@ -275,7 +275,7 @@ public class PropogatorNode extends CustomTreeTableNode implements OrbitProblem
         PropogatorPanel gsBrowser = new PropogatorPanel(this,iframe); // non-modal version       
         
         iframe.setContentPane( gsBrowser );
-        iframe.setSize(415+20,386+35); // w,h
+        iframe.setSize(415+20,386+115); // w,h
         iframe.setLocation(5,5);
         
         app.addInternalFrame(iframe);
