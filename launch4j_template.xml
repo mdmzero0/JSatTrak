@@ -2,7 +2,7 @@
   <dontWrapJar>true</dontWrapJar>
   <headerType>gui</headerType>
   <jar>JSatTrak.jar</jar>
-  <outfile>C:\Users\Shawn\Desktop\JSatTrak\JSatTrak\dist\JSatTrak.exe</outfile>
+  <outfile>C:\Documents and Settings\Shawn\Desktop\JSatTrak\dist\JSatTrak.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir></chdir>
@@ -12,7 +12,7 @@
   <customProcName>false</customProcName>
   <stayAlive>false</stayAlive>
   <manifest></manifest>
-  <icon>C:\Users\Shawn\Desktop\JSatTrak\JSatTrak\Logo_src\JSatTrakLogo_48.ico</icon>
+  <icon>C:\Documents and Settings\Shawn\Desktop\JSatTrak\Logo_src\JSatTrakLogo_48.ico</icon>
   <jre>
     <path></path>
     <minVersion>1.6.0</minVersion>
