@@ -186,7 +186,7 @@ public class SatelliteTleSGP4 extends AbstractSatellite
         //print differene TT-UT
         //System.out.println("TT-UT [days]= " + SDP4TimeUtilities.DeltaT(julDate-2450000)*24.0*60*60);
         
-        // get position information back out - convert to J2000
+        // get position information back out - convert to J2000 (does TT time need to be used?)
         j2kPos = CoordinateConversion.EquatorialEquinoxToJ2K(julDate-2400000.5, sdp4Prop.itsR);
         j2kVel = CoordinateConversion.EquatorialEquinoxToJ2K(julDate-2400000.5, sdp4Prop.itsV);
         
