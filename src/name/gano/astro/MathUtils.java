@@ -56,20 +56,20 @@ public class MathUtils
 	} // mult 3x3 matrices
 
     /**
-     * multiply matrix 3x3 by vector 3x1
+     * multiply matrix nxn by vector nx1
      *
-     * @param a 3x3 matrix
-     * @param b 3x1 vector
+     * @param a nxn matrix
+     * @param b nx1 vector
      * @return a x b
      */
 	public static double[] mult(double[][] a, double[] b)
 	{
-		double[] c = new double[3];
+		double[] c = new double[b.length];
 
-		for (int i = 0; i < 3; i++) // row
+		for (int i = 0; i < b.length; i++) // row
 		{
 			c[i] = 0.0;
-			for (int k = 0; k < 3; k++)
+			for (int k = 0; k < b.length; k++)
 			{
 				c[i] += a[i][k] * b[k];
 			}

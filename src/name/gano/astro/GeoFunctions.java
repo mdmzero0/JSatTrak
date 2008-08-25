@@ -106,7 +106,7 @@ public class GeoFunctions
         LLA[2] = Nh - N; // altitute, h
         
         //System.out.println("LLA[1]: "+ LLA[1]);
-        LLA[1] = LLA[1] -(280.4606 +360.9856473*d)*Math.PI/180.0;
+        LLA[1] = LLA[1] -(280.4606 +360.9856473*d)*Math.PI/180.0; 
         double div = Math.floor(LLA[1]/(2*Math.PI));
         LLA[1] = LLA[1] - div*2*Math.PI;
         if(LLA[1] > Math.PI)
