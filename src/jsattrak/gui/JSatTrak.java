@@ -76,6 +76,7 @@
  *                                  Added 2D Earth Lights night image effect  
  *                                  Added FPS info (press f when a 2D window is active), added memory status bar (+plugin)  
  *                                  -- bug? 3d model only stays in full screen mode if two 3d windows are open before? - some quirks with the model view
+ *          3.5.1  24 Sept 2008 -- Bug fix - repaint when jumping to a time in the mission designer for a custom satellite
  * 
  *                              Ideas for next versions: (no particular order)
  *                                  - 3D "Earth Night Lights" mask / 1/2 sphere transparent night shell
@@ -194,7 +195,7 @@ import name.gano.file.FileTypeFilter;
  */
 public class JSatTrak extends javax.swing.JFrame implements InternalFrameListener, WindowListener, Serializable
 {
-    private String versionString = "Version 3.5.0 (7 August 2008)"; // Version of app
+    private String versionString = "Version 3.5.1 (24 September 2008)"; // Version of app
     
     // hastable to store all the statelites currently being processed
     private Hashtable<String,AbstractSatellite> satHash = new Hashtable<String,AbstractSatellite>();

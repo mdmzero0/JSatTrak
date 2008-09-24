@@ -25,7 +25,6 @@ package jsattrak.gui;
 
 import java.awt.Color;
 import java.io.BufferedWriter;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.text.DecimalFormat;
@@ -639,6 +638,11 @@ public class JCustomSatConfigPanel extends javax.swing.JPanel
 
                 // set app time
                 app.setTime(nodeStartTime - deltaTT2UTC);
+                
+                // force repaint and regeneration of ground paths - SEG 24 Sept 2008
+                sat.setGroundTrackIni2False(); //force update of ground track data
+                app.forceRepainting(false); // repait without updating positional data 
+                
 
             } // valid value
         } // node selected
