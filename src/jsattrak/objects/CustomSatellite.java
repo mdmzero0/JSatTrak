@@ -321,6 +321,11 @@ public class CustomSatellite  extends AbstractSatellite
                         initializeGroundTrack(); // for new ini each time
 
                     } // ascending node passed
+                    // ELSE if current time is not in the lead/lag interval reinintialize it
+                    else if(timeLead[timeLead.length-1]<julDate ||  timeLag[0]>julDate)
+                    {
+                        initializeGroundTrack();
+                    }
 
                 } // if show ground track is true
                 

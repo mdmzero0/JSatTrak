@@ -1004,6 +1004,7 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
         {
             g2.setPaint(landMass.getLandOutlineColor());
             
+            // drawing disconnects across international date line not accounted for
             for(String key : landMass.getLandMassHash().keySet())
             {
                 Vector<float[]> vec = landMass.getLandMassVector(key);
@@ -1020,13 +1021,28 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
                     float[] currLL;
                     int[] currXY;
                     
+                    // speed increase
+                    int[] xPts = new int[vec.size() + 1];
+                    int[] yPts = new int[vec.size() + 1];
+                    int ptsCount = 0; // points to draw stored up (reset when discontinutiy is hit)
+                    // first point
+                    xPts[ptsCount] = lastXY[0];
+                    yPts[ptsCount] = lastXY[1];
+                    ptsCount++;
+                    
+                    
                     for(int i=1;i<vec.size();i+=indexSpacing)
                     {
                         currLL = vec.elementAt(i);
                         //currXY = imageMap.findXYfromLL(currLL[0], currLL[1], w, h, imageWidth, imageHeight);
                         currXY = imageMap.findXYfromLL(currLL[0], currLL[1], width, height, width, height);
                         
-                        g2.drawLine(lastXY[0],lastXY[1],currXY[0],currXY[1]);
+                        // slow drawing
+                        //g2.drawLine(lastXY[0],lastXY[1],currXY[0],currXY[1]);
+                        // new way
+                        xPts[ptsCount] = currXY[0];
+                        yPts[ptsCount] = currXY[1];
+                        ptsCount++;
                         
                         // save current to old
                         lastXY = currXY;
@@ -1045,8 +1061,16 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
                     else
                     {
                         // connect back to first
-                        g2.drawLine(lastXY[0],lastXY[1],currXY[0],currXY[1]);
+                        // old way
+                        //g2.drawLine(lastXY[0],lastXY[1],currXY[0],currXY[1]);
+                        // new way
+                        xPts[ptsCount] = currXY[0];
+                        yPts[ptsCount] = currXY[1];
+                        ptsCount++;
                     }
+                    
+                    // NEW FASTER Drawing of lines
+                    g2.drawPolyline(xPts, yPts, ptsCount);
                     
                 }
                 

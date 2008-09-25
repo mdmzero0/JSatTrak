@@ -159,6 +159,16 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
         // now back to normal -----------------
         super.paintComponent(g);  // repaints what is already on the buffer
         
+        finishPainting(g); // for profiling (otherwise move method back to this point
+        
+    } //paintComponent
+    
+    // method to do all the painting so profiler accounts for it correctly
+    // hmm... use  The conclusions are that drawPolyline() is about 3-6 times faster than drawLine() 
+    //http://www.particle.kth.se/~fmi/kurs/PhysicsSimulation/Lectures/12A/timing.html
+    // also replace use of polygon... to drawPolygon(int[] xPoints, int[] yPoints, int nPoints) and fillpolygon(int[]...) ... so they share the same data
+    private void finishPainting(Graphics g)
+    {
         Graphics2D g2 = (Graphics2D)g; // cast to a @D graphics object
         Dimension dim = getSize();
         int w = dim.width;
@@ -214,7 +224,8 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
                 xy = findXYfromLL(lat, -180, w, h, imageWidth, imageHeight);
                 xy_old = findXYfromLL(lat, 180, w, h, imageWidth, imageHeight);
                 
-                g2.drawLine(xy_old[0],xy_old[1],xy[0],xy[1]); // draw a line across the map
+                //g2.drawLine(xy_old[0],xy_old[1],xy[0],xy[1]); // draw a line across the map
+                g2.drawPolyline(new int[]{xy_old[0],xy[0]}, new int[]{xy_old[1],xy[1]}, 2); // faster
             }
             
             for(int lon = -180; lon <= 180; lon+=30)
@@ -222,7 +233,8 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
                 xy = findXYfromLL(90, lon, w, h, imageWidth, imageHeight);
                 xy_old = findXYfromLL(-90, lon, w, h, imageWidth, imageHeight);
                 
-                g2.drawLine(xy_old[0],xy_old[1],xy[0],xy[1]); // draw a line across the map
+                //g2.drawLine(xy_old[0],xy_old[1],xy[0],xy[1]); // draw a line across the map
+                g2.drawPolyline(new int[]{xy_old[0],xy[0]}, new int[]{xy_old[1],xy[1]}, 2); // faster
             }
             
         }
@@ -271,7 +283,7 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
                 
                 ///// LEAD track:
                 // first Lead point
-                if(sat.getNumGroundTrackLeadPts() > 0)
+                if(sat.getNumGroundTrackLeadPts() > 1)
                 {
                     LLA = sat.getGroundTrackLlaLeadPt(0);
                     
@@ -279,6 +291,16 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
                     LLA_old[0] = LLA[0];
                     LLA_old[1] = LLA[1];
                     //LLA_old[2] = LLA[2];
+                    
+                    // faster performance to draw allpoints at once useing drawPolyLine
+                    int[] xPts = new int[sat.getNumGroundTrackLeadPts()];
+                    int[] yPts = new int[sat.getNumGroundTrackLeadPts()];
+                    int ptsCount = 0; // points to draw stored up (reset when discontinutiy is hit)
+                    
+                    // first point
+                    xPts[ptsCount] = xy_old[0];
+                    yPts[ptsCount] = xy_old[1];
+                    ptsCount++;
                     
                     for(int j=1;j<sat.getNumGroundTrackLeadPts();j++)
                     {
@@ -290,11 +312,18 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
                         //if( (LLA[1] > 0 && LLA_old[1] > 0) || (LLA[1] < 0 && LLA_old[1] < 0) || Math.abs(LLA[1]) < 1.0  )
                         if ( !(nanDbl.equals(LLA_old[0]) || nanDbl.equals(LLA[0]))) // make sure they are not NAN (not in time)
                         {
+ 
+                            // line segment is normal (doesn't span map disconnect)
                             if (Math.abs(LLA[1] - LLA_old[1]) < 4.0)
                             {
-
-                                g2.drawLine(xy_old[0], xy_old[1], xy[0], xy[1]); // draw a line across the map
-                            //System.out.println("xy: (" + xy_old[0] +"," +xy_old[1] +"),(" +xy[0] +"," +xy[1]+"), j=" + j + "LLA_old,new:" +LLA_old[1] + ", " +LLA[1] ); // draw a line across the map
+                                // old slow way:
+                                //g2.drawLine(xy_old[0], xy_old[1], xy[0], xy[1]); // draw a line across the map
+                                
+                                // add points to the array (after NaN check)
+                                xPts[ptsCount] = xy[0];
+                                yPts[ptsCount] = xy[1];
+                                ptsCount++;
+                            
                             }
                             else
                             {
@@ -308,13 +337,50 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
                                 // draw 2 lines - one for each side of the date line
                                 if (LLA_old[1] > 0) // then the old one is on the positive side
                                 {
-                                    g2.drawLine(xy_old[0], xy_old[1], xyMid_pos[0], xyMid_pos[1]);
-                                    g2.drawLine(xy[0], xy[1], xyMid_neg[0], xyMid_neg[1]);
+                                    // old slow way
+                                    //g2.drawLine(xy_old[0], xy_old[1], xyMid_pos[0], xyMid_pos[1]);
+                                    //g2.drawLine(xy[0], xy[1], xyMid_neg[0], xyMid_neg[1]);
+                                    
+                                    // new way
+                                    // add final point to positive side
+                                    xPts[ptsCount] = xyMid_pos[0];
+                                    yPts[ptsCount] = xyMid_pos[1];
+                                    ptsCount++;
+                                    // draw the polyline
+                                    g2.drawPolyline(xPts, yPts, ptsCount);
+                                    // clear the arrays (just reset the counter)
+                                    ptsCount = 0;
+                                    // add the new points to the cleared array
+                                    xPts[ptsCount] = xyMid_neg[0];
+                                    yPts[ptsCount] = xyMid_neg[1];
+                                    ptsCount++;
+                                    xPts[ptsCount] = xy[0];
+                                    yPts[ptsCount] = xy[1];
+                                    ptsCount++;
+                                    
                                 }
                                 else // the new one is on the positive side
                                 {
-                                    g2.drawLine(xy[0], xy[1], xyMid_pos[0], xyMid_pos[1]);
-                                    g2.drawLine(xy_old[0], xy_old[1], xyMid_neg[0], xyMid_neg[1]);
+                                    // old slow way
+                                    //g2.drawLine(xy[0], xy[1], xyMid_pos[0], xyMid_pos[1]);
+                                    //g2.drawLine(xy_old[0], xy_old[1], xyMid_neg[0], xyMid_neg[1]);
+                                    
+                                     // new way
+                                    // add final point to neg side
+                                    xPts[ptsCount] = xyMid_neg[0];
+                                    yPts[ptsCount] = xyMid_neg[1];
+                                    ptsCount++;
+                                    // draw the polyline
+                                    g2.drawPolyline(xPts, yPts, ptsCount);
+                                    // clear the arrays (just reset the counter)
+                                    ptsCount = 0;
+                                    // add the new points to the cleared array
+                                    xPts[ptsCount] = xyMid_pos[0];
+                                    yPts[ptsCount] = xyMid_pos[1];
+                                    ptsCount++;
+                                    xPts[ptsCount] = xy[0];
+                                    yPts[ptsCount] = xy[1];
+                                    ptsCount++;
                                 }
 
 
@@ -328,6 +394,10 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
                         LLA_old[1] = LLA[1];
                         //LLA_old[2] = LLA[2];
                     } // lead track drawing
+                    
+                    // draw remainder of lead segment
+                    g2.drawPolyline(xPts, yPts, ptsCount);
+                     
                 }// lead track
                 
                  ///// Lag track:
@@ -341,6 +411,16 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
                     LLA_old[1] = LLA[1];
                     //LLA_old[2] = LLA[2];
                     
+                    // faster performance to draw allpoints at once useing drawPolyLine
+                    int[] xPts = new int[sat.getNumGroundTrackLeadPts()];
+                    int[] yPts = new int[sat.getNumGroundTrackLeadPts()];
+                    int ptsCount = 0; // points to draw stored up (reset when discontinutiy is hit)
+                    
+                    // first point
+                    xPts[ptsCount] = xy_old[0];
+                    yPts[ptsCount] = xy_old[1];
+                    ptsCount++;
+                    
                     for(int j=1;j<sat.getNumGroundTrackLagPts();j++)
                     {
                         LLA = sat.getGroundTrackLlaLagPt(j);
@@ -353,8 +433,14 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
                         {
                             if (Math.abs(LLA[1] - LLA_old[1]) < 4.0)
                             {
-
-                                g2.drawLine(xy_old[0], xy_old[1], xy[0], xy[1]); // draw a line across the map
+                                // old slow way
+                                //g2.drawLine(xy_old[0], xy_old[1], xy[0], xy[1]); // draw a line across the map
+                                
+                                // add points to the array (after NaN check)
+                                xPts[ptsCount] = xy[0];
+                                yPts[ptsCount] = xy[1];
+                                ptsCount++;
+                                
                             //System.out.println("xy: (" + xy_old[0] +"," +xy_old[1] +"),(" +xy[0] +"," +xy[1]+"), j=" + j + "LLA_old,new:" +LLA_old[1] + ", " +LLA[1] ); // draw a line across the map
                             }
                             else
@@ -370,14 +456,50 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
                                 // draw 2 lines - one for each side of the date line
                                 if (LLA_old[1] > 0) // then the old one is on the positive side
                                 {
-                                    g2.drawLine(xy_old[0], xy_old[1], xyMid_pos[0], xyMid_pos[1]);
-                                    g2.drawLine(xy[0], xy[1], xyMid_neg[0], xyMid_neg[1]);
+                                    // old slow way
+                                    //g2.drawLine(xy_old[0], xy_old[1], xyMid_pos[0], xyMid_pos[1]);
+                                    //g2.drawLine(xy[0], xy[1], xyMid_neg[0], xyMid_neg[1]);
+                                    
+                                    // new way
+                                    // add final point to positive side
+                                    xPts[ptsCount] = xyMid_pos[0];
+                                    yPts[ptsCount] = xyMid_pos[1];
+                                    ptsCount++;
+                                    // draw the polyline
+                                    g2.drawPolyline(xPts, yPts, ptsCount);
+                                    // clear the arrays (just reset the counter)
+                                    ptsCount = 0;
+                                    // add the new points to the cleared array
+                                    xPts[ptsCount] = xyMid_neg[0];
+                                    yPts[ptsCount] = xyMid_neg[1];
+                                    ptsCount++;
+                                    xPts[ptsCount] = xy[0];
+                                    yPts[ptsCount] = xy[1];
+                                    ptsCount++;
                                 //System.out.println("here2");
                                 }
                                 else // the new one is on the positive side
                                 {
-                                    g2.drawLine(xy[0], xy[1], xyMid_pos[0], xyMid_pos[1]);
-                                    g2.drawLine(xy_old[0], xy_old[1], xyMid_neg[0], xyMid_neg[1]);
+                                    // old slow way
+                                    //g2.drawLine(xy[0], xy[1], xyMid_pos[0], xyMid_pos[1]);
+                                    //g2.drawLine(xy_old[0], xy_old[1], xyMid_neg[0], xyMid_neg[1]);
+                                    
+                                    // new way
+                                    // add final point to neg side
+                                    xPts[ptsCount] = xyMid_neg[0];
+                                    yPts[ptsCount] = xyMid_neg[1];
+                                    ptsCount++;
+                                    // draw the polyline
+                                    g2.drawPolyline(xPts, yPts, ptsCount);
+                                    // clear the arrays (just reset the counter)
+                                    ptsCount = 0;
+                                    // add the new points to the cleared array
+                                    xPts[ptsCount] = xyMid_pos[0];
+                                    yPts[ptsCount] = xyMid_pos[1];
+                                    ptsCount++;
+                                    xPts[ptsCount] = xy[0];
+                                    yPts[ptsCount] = xy[1];
+                                    ptsCount++;
                                 //System.out.println("here3");
                                 }
                             }
@@ -390,6 +512,10 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
                         LLA_old[1] = LLA[1];
                         //LLA_old[2] = LLA[2];
                     } // lag track drawing
+                    
+                    // draw remainder of lead segment
+                    g2.drawPolyline(xPts, yPts, ptsCount);
+                    
                 } // lag track
                 
                 
@@ -482,8 +608,7 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
             g2.setPaint( dateTimeColor );
             g2.drawString( "FPS: " +  df.format(earthPanel.getApp().getFpsAnimation()),(int)(getWidth()-75),(int)((getHeight()-imageHeight)/2.0+imageHeight-yDateTimeOffset));
         }
-        
-    } //paintComponent
+    } // finish painting
     
     // function to find the Linearly interpolated latitude at long = +/- 180
     // this is used to correct discontinutities in the plots
@@ -775,6 +900,15 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
         // footprint parameters
         double dt = 2.0*Math.PI/(numPtsFootPrint-1.0);
         
+        // faster performance to draw allpoints at once useing drawPolyLine
+        int[] xPts = new int[numPtsFootPrint+1];
+        int[] yPts = new int[numPtsFootPrint+1];
+        int ptsCount = 0; // points to draw stored up (reset when discontinutiy is hit)
+        // first point
+        xPts[ptsCount] = xy_old[0];
+        yPts[ptsCount] = xy_old[1];
+        ptsCount++;
+        
         for(int j=1;j<numPtsFootPrint;j++)
         {
             theta = j*dt+Math.PI/2.0; // +Math.PI/2.0 // offset so it starts at the side
@@ -798,8 +932,14 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
             // draw line (only if not accross the screen)
             if( Math.abs(lla[1] - llaOld[1]) < 4.0)
             {
+                // old slow way
+                //g2.drawLine(xy_old[0],xy_old[1],xy[0],xy[1]);
                 
-                g2.drawLine(xy_old[0],xy_old[1],xy[0],xy[1]);
+                // add points to the array (after NaN check)
+                xPts[ptsCount] = xy[0];
+                yPts[ptsCount] = xy[1];
+                ptsCount++;
+                
                 //System.out.println("" +lla[0] + " " + lla[1]);
             }
             else
@@ -814,13 +954,49 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
                 // draw 2 lines - one for each side of the date line
                 if(llaOld[1] > 0) // then the old one is on the positive side
                 {
-                    g2.drawLine(xy_old[0],xy_old[1],xyMid_pos[0],xyMid_pos[1]);
-                    g2.drawLine(xy[0],xy[1],xyMid_neg[0],xyMid_neg[1]);
+                    // old slow way
+                    //g2.drawLine(xy_old[0],xy_old[1],xyMid_pos[0],xyMid_pos[1]);
+                    //g2.drawLine(xy[0],xy[1],xyMid_neg[0],xyMid_neg[1]);
+                    
+                    // new way
+                    // add final point to positive side
+                    xPts[ptsCount] = xyMid_pos[0];
+                    yPts[ptsCount] = xyMid_pos[1];
+                    ptsCount++;
+                    // draw the polyline
+                    g2.drawPolyline(xPts, yPts, ptsCount);
+                    // clear the arrays (just reset the counter)
+                    ptsCount = 0;
+                    // add the new points to the cleared array
+                    xPts[ptsCount] = xyMid_neg[0];
+                    yPts[ptsCount] = xyMid_neg[1];
+                    ptsCount++;
+                    xPts[ptsCount] = xy[0];
+                    yPts[ptsCount] = xy[1];
+                    ptsCount++;
                 }
                 else // the new one is on the positive side
                 {
-                    g2.drawLine(xy[0],xy[1],xyMid_pos[0],xyMid_pos[1]);
-                    g2.drawLine(xy_old[0],xy_old[1],xyMid_neg[0],xyMid_neg[1]);
+                    // old slow way
+                    //g2.drawLine(xy[0],xy[1],xyMid_pos[0],xyMid_pos[1]);
+                    //g2.drawLine(xy_old[0],xy_old[1],xyMid_neg[0],xyMid_neg[1]);
+                    
+                    // new way
+                    // add final point to neg side
+                    xPts[ptsCount] = xyMid_neg[0];
+                    yPts[ptsCount] = xyMid_neg[1];
+                    ptsCount++;
+                    // draw the polyline
+                    g2.drawPolyline(xPts, yPts, ptsCount);
+                    // clear the arrays (just reset the counter)
+                    ptsCount = 0;
+                    // add the new points to the cleared array
+                    xPts[ptsCount] = xyMid_pos[0];
+                    yPts[ptsCount] = xyMid_pos[1];
+                    ptsCount++;
+                    xPts[ptsCount] = xy[0];
+                    yPts[ptsCount] = xy[1];
+                    ptsCount++;
                 }
                 //==============================================
                 
@@ -861,7 +1037,16 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
         // draw point from last point back to first
         if( Math.abs(llaOld[1]-lla0[1]) < 4.0)
         {
-            g2.drawLine(xy_old[0],xy_old[1],xy0[0],xy0[1]);
+            // old slow way
+            //g2.drawLine(xy_old[0],xy_old[1],xy0[0],xy0[1]);
+           
+            // new way
+             xPts[ptsCount] = xy0[0];
+            yPts[ptsCount] = xy0[1];
+            ptsCount++;
+            
+            // draw remainder of lead segment
+            g2.drawPolyline(xPts, yPts, ptsCount);
         }
         
         // draw polygon -- won't work when part of the foot print is on other side

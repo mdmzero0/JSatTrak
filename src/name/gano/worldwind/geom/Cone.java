@@ -1,6 +1,7 @@
 /*
  * Orginal code from: http://forum.worldwindcentral.com/showthread.php?t=13111
  * Updates by: Shawn E. Gano
+ *  - Updated 24 Sept 2008 - added get and set for slices and stacks (and changed default)
  * =====================================================================
  * Copyright (C) 2008 Shawn E. Gano
  * 
@@ -46,6 +47,11 @@ public class Cone implements Renderable
     private Globe myGlobe;
     private Color color;
     private Vec4 topCenter; // point at center of cylinder base
+    
+    // solid geometry generation parameters
+    private int slices = 30;  // 30
+    private int stacks = 1;  // 30
+    
 
     public Cone(Globe globe, double lat, double lon, double mGroundRange, double mCeiling, Angle orientation, Angle elevation, Color theColor)
     {
@@ -91,9 +97,9 @@ public class Cone implements Renderable
         GLUquadric quadric = dc.getGLU().gluNewQuadric();
         dc.getGLU().gluQuadricDrawStyle(quadric, GLU.GLU_FILL);
 
-        dc.getGLU().gluCylinder(quadric, 0, this.myGroundRange, this.myCeiling, 30, 30);
+        dc.getGLU().gluCylinder(quadric, 0, this.myGroundRange, this.myCeiling, slices, stacks);
         dc.getGL().glTranslated(0, 0, this.myCeiling);
-        dc.getGLU().gluDisk(quadric, 0d, this.myGroundRange, 30, 30);
+        dc.getGLU().gluDisk(quadric, 0d, this.myGroundRange, slices, stacks);
         dc.getGLU().gluDeleteQuadric(quadric);
 
         gl.glPopMatrix();

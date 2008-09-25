@@ -56,6 +56,9 @@ public final class SphereObject implements Extent, Renderable
 
     boolean plotFixedAxis = false;
     
+    // improve performance keep from creating a new one all the time
+    javax.media.opengl.glu.GLUquadric quadric;
+    
     /**
      * Creates a sphere that completely contains a set of points.
      *
@@ -370,8 +373,13 @@ public final class SphereObject implements Extent, Renderable
         gl.glMatrixMode(javax.media.opengl.GL.GL_MODELVIEW);
         gl.glPushMatrix();
         gl.glTranslated(this.center.x, this.center.y, this.center.z);
-        javax.media.opengl.glu.GLUquadric quadric = dc.getGLU().gluNewQuadric();
         
+        //javax.media.opengl.glu.GLUquadric quadric = dc.getGLU().gluNewQuadric();
+        if(quadric == null)
+        {
+            quadric = dc.getGLU().gluNewQuadric();
+        }
+             
         // fill in:
         //dc.getGLU().gluQuadricDrawStyle(quadric, javax.media.opengl.glu.GLU.GLU_FILL);
         // or just lines:// javax.media.opengl.glu.GLU.GLU_LINE
@@ -385,6 +393,10 @@ public final class SphereObject implements Extent, Renderable
             dc.getGLU().gluQuadricDrawStyle(quadric, javax.media.opengl.glu.GLU.GLU_LINE);
         }
         
+        // this line is the PERFORMANCE HIT
+        // http://www.gamedev.net/community/forums/topic.asp?topic_id=479204
+        // http://lists.apple.com/archives/Mac-opengl/2003/Nov/msg00053.html
+        // OR MAYBE don't use spheres... use "dots" or label markers in WWJ?? (clickable?)
         dc.getGLU().gluSphere(quadric, this.radius, numDivisions, numDivisions);
         
         // Draw in axis
