@@ -64,7 +64,7 @@ public class AboutDialog extends JDialog implements FadeListener
         addContents(version,wwjVersion);
         startAnimation();
 
-        setSize(new Dimension(400, 300));
+        setSize(new Dimension(420, 300));
         setResizable(false);
         setLocationRelativeTo(parent);
         
