@@ -44,6 +44,7 @@ public class TLEDownloader implements java.io.Serializable
 	public String[] fileNames = new String[] {
                         "sts.txt",
 			"stations.txt",
+                        "tle-new.txt", // added 26 Sept 2008 - SEG
                        // "1999-025.txt",
 			"weather.txt",
 			"noaa.txt",
@@ -84,6 +85,7 @@ public class TLEDownloader implements java.io.Serializable
 	public String[] primCat = new String[] {
                         "Special-Interest Satellites",
 			"Special-Interest Satellites",
+                        "Special-Interest Satellites", // new
                         //"Special-Interest Satellites",
 			"Weather & Earth Resources Satellites",
 			"Weather & Earth Resources Satellites",
@@ -123,6 +125,7 @@ public class TLEDownloader implements java.io.Serializable
 	public String[] secondCat = new String[] {
                         "STS",
 			"International Space Station",
+                        "Last 30 Days' Launches", // new
                         //"FENGYUN 1C Debris",
 			"Weather",
 			"NOAA",
