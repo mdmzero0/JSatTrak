@@ -52,7 +52,7 @@ public final class SphereObject implements Extent, Renderable
     
     private Color sphereColor = Color.WHITE;
     
-    private int numDivisions = 20; // number of horizontal and verticle divisions in the sphere
+    private int numDivisions = 8; // number of horizontal and verticle divisions in the sphere
 
     boolean plotFixedAxis = false;
     

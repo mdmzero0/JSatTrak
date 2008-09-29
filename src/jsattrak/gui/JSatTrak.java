@@ -78,7 +78,7 @@
  *                                  -- bug? 3d model only stays in full screen mode if two 3d windows are open before? - some quirks with the model view
  *          3.5.1  26 Sept 2008 -- Bug fix - repaint groundtrack when jumping to a time in the mission designer for a custom satellite
  *                                           fixed 3d cone, added get/set slices and stacks parameters, improved 2d window performance by>30% (removed most drawline calls), improved land mass drawing performance
- *                                           added tle-new.txt (new sats), 
+ *                                           added tle-new.txt (new sats), sphere rednering still a bottleneck but reduced divions from 20 to 8, gained 25% performance
  * 
  *                              KNOWN ISSUE:  Stored satellites reference Name this may not be unique (and many cases it isn't)! Need to store it by NORAD ID or if a custom sat some other ID
  * 
