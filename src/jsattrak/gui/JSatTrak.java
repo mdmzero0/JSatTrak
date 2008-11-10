@@ -79,9 +79,10 @@
  *          3.5.1  26 Sept 2008 -- Bug fix - repaint groundtrack when jumping to a time in the mission designer for a custom satellite
  *                                           fixed 3d cone, added get/set slices and stacks parameters, improved 2d window performance by>30% (removed most drawline calls), improved land mass drawing performance
  *                                           added tle-new.txt (new sats), sphere rednering still a bottleneck but reduced divions from 20 to 8, gained 25% performance
+ *          3.6 10 Nov 2008    --  Added capibility to run JSatTrak script without starting GUI via passing a command line argument
  * 
  *                              KNOWN ISSUE:  Stored satellites reference Name this may not be unique (and many cases it isn't)! Need to store it by NORAD ID or if a custom sat some other ID
- * 
+ *                                              Nimbus look and feel not working right
  *                              Ideas for next versions: (no particular order)
  *                                  - 3D "Earth Night Lights" mask / 1/2 sphere transparent night shell
  *                                  - Add Objects (Abstract Satellites) like Moon, Sun, Panets maybe (can set view to center on them as well)?
@@ -281,7 +282,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
     
     // interpreter for bean shell
     JConsole commandConsole = new JConsole();
-    Interpreter beanShellInterp = new Interpreter(commandConsole);
+    public Interpreter beanShellInterp = new Interpreter(commandConsole);
     
     // time dependent objects that should be update when time is updated -- NEED TO BE SAVED?
     Vector<JSatTrakTimeDependent> timeDependentObjects = new Vector<JSatTrakTimeDependent>();
@@ -308,41 +309,43 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         // DO THIS FIRST -- uses jgoodies looks
         //PlasticLookAndFeel.setPlasticTheme(new ExperienceGreen());
         
-        PlasticLookAndFeel.setPlasticTheme(new ExperienceBlue());
-        PlasticLookAndFeel.setTabStyle("Metal"); // makes tabes look much better
-        
-        //PlasticLookAndFeel.setHighContrastFocusColorsEnabled(true);
-        //PlasticLookAndFeel.setPlasticTheme(new SkyBlue());
-        //PlasticLookAndFeel.setPlasticTheme(new Silver());
-        try 
-        {
-            UIManager.setLookAndFeel(new PlasticLookAndFeel());
-            //UIManager.setLookAndFeel(new PlasticXPLookAndFeel());
-            //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); // bar buttons look good
-            //UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
-            
-            // new in java 6u10? - I think I like it :) -- see below for sperate try
-            //UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
-
-        } 
-        catch (Exception ex) 
-        {
-            ex.printStackTrace();
-        }
-        
         // if User has java 6u10 or greater that means NimbusLookAndFeel is supported!
-        try{
+        try
+        {
+            //UIManager.getDefaults().clear();
             UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+            //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         }
         catch(Exception ex2)
         {
             System.out.println("Sorry no Nimbus LookAndFeel needs java 6u10 or higher!");
+
+            PlasticLookAndFeel.setPlasticTheme(new ExperienceBlue());
+            PlasticLookAndFeel.setTabStyle("Metal"); // makes tabes look much better
+
+            //PlasticLookAndFeel.setHighContrastFocusColorsEnabled(true);
+            //PlasticLookAndFeel.setPlasticTheme(new SkyBlue());
+            //PlasticLookAndFeel.setPlasticTheme(new Silver());
+            try
+            {
+                UIManager.setLookAndFeel(new PlasticLookAndFeel());
+            //UIManager.setLookAndFeel(new PlasticXPLookAndFeel());
+            //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); // bar buttons look good
+            //UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+
+            // new in java 6u10? - I think I like it :) -- see below for sperate try
+            //UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+
+            }
+            catch(Exception ex)
+            {
+                ex.printStackTrace();
+            }
         }
         
         // set locale for decimal seperator issue?
         //Locale.setDefault(Locale.CANADA_FRENCH); // reproduces TLE parsing error
         //Locale.setDefault(Locale.US); // forces it to work... but maybe not the best way (okay, fixed in SDP4 - set decimal seperator there)
-        
         
         // setup window position and icon
         //super.setLocation(new java.awt.Point(50,50));  // set inital location
@@ -534,7 +537,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         
         // DEBUG - testing earht lights
         //this.twoDWindowVec.get(0).setShowEarthLightsMask(true);
-                
+                   
     } // constructor
         
     public void checkAndInstallPlugins()
@@ -903,11 +906,11 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         satListInternalFrame.getContentPane().setLayout(satListInternalFrameLayout);
         satListInternalFrameLayout.setHorizontalGroup(
             satListInternalFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 174, Short.MAX_VALUE)
+            .addGap(0, 180, Short.MAX_VALUE)
         );
         satListInternalFrameLayout.setVerticalGroup(
             satListInternalFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 323, Short.MAX_VALUE)
+            .addGap(0, 315, Short.MAX_VALUE)
         );
 
         satListInternalFrame.setBounds(610, 5, 190, 350);
@@ -959,7 +962,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
                 .addComponent(jSeparator7, javax.swing.GroupLayout.PREFERRED_SIZE, 5, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(1, 1, 1)
                 .addGroup(statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(statusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 17, Short.MAX_VALUE)
+                    .addComponent(statusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
                     .addComponent(statusAnimationLabel)
                     .addComponent(statusProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
@@ -2343,25 +2346,62 @@ private void toolbar3DWindowButtonActionPerformed(java.awt.event.ActionEvent evt
     
     /**
      * @param args the command line arguments
+     * 
+     * if run with no command line parameters the GUI is displayed
+     * if run with a command line argument with the path of a script it will be executed
+     * example : java JSatTrak runme.bsh  > satLog.txt  (will run the script runme.bsh and save output to the satLog.txt file)
      */
-    public static void main(String args[])
+    public static void main(final String args[])
     {
         
-        java.awt.EventQueue.invokeLater(new Runnable()
+        // no command line arguments
+        if(args.length == 0)
         {
-            public void run()
+            java.awt.EventQueue.invokeLater(new Runnable()
             {
-                // try to set look and feel
+                public void run()
+                {
+
+                    new JSatTrak().setVisible(true);
+
+                } // run
+            });
+        }
+        else // no GUI
+        {
+            // see if command line is a exisiting file (assume it is a .bsh file and try to run it)
+            File inScriptFile = new File(args[0]);
+            if(inScriptFile.exists())
+            {
+                long t1 = System.currentTimeMillis();
+                JSatTrak app = new JSatTrak();
+                // runnning bash script
                 try
                 {
-                //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                    app.beanShellInterp.source(args[0]);
                 }
-                catch(Exception e){}
+                catch(Exception ee)
+                {
+                    System.err.println("Error running script: " + ee.toString());
+                }
+
+                // close JSatTrakApp
+                app.dispose();
                 
-                new JSatTrak().setVisible(true);
-            }
-        });
-    }
+                long dt = System.currentTimeMillis() - t1;
+                System.err.println("Time to Execute (sec): " + dt / 1000.0);
+
+            } // file exsists
+            else
+            {
+                System.err.println("File does not exist: " + inScriptFile.getAbsolutePath());
+            }    
+        
+            System.exit(0); // exit
+        
+        }// program ran with line args
+        
+    } // main
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem aboutMenuItem;
@@ -3306,6 +3346,11 @@ private void toolbar3DWindowButtonActionPerformed(java.awt.event.ActionEvent evt
         GregorianCalendar gc = Time.convertJD2Calendar(julianDate);
         setTime(gc.getTimeInMillis());        
     }
+    
+    public Time getCurrentJulianDate()
+    {
+        return currentJulianDate;
+    }
 
     public boolean isEpochTimeEqualsCurrentTime()
     {
@@ -3567,5 +3612,9 @@ private void toolbar3DWindowButtonActionPerformed(java.awt.event.ActionEvent evt
         return fpsAnimation;
     }
     
-    
+    public Vector<J2DEarthPanel> getTwoDWindowVec()
+    {
+        return twoDWindowVec;
+        
+    }
 }

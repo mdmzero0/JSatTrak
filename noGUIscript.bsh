@@ -1,0 +1,35 @@
+// Shawn E. Gano
+// 10 Nov 2008
+// example onetime run script
+
+import jsattrak.objects.*;
+import jsattrak.gui.*;
+import javax.swing.Icon;
+
+
+// time is auto set to current system time -- so we don't have to worry about that
+
+// add the satellite desired (use exact name specified in TLE with extra spaces if needed, total length = 24 chars)
+jsattrak.addSat2ListByName("EGP                     ");
+
+// get the sats current lat/lon/alt and output to a file
+AbstractSatellite sat = jsattrak.satHash.get("EGP                     ");
+double lat = sat.getLatitude()*180.0/Math.PI; // deg
+double lon = sat.getLongitude()*180.0/Math.PI; // deg
+double alt = sat.getAltitude(); // meters
+
+System.err.println(sat.getName());
+System.err.println(jsattrak.getCurrentJulianDate().getDateTimeStr());
+System.err.println("lat = " + lat);
+System.err.println("lon = " + lon);
+System.err.println("alt = " + alt);
+
+// get 2D window that is open by default
+J2DEarthPanel twoDpanel = jsattrak.getTwoDWindowVec().get(0);
+
+// set size?
+
+// get icon
+Icon ic = twoDWindowVec.get(0).getImageMap().getIcon();
+
+// save icon to disk?

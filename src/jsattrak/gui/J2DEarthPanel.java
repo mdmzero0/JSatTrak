@@ -1335,4 +1335,10 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
         
         
     } // setShowEarthLightsMask
+    
+    public J2dEarthLabel2 getImageMap()
+    {
+        return imageMap;
+    }
+    
 }
