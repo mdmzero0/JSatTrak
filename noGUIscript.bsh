@@ -5,9 +5,15 @@
 import jsattrak.objects.*;
 import jsattrak.gui.*;
 import javax.swing.Icon;
-
+import java.io.File;
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.*;
 
 // time is auto set to current system time -- so we don't have to worry about that
+
+// REMOVE ISS!!!
+
 
 // add the satellite desired (use exact name specified in TLE with extra spaces if needed, total length = 24 chars)
 jsattrak.addSat2ListByName("EGP                     ");
@@ -27,9 +33,27 @@ System.err.println("alt = " + alt);
 // get 2D window that is open by default
 J2DEarthPanel twoDpanel = jsattrak.getTwoDWindowVec().get(0);
 
-// set size?
+// setup graphics object -- with default 588 and 294 with windows nimbus? nope takes into account GUI sizes!! arrrg!
+int width = 588; //500
+int height = 294; //250
 
-// get icon
-Icon ic = twoDWindowVec.get(0).getImageMap().getIcon();
+BufferedImage buff = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB );
+Graphics g = buff.getGraphics();
 
-// save icon to disk?
+// make sure that the label and imagemap have the right size!!!
+// not working
+jsattrak.getTwoDWindowVec().get(0).setSize(width, height);
+
+// paint image
+jsattrak.getTwoDWindowVec().get(0).getImageMap().paintComponent(g);
+
+// save image
+try
+{
+    File file = new File("TEST.jpg");
+    ImageIO.write(buff, "jpg", file);
+}
+catch(Exception e)
+{
+    System.err.println("Error Saving Image:" + e.toString() );
+}

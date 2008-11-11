@@ -79,10 +79,11 @@
  *          3.5.1  26 Sept 2008 -- Bug fix - repaint groundtrack when jumping to a time in the mission designer for a custom satellite
  *                                           fixed 3d cone, added get/set slices and stacks parameters, improved 2d window performance by>30% (removed most drawline calls), improved land mass drawing performance
  *                                           added tle-new.txt (new sats), sphere rednering still a bottleneck but reduced divions from 20 to 8, gained 25% performance
- *          3.6 10 Nov 2008    --  Added capibility to run JSatTrak script without starting GUI via passing a command line argument
- * 
+ *          3.6 12 Nov 2008    --  Added capibility to run JSatTrak script without starting GUI via passing a command line argument
+ *                                 Added app look and feel chooser to the help menu
+ *                                  "C:\Documents and Settings\sgano\Desktop\JSatTrak\JSatTrak\noGUIscript.bsh"
  *                              KNOWN ISSUE:  Stored satellites reference Name this may not be unique (and many cases it isn't)! Need to store it by NORAD ID or if a custom sat some other ID
- *                                              Nimbus look and feel not working right
+ *                  
  *                              Ideas for next versions: (no particular order)
  *                                  - 3D "Earth Night Lights" mask / 1/2 sphere transparent night shell
  *                                  - Add Objects (Abstract Satellites) like Moon, Sun, Panets maybe (can set view to center on them as well)?
@@ -172,6 +173,7 @@ import javax.swing.JInternalFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.event.InternalFrameEvent;
@@ -305,43 +307,27 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
     /** Creates new form JSatTrak */
     public JSatTrak()
     {
-//        // setup look and feel first
-        // DO THIS FIRST -- uses jgoodies looks
-        //PlasticLookAndFeel.setPlasticTheme(new ExperienceGreen());
-        
+        // setup look and feel first        
         // if User has java 6u10 or greater that means NimbusLookAndFeel is supported!
         try
         {
-            //UIManager.getDefaults().clear();
-            UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
-            //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel"); //
         }
-        catch(Exception ex2)
+        catch(Exception ex1) // default using jgoodies looks plastic theme
         {
-            System.out.println("Sorry no Nimbus LookAndFeel needs java 6u10 or higher!");
-
             PlasticLookAndFeel.setPlasticTheme(new ExperienceBlue());
             PlasticLookAndFeel.setTabStyle("Metal"); // makes tabes look much better
 
-            //PlasticLookAndFeel.setHighContrastFocusColorsEnabled(true);
-            //PlasticLookAndFeel.setPlasticTheme(new SkyBlue());
-            //PlasticLookAndFeel.setPlasticTheme(new Silver());
             try
             {
                 UIManager.setLookAndFeel(new PlasticLookAndFeel());
-            //UIManager.setLookAndFeel(new PlasticXPLookAndFeel());
-            //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); // bar buttons look good
-            //UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
-
-            // new in java 6u10? - I think I like it :) -- see below for sperate try
-            //UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
-
             }
             catch(Exception ex)
             {
                 ex.printStackTrace();
             }
         }
+        
         
         // set locale for decimal seperator issue?
         //Locale.setDefault(Locale.CANADA_FRENCH); // reproduces TLE parsing error
@@ -537,6 +523,18 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         
         // DEBUG - testing earht lights
         //this.twoDWindowVec.get(0).setShowEarthLightsMask(true);
+        
+        // for some reason nimbus has to be reapplied to work correctly
+        try
+        {
+            UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+            SwingUtilities.updateComponentTreeUI(this); // apply look and feel over current L&F (otherwise nimbus shows up in correctly)
+        }
+        catch(Exception ex)
+        {
+            System.out.println("Sorry no Nimbus LookAndFeel needs java 6u10 or higher!");
+            //ex.printStackTrace();
+        }
                    
     } // constructor
         
@@ -678,6 +676,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         pluginMenu = new javax.swing.JMenu();
         helpMenu = new javax.swing.JMenu();
         sysPropsMenuItem = new javax.swing.JMenuItem();
+        lookFeelMenuItem = new javax.swing.JMenuItem();
         aboutMenuItem = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -1257,6 +1256,14 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
             }
         });
         helpMenu.add(sysPropsMenuItem);
+
+        lookFeelMenuItem.setText("App Look and Feel...");
+        lookFeelMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lookFeelMenuItemActionPerformed(evt);
+            }
+        });
+        helpMenu.add(lookFeelMenuItem);
 
         aboutMenuItem.setText("About..."); // NOI18N
         aboutMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -2279,6 +2286,12 @@ private void coverageMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
 private void toolbar3DWindowButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toolbar3DWindowButtonActionPerformed
     createNew3dWindow();
 }//GEN-LAST:event_toolbar3DWindowButtonActionPerformed
+
+private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lookFeelMenuItemActionPerformed
+     LookAndFeelJDialog diag = new LookAndFeelJDialog(this, true);
+     diag.setLocationRelativeTo(mainDesktopPane);
+     diag.setVisible(true);
+}//GEN-LAST:event_lookFeelMenuItemActionPerformed
     
     public void openTrackingToolSelectorWindow()
     {
@@ -2438,6 +2451,7 @@ private void toolbar3DWindowButtonActionPerformed(java.awt.event.ActionEvent evt
     private javax.swing.JToolBar jToolBar;
     private javax.swing.JMenuItem localTimeMenuItem;
     private javax.swing.JCheckBox localTimeZoneCheckBox;
+    private javax.swing.JMenuItem lookFeelMenuItem;
     public javax.swing.JDesktopPane mainDesktopPane;
     private javax.swing.JMenuItem movieWholeAppMenuItem;
     private javax.swing.JMenuItem new2DWindowMenuItem;
