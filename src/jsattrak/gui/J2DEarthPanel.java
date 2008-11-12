@@ -1341,4 +1341,17 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
         return imageMap;
     }
     
+    
+    /**
+     * Performs an offscreen rendering of panel, works best when used with "getNonDisplayed2DEarthPanel()" function in JSatTrak class
+     * @return
+     */
+    public BufferedImage offScreenRender()
+    {
+        BufferedImage buff = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB );
+        Graphics g = buff.getGraphics();
+        getImageMap().paintComponent(g);
+        return buff;
+    }
+    
 }

@@ -3631,4 +3631,18 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         return twoDWindowVec;
         
     }
+    
+    public J2DEarthPanel getNonDisplayed2DEarthPanel(int height)
+    {
+        int width = 2*height;
+        // create panel
+        J2DEarthPanel earthPanel = new J2DEarthPanel(satHash, gsHash, zoomIntoggleButton, zoomOuttoggleButton, recenterToggleButton, currentJulianDate, sun, this);  
+        // insure that the panel is the correct size and all background painting has been done
+        earthPanel.getImageMap().setSize(width,height);
+        earthPanel.setSize(width, height);
+        earthPanel.rescaleAndSetBackgroundImage();
+        // return
+        return earthPanel;
+        
+    }
 }

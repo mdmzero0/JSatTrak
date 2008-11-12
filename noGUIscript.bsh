@@ -1,5 +1,5 @@
 // Shawn E. Gano
-// 10 Nov 2008
+// 12 Nov 2008
 // example onetime run script
 
 import jsattrak.objects.*;
@@ -12,14 +12,22 @@ import java.awt.image.*;
 
 // time is auto set to current system time -- so we don't have to worry about that
 
-// REMOVE ISS!!!
-
+// REMOVE ISS!!! (it is added at the start by default)
+jsattrak.getSatHash().remove("ISS (ZARYA)             ");
 
 // add the satellite desired (use exact name specified in TLE with extra spaces if needed, total length = 24 chars)
 jsattrak.addSat2ListByName("EGP                     ");
+AbstractSatellite sat = jsattrak.satHash.get("EGP                     "); // get satellite object
 
-// get the sats current lat/lon/alt and output to a file
-AbstractSatellite sat = jsattrak.satHash.get("EGP                     ");
+// create and add a Ground station
+String gsName = "Ground Station";
+double[] lla = new double[] {47.0,8.0,1596.0}; // latitude (deg), longitude (deg), altitude (me) of ground station
+GroundStation gs = new GroundStation(gsName,lla,jsattrak.getCurrentJulianDate().getJulianDate());
+jsattrak.getGsHash().put(gsName, gs); // add the ground station
+
+//======================================================================================
+// get the sats current lat/lon/alt and output to a file ===============================
+//======================================================================================
 double lat = sat.getLatitude()*180.0/Math.PI; // deg
 double lon = sat.getLongitude()*180.0/Math.PI; // deg
 double alt = sat.getAltitude(); // meters
@@ -30,30 +38,46 @@ System.err.println("lat = " + lat);
 System.err.println("lon = " + lon);
 System.err.println("alt = " + alt);
 
-// get 2D window that is open by default
-J2DEarthPanel twoDpanel = jsattrak.getTwoDWindowVec().get(0);
+//======================================================================================
+// 2D image - setup and save to a file =================================================
+//======================================================================================
 
-// setup graphics object -- with default 588 and 294 with windows nimbus? nope takes into account GUI sizes!! arrrg!
-int width = 588; //500
-int height = 294; //250
+// image size (width = 2* height) pixels
+int height = 333; 
 
-BufferedImage buff = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB );
-Graphics g = buff.getGraphics();
+// create a 2D panel that can be used for offscreen rendering
+J2DEarthPanel earthPanel = jsattrak.getNonDisplayed2DEarthPanel(height);
 
-// make sure that the label and imagemap have the right size!!!
-// not working
-jsattrak.getTwoDWindowVec().get(0).setSize(width, height);
+// 2D drawing Options
+earthPanel.setTwoDMap("data/pixmaps/Earth_PE_b.jpg"); // change the default background (goes better with the night lights)
+earthPanel.setShowLatLonLines(false); // show or not lat/lon lines
+
+earthPanel.setDrawSun(false); // turn off standard darkness drawing
+earthPanel.setShowEarthLightsMask(true); // turn on fancy earth lights and darkness drawing (time intensive)
+
+// satellite and ground station display options
+sat.setSatColor(Color.WHITE); // color used in plotting
+gs.setStationColor(Color.GREEN);
 
 // paint image
-jsattrak.getTwoDWindowVec().get(0).getImageMap().paintComponent(g);
+BufferedImage buff = earthPanel.offScreenRender();
 
 // save image
+String fileName = "TEST"; // do not add extension
+String imageExtension = "png"; // can be png, jpg, gif -- make change on next line too
+String imagePath = ""; // absolute path (include final "/"), if blank defaults to JSatTrak root directory
 try
 {
-    File file = new File("TEST.jpg");
-    ImageIO.write(buff, "jpg", file);
+    File file = new File(imagePath+fileName+"."+imageExtension); 
+    ImageIO.write(buff, imageExtension, file);
 }
 catch(Exception e)
 {
     System.err.println("Error Saving Image:" + e.toString() );
 }
+
+//======================================================================================
+// Pass predictions and Polar Plot Generation for each Pass ============================
+//======================================================================================
+
+
