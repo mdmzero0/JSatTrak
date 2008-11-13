@@ -28,6 +28,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import javax.swing.JLabel;
 
 /**
@@ -92,7 +93,6 @@ public class JPolarPlotLabel   extends JLabel
     {
         super.paintComponent(g);  // repaints what is already on the buffer
         
-        Graphics2D g2 = (Graphics2D)g; // cast to a @D graphics object
         Dimension dim = getSize();
         int w = dim.width;
         int h = dim.height;
@@ -100,7 +100,15 @@ public class JPolarPlotLabel   extends JLabel
         // save last width/height
         lastTotalWidth = w;
         lastTotalHeight = h;
-       
+   
+        // draw plot
+        drawPolarPlot(g,w,h);
+    } // draw
+    
+    // graphics, width, height
+    private void drawPolarPlot(Graphics g, int w, int h)
+    {
+        Graphics2D g2 = (Graphics2D)g; // cast to a 2D graphics object
         
         // sent rendering options
         g2.setRenderingHints(renderHints);
@@ -264,10 +272,8 @@ public class JPolarPlotLabel   extends JLabel
         y = plotCenter[1] - (r) * Math.cos(currentAE[0] * Math.PI / 180.0);
 
         g2.fillOval((int) (x - 5), (int) (y - 5), 10, 10);
-
-
-
-    } // draw
+        
+    } // drawPolarPlot
 
     public // deg (should be evenly divisible by 180)
             double[] getCurrentAE()
@@ -375,5 +381,12 @@ public class JPolarPlotLabel   extends JLabel
     public void setDisplayNames(boolean displayNames)
     {
         this.displayNames = displayNames;
+    }
+    
+    public BufferedImage renderPolarPlotOffScreen(int width, int height)
+    {
+        BufferedImage buff = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB );
+        drawPolarPlot(buff.getGraphics(), width, height);
+        return buff;
     }
 }

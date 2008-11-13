@@ -177,7 +177,7 @@ public class JTrackingPanel extends javax.swing.JPanel
             jPolarPlotLabel.setElevConst(gs.getElevationConst());
             jPolarPlotLabel.setTimeString(timeAsString);
             jPolarPlotLabel.setGs2SatNameString(gs.getStationName().trim() + " to " + sat.getName().trim());
-
+            
             // check to see if we need to update Lead/Lag data
 // no good J2000 positions not saved through time right now in satprops  
             // see if we even need to bother - lead data option selected in both 2D and polar plot
@@ -609,6 +609,42 @@ public class JTrackingPanel extends javax.swing.JPanel
         objectChangeReset();
     }//GEN-LAST:event_satComboBoxActionPerformed
 
+    /**
+     * functions for use for scripting purposes, sets Gound Station
+     * @param gsName
+     */
+    public void setGroundStation(String gsName)
+    {
+        gsComboBox.setSelectedItem(gsName);
+    }
+    
+    /**
+     * functions for use for scripting purposes, sets Gound Station
+     * @param gsName
+     */
+    public void setGroundStation(GroundStation gs)
+    {
+        setGroundStation(gs.getStationName());
+    }
+    
+    /**
+     * functions for use for scripting purposes, sets Satellite
+     * @param gsName
+     */
+    public void setSatellite(String satName)
+    {
+        satComboBox.setSelectedItem(satName);
+    }
+    
+    /**
+     * functions for use for scripting purposes, sets Satellite
+     * @param gsName
+     */
+    public void setSatellite(AbstractSatellite sat)
+    {
+        setSatellite(sat.getName());
+    }
+    
     private void objectChangeReset()
     {
         // GUI changes needed when objects are changed
@@ -658,6 +694,11 @@ public class JTrackingPanel extends javax.swing.JPanel
 
     private void runPassPredictionButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_runPassPredictionButtonActionPerformed
     {//GEN-HEADEREND:event_runPassPredictionButtonActionPerformed
+        runPassPrediction();
+    }//GEN-LAST:event_runPassPredictionButtonActionPerformed
+
+    public void runPassPrediction()
+    {
         // get info:
         double timeSpanDays = Double.parseDouble( timeSpanTextField.getText() );
         double timeStepSec = Double.parseDouble( timeStepTextField.getText() );
@@ -871,18 +912,26 @@ public class JTrackingPanel extends javax.swing.JPanel
         
         // set first col to be small
         passTable.getColumnModel().getColumn(0).setPreferredWidth(10);
-        
-    }//GEN-LAST:event_runPassPredictionButtonActionPerformed
-
+    } // runPassPrediction
+    
     private void go2passButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_go2passButtonActionPerformed
     {//GEN-HEADEREND:event_go2passButtonActionPerformed
         // get selected row in table
         int tableRow = passTable.getSelectedRow();
+        go2pass(tableRow);
+    }//GEN-LAST:event_go2passButtonActionPerformed
+    
+    /**
+     * jumps time to the mid point of a pass
+     * @param passNumber pass number from last solution, range: 0 to N-1
+     */
+    public void go2pass(int passNumber)
+    {
         
-        if(tableRow >= 0)
+        if(passNumber >= 0)
         {
             // get # in that row
-            Integer passNum = new Integer( passTableModel.getValueAt(tableRow, 0).toString() );
+            Integer passNum = new Integer( passTableModel.getValueAt(passNumber, 0).toString() );
             
             if( passHash.containsKey(passNum) )
             {
@@ -902,8 +951,7 @@ public class JTrackingPanel extends javax.swing.JPanel
             }
         }
                 
-                
-    }//GEN-LAST:event_go2passButtonActionPerformed
+    } // go2pass
     
     // bisection method, crossing time should be bracketed by time0 and time1
     private double findSatRiseSetRoot(AbstractSatellite sat, GroundStation gs, double time0, double time1, double f0, double f1)
@@ -974,5 +1022,49 @@ public class JTrackingPanel extends javax.swing.JPanel
     private javax.swing.JTextField timeStepTextField;
     private javax.swing.JCheckBox visibleOnlyCheckBox;
     // End of variables declaration//GEN-END:variables
+ 
+    public void setTimeSpanDays(double days)
+    {
+        timeSpanTextField.setText(""+days);
+    }
+    
+    public void setTimeStepSec(double sec)
+    {
+        timeStepTextField.setText(""+sec);
+    }
+    
+    public void setVisibleOnlyFilter(boolean visibleOnly)
+    {
+        visibleOnlyCheckBox.setSelected(visibleOnly);
+    }
+
+    public Hashtable<Integer, Double> getPassHash()
+    {
+        return passHash;
+    }
+    
+    public String[][] getPredictionTableData()
+    {
+        String[][] data = new String[passTableModel.getRowCount()][passTableModel.getColumnCount()];
+        
+        for(int r = 0; r<passTableModel.getRowCount();r++)
+        {
+            for(int c = 0; c<passTableModel.getColumnCount();c++)
+            {
+                data[r][c] = passTableModel.getValueAt(r, c).toString();
+            }
+        }
+        
+        return data;
+    } // getPredictionTableData
+    
+    /**
+     * can be used in a script to have the lable rendered off screen or to set its display settings
+     * @return
+     */
+    public JPolarPlotLabel getPolarPlotLabel()
+    {
+        return jPolarPlotLabel;
+    }
     
 }

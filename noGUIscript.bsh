@@ -1,16 +1,19 @@
-// Shawn E. Gano
-// 12 Nov 2008
+// Shawn Gano
+// 13 Nov 2008
 // example onetime run script
+// to run:  java -splash:none -jar JSatTrak.jar noGUIscript.bsh
+//     or:  java -splash:none -jar JSatTrak.jar "full/path/to/noGUIscript.bsh"
 
 import jsattrak.objects.*;
 import jsattrak.gui.*;
 import javax.swing.Icon;
-import java.io.File;
+import java.io.*;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.*;
+import name.gano.file.SaveImageFile;
 
-// time is auto set to current system time -- so we don't have to worry about that
+// time is auto set to current system time -- so we don't have to worry about that (rounded to nearest second)
 
 // REMOVE ISS!!! (it is added at the start by default)
 jsattrak.getSatHash().remove("ISS (ZARYA)             ");
@@ -32,11 +35,24 @@ double lat = sat.getLatitude()*180.0/Math.PI; // deg
 double lon = sat.getLongitude()*180.0/Math.PI; // deg
 double alt = sat.getAltitude(); // meters
 
-System.err.println(sat.getName());
-System.err.println(jsattrak.getCurrentJulianDate().getDateTimeStr());
-System.err.println("lat = " + lat);
-System.err.println("lon = " + lon);
-System.err.println("alt = " + alt);
+try {
+//PrintWriter  txtWriter = new PrintWriter(new FileWriter("CurrentLLA.txt")); // file name and path of text file
+BufferedWriter txtWriter = new BufferedWriter(new FileWriter("CurrentLLA.txt"));
+
+txtWriter.write(sat.getName()); 
+txtWriter.newLine();
+txtWriter.write(jsattrak.getCurrentJulianDate().getDateTimeStr());
+txtWriter.newLine();
+txtWriter.write("" + lat);
+txtWriter.newLine();
+txtWriter.write("" + lon);
+txtWriter.newLine();
+txtWriter.write("" + alt);
+txtWriter.newLine();
+
+txtWriter.close();
+
+}catch(Exception e){ System.err.println(e.toString);}
 
 //======================================================================================
 // 2D image - setup and save to a file =================================================
@@ -64,20 +80,97 @@ BufferedImage buff = earthPanel.offScreenRender();
 
 // save image
 String fileName = "TEST"; // do not add extension
-String imageExtension = "png"; // can be png, jpg, gif -- make change on next line too
+String imageExtension = "jpg"; // can be png, jpg, gif -- make change on next line too (compression parameter only effects jpg), png looks best but is large
 String imagePath = ""; // absolute path (include final "/"), if blank defaults to JSatTrak root directory
-try
+
+File file = new File(imagePath+fileName+"."+imageExtension); 
+
+Exception e = SaveImageFile.saveImage(imageExtension, file, buff, 0.9f); // the last one is the compression quality (1=best)
+if(e != null)
 {
-    File file = new File(imagePath+fileName+"."+imageExtension); 
-    ImageIO.write(buff, imageExtension, file);
+    System.err.println("Error Saving 2D Image:" + e.toString() );
 }
-catch(Exception e)
-{
-    System.err.println("Error Saving Image:" + e.toString() );
-}
+
 
 //======================================================================================
 // Pass predictions and Polar Plot Generation for each Pass ============================
 //======================================================================================
+// open tracking tool and get its handle
+JTrackingPanel trackPanel = jsattrak.openTrackingToolSelectorWindow();
 
+// since there is only one sat and ground station they are automatically used, but to be sure and to be explicit
+trackPanel.setGroundStation(gs);
+trackPanel.setSatellite(sat);
+
+// solver settings
+trackPanel.setTimeSpanDays(10);
+trackPanel.setTimeStepSec(60);
+trackPanel.setVisibleOnlyFilter(false); // set to true if you want only visible pass results
+
+// run solver
+trackPanel.runPassPrediction();
+
+// write results to a file
+txtWriter = new BufferedWriter(new FileWriter("PassPredictions.txt"));
+
+// data[rows][column]  columns = pass number, time/date pass starts, time/date pass ends, pass durration (sec), pass type
+String[][] data = trackPanel.getPredictionTableData(); 
+try 
+{
+    for(String[] d : data)
+    {
+        for(String d2 : d)
+        {
+            txtWriter.write(d2 + "   ");
+        }
+        txtWriter.newLine();
+    }
+    txtWriter.close();
+}
+catch(Exception e){ System.err.println(e.toString);}
+
+// polar plot settings
+int polarWidth = 350;
+int polarHeight = polarWidth;
+trackPanel.getPolarPlotLabel().setDisplayTime(true);
+trackPanel.getPolarPlotLabel().setShowLeadLagData(true);
+trackPanel.getPolarPlotLabel().setDisplayNames(false);
+String polarFileName = "polar"; // do not add extension
+String polarImageExtension = "gif"; // can be png, jpg, gif -- make change on next line too (compression parameter only effects jpg)
+String polarImagePath = "polar/"; // absolute path (include final "/"), if blank defaults to JSatTrak root directory
+int maxFuturePassPlotsCreated = 5; // to save time only create this many future pass plots (set to a high number like 1000 if all plots are wanted)
+
+// get current polar plot, save to file
+buff = trackPanel.getPolarPlotLabel().renderPolarPlotOffScreen(polarWidth, polarHeight);
+
+boolean success = (new File(polarImagePath)).mkdir(); // TEMP!!  This may need to be removed not using this directory structure
+
+File polarFile = new File(polarImagePath+polarFileName+"_current."+polarImageExtension); 
+Exception e = SaveImageFile.saveImage(polarImageExtension, polarFile, buff, 0.9f); // the last one is the compression quality (1=best)
+if(e != null)
+{
+    System.err.println("Error Saving polar Image:" + e.toString() );
+}
+
+// run through all passes and save polar plot
+// Careful files are appended with the pass number not the pass count, this might be different if visible pass filter is used
+int passCount = 0;
+for(String[] d : data) // for each row of pass data
+{
+    trackPanel.go2pass(passCount); // changes sim time to be the mid point of pass
+    buff = trackPanel.getPolarPlotLabel().renderPolarPlotOffScreen(polarWidth, polarHeight); // render image
+    // save image
+    polarFile = new File(polarImagePath+polarFileName+"_pass"+d[0].toString()+"."+polarImageExtension); 
+    Exception e = SaveImageFile.saveImage(polarImageExtension, polarFile, buff, 0.9f); // the last one is the compression quality (1=best)
+    if(e != null)
+    {
+        System.err.println("Error Saving polar Image:" + e.toString() );
+    }
+    passCount++;
+    
+    if(passCount >= maxFuturePassPlotsCreated)
+    {
+        break;
+    }
+}
 

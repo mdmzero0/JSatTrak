@@ -224,7 +224,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
     int threeDWindowCount = 0; // running count (for naming)
     
     // Tracking Tool Dialogs
-    Vector<JTrackingPanel> trackingWindowVec = new Vector<JTrackingPanel>();
+    private Vector<JTrackingPanel> trackingWindowVec = new Vector<JTrackingPanel>();
     
     // sat panel - show list of satellites
     JObjectListPanel objListPanel;
@@ -2293,7 +2293,7 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
      diag.setVisible(true);
 }//GEN-LAST:event_lookFeelMenuItemActionPerformed
     
-    public void openTrackingToolSelectorWindow()
+    public JTrackingPanel openTrackingToolSelectorWindow()
     {
         // show satellite browser window
         //JTrackingToolSelector trackingBrowser = new JTrackingToolSelector(satHash, gsHash, this); // non-modal version
@@ -2323,6 +2323,7 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         catch (java.beans.PropertyVetoException e)
         {}
         
+        return trackingBrowser;
         
     } // openTrackingToolSelectorWindow
     
