@@ -25,7 +25,6 @@
  * when building for distrbution include these directories:
  *  data/
  *  plugins/
- *  WorldWindData/
  *  and for windows use launch4j to make .exe and include in the root: gluegen-rt.dll, jogl.dll, jogl_awt.dll, jogl_cg.dll
  * 
  * Using the license feature in netbeans: (use template file: license-JSatTrak.txt)
@@ -91,9 +90,7 @@
  *                                  - Launch Vehicle "Simple Ascent" (or missile - Ballistic) 
  *                                  - Orbit Dertermination tool
  *                                  - track aircraft? (does this mean I need to rename the app?)
- * 
- * 
- *          
+ *        
  */
 // notes: not good to use rk78 in a solver loop because direvatives inaccurate, because solution changes slightly near end.?
 //
