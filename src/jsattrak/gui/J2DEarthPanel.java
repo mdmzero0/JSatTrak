@@ -253,7 +253,10 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
         popup.setBorder(new BevelBorder(BevelBorder.RAISED));
         popup.addPopupMenuListener(new PopupPrintListener());
         
-        addMouseListener(new MousePopupListener());
+        MousePopupListener MouseHandler = new MousePopupListener();
+        addMouseListener(MouseHandler);
+        addMouseMotionListener(MouseHandler);
+        addMouseWheelListener(MouseHandler);
                 
     } // ini Object
     
@@ -741,6 +744,8 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
 //  An inner class to check whether mouse events are the popup trigger
     class MousePopupListener extends MouseAdapter
     {
+        double[] prevll = { Double.NaN , Double.NaN };
+
         public void mousePressed(MouseEvent e)
         {
             checkPopup(e);
@@ -853,6 +858,68 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
         public void mouseReleased(MouseEvent e)
         {
             checkPopup(e);
+
+            prevll[0] = Double.NaN;
+            prevll[1] = Double.NaN;
+        }
+
+        public void mouseDragged(MouseEvent e)
+        {
+            // acquire new lat and long
+            double[] ll =  imageMap.findLLfromXY(e.getX(), e.getY(), imageMap.getLastTotalWidth(), imageMap.getLastTotalHeight(), imageMap.getImageWidth(), imageMap.getImageHeight());
+
+            // shift to new lat and long
+            if( Double.isNaN(prevll[0]) || Double.isNaN(prevll[1]) )
+            {
+                prevll = ll;
+            }
+            else
+            {
+                imageMap.setShiftLat( prevll[0] - ll[0] );
+                imageMap.setShiftLong( prevll[1] - ll[1] );
+            }
+
+            // rescale
+            rescaleAndSetBackgroundImage();
+        }
+
+        public void mouseWheelMoved(MouseWheelEvent e)
+        {
+            // get lat/long click first before setting new zoom factor
+            double[] ll =  imageMap.findLLfromXY(e.getX(), e.getY(), imageMap.getLastTotalWidth(), imageMap.getLastTotalHeight(), imageMap.getImageWidth(), imageMap.getImageHeight());
+            if( e.getWheelRotation() > 0 )
+            {
+                // new zoom factor
+                double newZoomFactor = imageMap.getZoomFactor()*imageMap.getZoomIncrementMultiplier();
+                //newZoomFactor = Math.round(newZoomFactor*100.0)/100.0;
+                imageMap.setZoomFactor( newZoomFactor );
+                //System.out.println("Zoom Factor: " + newZoomFactor);
+
+                // set center lat / long where clicked
+                imageMap.setCenterLat(ll[0]);
+                imageMap.setCenterLong(ll[1]);
+            }   // Image zoom in
+            else
+            {
+                double newZoomFactor =  imageMap.getZoomFactor()/imageMap.getZoomIncrementMultiplier();
+                imageMap.setZoomFactor( newZoomFactor );
+
+                if(imageMap.getZoomFactor() <= 1.00001) // don't let it be less than 1
+                {
+                    imageMap.setZoomFactor(1.0);
+
+                    // reset center lat/long to 0.0 -- recenter image
+                    imageMap.setCenterLat(0.0);
+                    imageMap.setCenterLong(0.0);
+                }
+                else
+                {
+                    // set center lat / long where clicked
+                    imageMap.setCenterLat(ll[0]);
+                    imageMap.setCenterLong(ll[1]);
+                }
+            }   // Image zoom out
+            rescaleAndSetBackgroundImage();
         }
         
         private void checkPopup(MouseEvent e)

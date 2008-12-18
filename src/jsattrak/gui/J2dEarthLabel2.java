@@ -1578,7 +1578,12 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
     {
         this.centerLat = centerLat;
     }
-    
+
+    public void setShiftLat(double shiftLat)
+    {
+        this.centerLat += shiftLat;
+    }
+
     public double getCenterLong()
     {
         return centerLong;
@@ -1588,7 +1593,12 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
     {
         this.centerLong = centerLong;
     }
-    
+
+    public void setShiftLong(double shiftLong)
+    {
+        this.centerLong += shiftLong;
+    }
+
     public double getZoomFactor()
     {
         return zoomFactor;
