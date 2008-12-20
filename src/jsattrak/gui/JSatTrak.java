@@ -82,7 +82,8 @@
  *                                 Added app look and feel chooser to the help menu
  *                                  "C:\Documents and Settings\sgano\Desktop\JSatTrak\JSatTrak\noGUIscript.bsh"
  *                              KNOWN ISSUE:  Stored satellites reference Name this may not be unique (and many cases it isn't)! Need to store it by NORAD ID or if a custom sat some other ID
- *                  
+ *          3.?   - Marvin joined team - started in on UI improvements drag of 2D zoomed in map, mouse wheel zoom (18 Dec 2008)
+ *
  *                              Ideas for next versions: (no particular order)
  *                                  - 3D "Earth Night Lights" mask / 1/2 sphere transparent night shell
  *                                  - Add Objects (Abstract Satellites) like Moon, Sun, Panets maybe (can set view to center on them as well)?
