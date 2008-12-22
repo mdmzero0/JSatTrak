@@ -83,6 +83,7 @@ public class SaveImageFile
             writer.setOutput(output);
             IIOImage image = new IIOImage(buff, null, null);
             writer.write(null, image, iwp);
+            output.close(); // Fixed SEG - 22 Dec 2008
         }
         catch(Exception e)
         {
