@@ -82,7 +82,8 @@
  *                                 Added app look and feel chooser to the help menu
  *                                  "C:\Documents and Settings\sgano\Desktop\JSatTrak\JSatTrak\noGUIscript.bsh"
  *                              KNOWN ISSUE:  Stored satellites reference Name this may not be unique (and many cases it isn't)! Need to store it by NORAD ID or if a custom sat some other ID
- *          3.?   - Marvin joined team - started in on UI improvements drag of 2D zoomed in map, mouse wheel zoom (18 Dec 2008)
+ *          3.6.1 22 Dec 2008  - Marvin joined team - started in on UI improvements drag of 2D zoomed in map, mouse wheel zoom (18 Dec 2008)
+ *                    Better compression settings for JPG screenshots and movie creation (22 Dec 2008 - SEG)
  *
  *                              Ideas for next versions: (no particular order)
  *                                  - 3D "Earth Night Lights" mask / 1/2 sphere transparent night shell
@@ -161,7 +162,6 @@ import java.util.GregorianCalendar;
 import java.util.Hashtable;
 import java.util.TimeZone;
 import java.util.Vector;
-import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.JDesktopPane;
@@ -194,6 +194,7 @@ import name.gano.astro.bodies.Sun;
 import name.gano.astro.time.Time;
 import jsattrak.utilities.TLEDownloader;
 import name.gano.file.FileTypeFilter;
+import name.gano.file.SaveImageFile;
 
 /**
  *
@@ -201,7 +202,7 @@ import name.gano.file.FileTypeFilter;
  */
 public class JSatTrak extends javax.swing.JFrame implements InternalFrameListener, WindowListener, Serializable
 {
-    private String versionString = "Version 3.6.0 (13 November 2008)"; // Version of app
+    private String versionString = "Version 3.6.1 (22 Dec 2008)"; // Version of app
     
     // hastable to store all the statelites currently being processed
     private Hashtable<String,AbstractSatellite> satHash = new Hashtable<String,AbstractSatellite>();
@@ -2778,8 +2779,17 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
                 //addMessagetoLog("Screenshot saved: " + file.getAbsolutePath());
                 // save file
                 //File file = new File("screencapture.png");
-                ImageIO.write(screencapture, fileExtension, file);
+                //ImageIO.write(screencapture, fileExtension, file); // old way
                 //System.out.println("Saved!" + fileExtension );
+
+                // new way to save file -- better compression for jpg
+                Exception e = SaveImageFile.saveImage(fileExtension, file, screencapture, 0.9f); // the last one is the compression quality (1=best)
+                if(e != null)
+                {
+                    System.out.println("ERROR SCREEN CAPTURE:" + e.toString());
+                    JOptionPane.showInternalMessageDialog(mainDesktopPane,"ERROR SCREEN CAPTURE:" + e.toString(),"ERROR",JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
                 
             }
             else
@@ -2792,7 +2802,7 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
     	catch(Exception e4)
     	{
     		System.out.println("ERROR SCREEN CAPTURE:" + e4.toString());
-                JOptionPane.showInternalMessageDialog(mainDesktopPane,"ERROR SCREEN CAPTURE:" + e4.toString(),"ERROR",JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showInternalMessageDialog(mainDesktopPane,"ERROR SCREEN CAPTURE:" + e4.toString(),"ERROR",JOptionPane.ERROR_MESSAGE);
     	}
     } // createScreenCapture
     

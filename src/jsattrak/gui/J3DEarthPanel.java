@@ -85,6 +85,7 @@ import jsattrak.objects.AbstractSatellite;
 import jsattrak.utilities.ECEFModelRenderable;
 import jsattrak.utilities.J3DEarthComponent;
 import jsattrak.utilities.OrbitModelRenderable;
+import name.gano.file.SaveImageFile;
 import name.gano.swingx.fullscreen.ToggleFullscreen;
 import name.gano.worldwind.layers.Earth.CoverageRenderableLayer;
 import name.gano.worldwind.layers.Earth.ECEFRenderableLayer;
@@ -1129,8 +1130,15 @@ private void fullScreenButtonActionPerformed(java.awt.event.ActionEvent evt) {//
                 //addMessagetoLog("Screenshot saved: " + file.getAbsolutePath());
                 // save file
                 //File file = new File("screencapture.png");
-                ImageIO.write(screencapture, fileExtension, file);
-            //System.out.println("Saved!" + fileExtension );
+                //ImageIO.write(screencapture, fileExtension, file); // old way
+                //System.out.println("Saved!" + fileExtension );
+                // new way---
+                Exception e = SaveImageFile.saveImage(fileExtension, file, screencapture, 0.9f); // the last one is the compression quality (1=best)
+                if(e != null)
+                {
+                    System.out.println("ERROR SCREEN CAPTURE:" + e.toString());
+                    return;
+                }
 
             }
             else

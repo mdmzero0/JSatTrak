@@ -47,6 +47,7 @@ import javax.swing.SwingWorker;
 import jsattrak.utilities.J3DEarthComponent;
 import jsattrak.utilities.JpegImagesToMovie;
 import name.gano.astro.time.Time;
+import name.gano.file.SaveImageFile;
 
 /**
  *
@@ -807,7 +808,14 @@ public class JCreateMovieDialog extends javax.swing.JDialog
             File file = new File(outputFileName);
             
             // save file
-            ImageIO.write(screencapture, fileExtension, file);
+            //ImageIO.write(screencapture, fileExtension, file); // old way
+            // new way - SEG - though fixed JPG compression (may want this to be an option)
+            Exception e = SaveImageFile.saveImage(fileExtension, file, screencapture, 0.9f); // the last one is the compression quality (1=best)
+            if(e != null)
+            {
+                System.out.println("ERROR SCREEN CAPTURE:" + e.toString());
+                return;
+            }
 
 
         }
