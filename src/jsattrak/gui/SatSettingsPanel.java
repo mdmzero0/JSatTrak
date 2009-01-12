@@ -24,7 +24,6 @@
 
 package jsattrak.gui;
 
-import jsattrak.objects.SatelliteTleSGP4;
 import java.awt.Color;
 import java.io.File;
 import javax.swing.JColorChooser;
@@ -32,7 +31,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JInternalFrame;
 import jsattrak.objects.AbstractSatellite;
 import jsattrak.objects.CustomSatellite;
-import jsattrak.utilities.ImageFilter;
+import jsattrak.utilities.CustomFileFilter;
 import jsattrak.utilities.RelativePath;
 
 /**
@@ -56,7 +55,7 @@ public class SatSettingsPanel extends javax.swing.JPanel implements java.io.Seri
         initComponents();
         
         // won't work - dummy
-        satProps = new SatelliteTleSGP4("test","1","2");
+        //satProps = new SatelliteTleSGP4("test","1","2");
     }
     
     // constructor to pass SatelliteProps object
@@ -672,8 +671,8 @@ private void browseModelButtonActionPerformed(java.awt.event.ActionEvent evt) {/
     String userDir = System.getProperty("user.dir"); // path java was run from
     
     final JFileChooser fc = new JFileChooser(localPath);
-    ImageFilter xmlFilter = new ImageFilter("3ds", "*.3ds");
-    ImageFilter xmlFilter2 = new ImageFilter("obj", "*.obj");
+    CustomFileFilter xmlFilter = new CustomFileFilter("3ds", "*.3ds");
+    CustomFileFilter xmlFilter2 = new CustomFileFilter("obj", "*.obj");
     
     fc.addChoosableFileFilter(xmlFilter2);
     fc.addChoosableFileFilter(xmlFilter); // load last so 3ds is prefered

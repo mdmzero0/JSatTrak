@@ -109,8 +109,8 @@ public class JSatBrowser extends javax.swing.JDialog implements java.io.Serializ
             }
             //System.out.println("trys:"+ i);
         } // wait for thread if needed
-        
-    
+
+
     } // constructor
     
 
@@ -125,33 +125,23 @@ public class JSatBrowser extends javax.swing.JDialog implements java.io.Serializ
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        outsidePanel = new javax.swing.JPanel();
+        mainPanel = new javax.swing.JPanel();
+        jPanel1 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        satTree = new javax.swing.JTree();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
         tleOutputTextArea = new javax.swing.JTextArea();
-        jPanel3 = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        satTree = new javax.swing.JTree();
-        customSatButton = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        jMenuItem1 = new javax.swing.JMenuItem();
+        jMenuItem2 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Satellite Browser");
 
-        tleOutputTextArea.setColumns(20);
-        tleOutputTextArea.setRows(5);
-        tleOutputTextArea.setToolTipText("Satellite TLE");
-        jScrollPane3.setViewportView(tleOutputTextArea);
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE)
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 62, Short.MAX_VALUE)
-        );
+        outsidePanel.setLayout(new java.awt.BorderLayout());
 
         satTree.setToolTipText("Drag Satellite(s) over to Satellite List");
         satTree.setDragEnabled(true);
@@ -162,50 +152,70 @@ public class JSatBrowser extends javax.swing.JDialog implements java.io.Serializ
         });
         jScrollPane1.setViewportView(satTree);
 
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE)
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 283, Short.MAX_VALUE)
         );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 277, Short.MAX_VALUE)
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 346, Short.MAX_VALUE)
         );
 
-        customSatButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/custom/sat_icon_cst.png"))); // NOI18N
-        customSatButton.setToolTipText("Create a Custom Propogated Satellite");
-        customSatButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                customSatButtonActionPerformed(evt);
-            }
-        });
+        tleOutputTextArea.setColumns(20);
+        tleOutputTextArea.setRows(5);
+        tleOutputTextArea.setToolTipText("Satellite TLE");
+        jScrollPane3.setViewportView(tleOutputTextArea);
 
-        jLabel1.setFont(new java.awt.Font("Arial", 1, 18));
-        jLabel1.setText("Satellite Browser");
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 60, Short.MAX_VALUE)
-                .addComponent(customSatButton))
-            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 283, Short.MAX_VALUE)
         );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(customSatButton))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 60, Short.MAX_VALUE)
+        );
+
+        javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
+        mainPanel.setLayout(mainPanelLayout);
+        mainPanelLayout.setHorizontalGroup(
+            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        mainPanelLayout.setVerticalGroup(
+            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, mainPanelLayout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
+
+        outsidePanel.add(mainPanel, java.awt.BorderLayout.CENTER);
+
+        getContentPane().add(outsidePanel, java.awt.BorderLayout.CENTER);
+
+        jMenu1.setText("Options");
+        jMenu1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenu1ActionPerformed(evt);
+            }
+        });
+
+        jMenuItem1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/gnome_2_18/folder-open.png"))); // NOI18N
+        jMenuItem1.setText("Load Custom TLE File");
+        jMenu1.add(jMenuItem1);
+
+        jMenuItem2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/custom/sat_icon_cst.png"))); // NOI18N
+        jMenuItem2.setText("Create a Custom Satellite");
+        jMenu1.add(jMenuItem2);
+
+        jMenuBar1.add(jMenu1);
+
+        setJMenuBar(jMenuBar1);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -230,9 +240,10 @@ public class JSatBrowser extends javax.swing.JDialog implements java.io.Serializ
 
     }//GEN-LAST:event_satTreeValueChanged
 
-private void customSatButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customSatButtonActionPerformed
-   app.addCustomSat(); // start custom sat dialog
-}//GEN-LAST:event_customSatButtonActionPerformed
+private void jMenu1ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jMenu1ActionPerformed
+{//GEN-HEADEREND:event_jMenu1ActionPerformed
+    app.addCustomSat(); // start custom sat dialog
+}//GEN-LAST:event_jMenu1ActionPerformed
     
 //    /**
 //     * @param args the command line arguments
@@ -254,12 +265,16 @@ private void customSatButtonActionPerformed(java.awt.event.ActionEvent evt) {//G
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton customSatButton;
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JPanel mainPanel;
+    private javax.swing.JPanel outsidePanel;
     private javax.swing.JTree satTree;
     private javax.swing.JTextArea tleOutputTextArea;
     // End of variables declaration//GEN-END:variables

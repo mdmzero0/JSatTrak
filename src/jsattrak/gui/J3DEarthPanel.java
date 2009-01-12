@@ -1093,9 +1093,9 @@ private void fullScreenButtonActionPerformed(java.awt.event.ActionEvent evt) {//
 
             //    	Create a file chooser
             final JFileChooser fc = new JFileChooser();
-            jsattrak.utilities.ImageFilter pngFilter = new jsattrak.utilities.ImageFilter("png", "*.png");
+            jsattrak.utilities.CustomFileFilter pngFilter = new jsattrak.utilities.CustomFileFilter("png", "*.png");
             fc.addChoosableFileFilter(pngFilter);
-            jsattrak.utilities.ImageFilter jpgFilter = new jsattrak.utilities.ImageFilter("jpg", "*.jpg");
+            jsattrak.utilities.CustomFileFilter jpgFilter = new jsattrak.utilities.CustomFileFilter("jpg", "*.jpg");
             fc.addChoosableFileFilter(jpgFilter);
             
             fc.setDialogTitle("Save Screenshot");

@@ -105,8 +105,9 @@ public class SatelliteTleSGP4 extends AbstractSatellite
      * @param name name of satellite
      * @param tleLine1 first line of two line element
      * @param tleLine2 second line of two line element
+     * @throws Exception if TLE data is bad
      */
-    public SatelliteTleSGP4(String name, String tleLine1, String tleLine2)
+    public SatelliteTleSGP4(String name, String tleLine1, String tleLine2) throws Exception
     {
         // create internal TLE object
         tle = new TLE(name,tleLine1,tleLine2);
@@ -141,8 +142,9 @@ public class SatelliteTleSGP4 extends AbstractSatellite
         }
         catch(Exception e)
         {
-            JOptionPane.showMessageDialog(null, "Error Reading TLE from Satellite: " + name);
-            e.printStackTrace();
+            //JOptionPane.showMessageDialog(null, "Error Reading TLE from Satellite: " + name);
+            //e.printStackTrace();
+            throw e;
         }
     }
     

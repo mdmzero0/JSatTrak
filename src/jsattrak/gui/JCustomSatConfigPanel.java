@@ -40,7 +40,7 @@ import jsattrak.customsat.SolverNode;
 import jsattrak.customsat.StopNode;
 import jsattrak.customsat.swingworker.MissionDesignPropagator;
 import jsattrak.objects.CustomSatellite;
-import jsattrak.utilities.ImageFilter;
+import jsattrak.utilities.CustomFileFilter;
 import jsattrak.utilities.StateVector;
 import name.gano.astro.AstroConst;
 import name.gano.astro.time.Time;
@@ -666,7 +666,7 @@ public class JCustomSatConfigPanel extends javax.swing.JPanel
 
         // open a save as dialog to save the file .e extension (default to file saved dir)
         final JFileChooser fc = new JFileChooser(app.getFileSaveAs());
-        ImageFilter xmlFilter = new ImageFilter("e", "*.e (STK Ephemeris Format)");
+        CustomFileFilter xmlFilter = new CustomFileFilter("e", "*.e (STK Ephemeris Format)");
         fc.addChoosableFileFilter(xmlFilter);
 
         int returnVal = fc.showSaveDialog(app);

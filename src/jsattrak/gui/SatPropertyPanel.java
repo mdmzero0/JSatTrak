@@ -24,7 +24,6 @@
 
 package jsattrak.gui;
 
-import jsattrak.objects.SatelliteTleSGP4;
 import javax.swing.table.DefaultTableModel;
 import jsattrak.objects.AbstractSatellite;
 
@@ -46,11 +45,11 @@ public class SatPropertyPanel extends javax.swing.JPanel implements java.io.Seri
     {
         initComponents();
         
-        // will not work correctly
-        satProp = new SatelliteTleSGP4("Test","1","2");
-        
-        // get table model
-        propTableModel = (DefaultTableModel)satPropertyTable.getModel();
+//        // will not work correctly
+//        satProp = new SatelliteTleSGP4("Test","1","2");
+//
+//        // get table model
+//        propTableModel = (DefaultTableModel)satPropertyTable.getModel();
         
     }
     

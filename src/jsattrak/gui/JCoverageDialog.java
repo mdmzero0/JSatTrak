@@ -25,7 +25,7 @@ import jsattrak.coverage.CoverageAnalyzer;
 import jsattrak.coverage.GrayColorMap;
 import jsattrak.coverage.HotColorMap;
 import jsattrak.objects.AbstractSatellite;
-import jsattrak.utilities.ImageFilter;
+import jsattrak.utilities.CustomFileFilter;
 import jsattrak.utilities.UnoptimizedDeepCopy;
 import name.gano.astro.time.Time;
 
@@ -1012,7 +1012,7 @@ private void refreshButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN
 private void exportDataButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportDataButtonActionPerformed
     // popup file chooser .dat
         final JFileChooser fc = new JFileChooser(app.getFileSaveAs());
-        ImageFilter xmlFilter = new ImageFilter("dat","*.dat");
+        CustomFileFilter xmlFilter = new CustomFileFilter("dat","*.dat");
         fc.addChoosableFileFilter(xmlFilter);
         
         int returnVal = fc.showSaveDialog(this);

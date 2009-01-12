@@ -84,7 +84,8 @@
  *                              KNOWN ISSUE:  Stored satellites reference Name this may not be unique (and many cases it isn't)! Need to store it by NORAD ID or if a custom sat some other ID
  *          3.6.1 22 Dec 2008  - Marvin joined team - started in on UI improvements drag of 2D zoomed in map, mouse wheel zoom (18 Dec 2008)
  *                    Better compression settings for JPG screenshots and movie creation (22 Dec 2008 - SEG)
- *
+ *          3.6.2 11 Jan 2009 -- added a menu to the satellite browser - to load custom satellite TLE data, and create a custom sat
+ * 
  *                              Ideas for next versions: (no particular order)
  *                                  - 3D "Earth Night Lights" mask / 1/2 sphere transparent night shell
  *                                  - Add Objects (Abstract Satellites) like Moon, Sun, Panets maybe (can set view to center on them as well)?
@@ -183,7 +184,7 @@ import jsattrak.objects.AbstractSatellite;
 import jsattrak.objects.CustomSatellite;
 import jsattrak.objects.SatelliteTleSGP4;
 import jsattrak.utilities.ConsoleDialog;
-import jsattrak.utilities.ImageFilter;
+import jsattrak.utilities.CustomFileFilter;
 import jsattrak.utilities.J2DEarthPanelSave;
 import jsattrak.utilities.J3DEarthComponent;
 import jsattrak.utilities.J3DEarthlPanelSave;
@@ -202,7 +203,7 @@ import name.gano.file.SaveImageFile;
  */
 public class JSatTrak extends javax.swing.JFrame implements InternalFrameListener, WindowListener, Serializable
 {
-    private String versionString = "Version 3.6.1 (22 Dec 2008)"; // Version of app
+    private String versionString = "Version 3.6.2 (11 Jan 2009)"; // Version of app
     
     // hastable to store all the statelites currently being processed
     private Hashtable<String,AbstractSatellite> satHash = new Hashtable<String,AbstractSatellite>();
@@ -2061,18 +2062,24 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
     
     public void showSatBrowserInternalFrame()
     {
-        // show satellite browser window
-        JSatBrowser satBrowser = new JSatBrowser(this, false, this); // non-modal version
-        
-        //satBrowser.setVisible(true); // show window
-        
+//        // show satellite browser window
+//        JSatBrowser satBrowser = new JSatBrowser(this, false, this); // non-modal version
+//
+//        // create new internal frame window
+//        String windowName = "Satellite Browser";
+//        JInternalFrame iframe = new JInternalFrame(windowName,true,true,true,true);
+//
+//        iframe.setContentPane( satBrowser.getContentPane() );
+//
+//        if(satBrowser.getJMenuBar() != null)
+//        {
+//            iframe.setJMenuBar(satBrowser.getJMenuBar()); // get menu bar too! (if there is one)
+//        }
 
-        // create new internal frame window
-        String windowName = "Satellite Browser";
-        JInternalFrame iframe = new JInternalFrame(windowName,true,true,true,true);
-        
-        iframe.setContentPane( satBrowser.getContentPane() );
-        iframe.setSize(261,380); // w,h
+        // NEW WAY
+       JInternalFrame iframe = new JSatBrowserInternalFrame(this, this);
+
+        iframe.setSize(261,450); // w,h
         iframe.setLocation(5,5);
         
         // add close action listener -- to remove window from hash
@@ -2660,10 +2667,17 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
          if(newTLE != null)
          {
             // make sat prop object and add it to the list
-            SatelliteTleSGP4 prop = new SatelliteTleSGP4(newTLE.getSatName(), newTLE.getLine1(), newTLE.getLine2());
+             try
+             {
+                SatelliteTleSGP4 prop = new SatelliteTleSGP4(newTLE.getSatName(), newTLE.getLine1(), newTLE.getLine2());
             
-            // add sat to list
-            objListPanel.addSat2List(prop);
+                // add sat to list
+                objListPanel.addSat2List(prop);
+             }
+             catch(Exception e)
+             {
+                // do nothing just ignore the bad satellite trying to be added (and don't add it)
+             }
          }
          
     } // addSat2ListByName
@@ -2744,9 +2758,9 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
             
             //    	Create a file chooser
             final JFileChooser fc = new JFileChooser();
-            jsattrak.utilities.ImageFilter pngFilter = new jsattrak.utilities.ImageFilter("png","*.png");
+            jsattrak.utilities.CustomFileFilter pngFilter = new jsattrak.utilities.CustomFileFilter("png","*.png");
             fc.addChoosableFileFilter(pngFilter);
-            jsattrak.utilities.ImageFilter jpgFilter = new jsattrak.utilities.ImageFilter("jpg","*.jpg");
+            jsattrak.utilities.CustomFileFilter jpgFilter = new jsattrak.utilities.CustomFileFilter("jpg","*.jpg");
             fc.addChoosableFileFilter(jpgFilter);
             int returnVal = fc.showSaveDialog(this);
             
@@ -3014,7 +3028,7 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
 //        }
         
     	final JFileChooser fc = new JFileChooser(getFileSaveAs());
-    	ImageFilter xmlFilter = new ImageFilter("jst","*.jst");
+    	CustomFileFilter xmlFilter = new CustomFileFilter("jst","*.jst");
     	fc.addChoosableFileFilter(xmlFilter);
 
     	int returnVal = fc.showOpenDialog(this);
@@ -3198,7 +3212,7 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
     public void saveAppAs()
     {
         final JFileChooser fc = new JFileChooser(getFileSaveAs());
-        ImageFilter xmlFilter = new ImageFilter("jst","*.jst");
+        CustomFileFilter xmlFilter = new CustomFileFilter("jst","*.jst");
         fc.addChoosableFileFilter(xmlFilter);
         
         int returnVal = fc.showSaveDialog(this);

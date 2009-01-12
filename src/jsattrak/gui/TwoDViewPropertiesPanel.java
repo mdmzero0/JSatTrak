@@ -30,7 +30,7 @@ import java.io.File;
 import javax.swing.JColorChooser;
 import javax.swing.JFileChooser;
 import javax.swing.JInternalFrame;
-import jsattrak.utilities.ImageFilter;
+import jsattrak.utilities.CustomFileFilter;
 import jsattrak.utilities.RelativePath;
 
 /**

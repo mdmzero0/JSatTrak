@@ -33,12 +33,18 @@ import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Hashtable;
+import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.SwingWorker;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 
 /**
  *
@@ -59,6 +65,10 @@ public class SatBrowserTleDataLoader extends SwingWorker
     Frame parentComponent;
     JTextArea tleOutputTextArea;
     JTree satTree;
+
+    // node hash
+    Hashtable<String,DefaultMutableTreeNode> mainNodesHash;
+    Hashtable<String,DefaultMutableTreeNode> secondaryNodesHash;
     
     
     /** Creates a new instance of ProgressBarWorker
@@ -79,6 +89,11 @@ public class SatBrowserTleDataLoader extends SwingWorker
     }
     
 
+    /**
+     * 
+     * @return
+     */
+    @Override
     public Boolean doInBackground()
     {
         boolean result = true;
@@ -91,7 +106,8 @@ public class SatBrowserTleDataLoader extends SwingWorker
         TLEDownloader tleDownloader = new TLEDownloader();
         
         // create a hashmap of top level nodes
-        Hashtable<String,DefaultMutableTreeNode> mainNodesHash = new Hashtable<String,DefaultMutableTreeNode>();
+        mainNodesHash = new Hashtable<String,DefaultMutableTreeNode>();
+        secondaryNodesHash = new Hashtable<String,DefaultMutableTreeNode>();
     
         // iterate for each primary category, only create node when it is different than item before
         
@@ -171,7 +187,7 @@ public class SatBrowserTleDataLoader extends SwingWorker
             // okay, now add a new secondary node to the main node (assume it is not already there, files are uniquly named)
             currentSecondaryNode = new DefaultMutableTreeNode(tleDownloader.secondCat[i]);
             currentMainNode.add(currentSecondaryNode);
-            
+            secondaryNodesHash.put(tleDownloader.secondCat[i],currentSecondaryNode); // save to keep track
             
                         
             // now parse through the textfile and create a TLE for each entry
@@ -267,11 +283,189 @@ public class SatBrowserTleDataLoader extends SwingWorker
         
     }
     
-    
-    
     public void setProg(int percent)
     {
         jProgDialog.setProgress(percent);
     }
+
+
+    // =========================================================
+
+    // SEG - 11 Jan 2009 - so custom files can be loaded
+    /**
+     * loads a given file and adds the TLE's to the sat Browser
+     * @param tleFile file containing TLE's (3line format, (1) name, (2) TLE line 1 (3) line 2
+     * @param primaryCategory Primary list category to display the satellites under
+     * @param secondaryCategory secondary category to display the satellites under (can be null)
+     * @return if loading of TLE file was successful
+     */
+    public Boolean loadTLEDataFile(File tleFile, String primaryCategory, String secondaryCategory)
+    {
+        boolean result = true;
+        int newSatCount = 0;
+
+        // current TLE
+        TLE currentTLE = null;
+
+        // Assumes each satellite TLE has a unique name
+//        for (int i = 0; i < tleDownloader.fileNames.length; i++)
+//        {
+
+        DefaultMutableTreeNode currentMainNode = topTreeNode;
+        DefaultMutableTreeNode currentSecondaryNode;
+
+            // see if the primary category exisits
+            if (mainNodesHash.containsKey(primaryCategory))
+            {
+                // do not add another main, get the already exisiting node
+                currentMainNode = mainNodesHash.get(primaryCategory);
+            }
+            else
+            {
+                // create a new main node and add it to the hashmap
+                currentMainNode = new DefaultMutableTreeNode(primaryCategory);
+                mainNodesHash.put(primaryCategory, currentMainNode);
+                // add node to the top node
+                topTreeNode.add(currentMainNode);
+            }
+
+
+            // see if the secondary category exisits
+        if(secondaryCategory != null)
+        {
+            if (secondaryNodesHash.containsKey(secondaryCategory))
+            {
+                // do not add another main, get the already exisiting node
+                currentSecondaryNode = secondaryNodesHash.get(secondaryCategory);
+            }
+            else
+            {
+                // create a new main node and add it to the hashmap
+                currentSecondaryNode = new DefaultMutableTreeNode(secondaryCategory);
+                secondaryNodesHash.put(secondaryCategory, currentSecondaryNode);
+                // add node to the top node
+                currentMainNode.add(currentSecondaryNode);
+            }
+        }
+        else // secondary categort is null
+        {
+            currentSecondaryNode = currentMainNode; // just point to main node
+        }
+
+
+
+
+            // now parse through the textfile and create a TLE for each entry
+            // add each TLE to the hashmap and to the JTree
+            try
+            {
+                BufferedReader tleReader = null; // initalization of reader (either local or web)
+
+//                if (!loadTLEfromWeb)
+//                {
+                    // read local file
+                    //File tleFile = new File(tleDownloader.getTleFilePath(i));
+                    FileReader tleFileReader = new FileReader(tleFile);
+                    tleReader = new BufferedReader(tleFileReader); // from local file
+//                }
+//                else
+//                {
+//                    // does this work??
+//                    if (!dialog.isVisible()) // if progress bar is close cancel this operation
+//                    {
+//                        result = false;
+//                        return new Boolean(result);
+//                    }
+//
+//                    // read from web
+//                    URL url = new URL(tleDownloader.getTleWebPath(i));
+//                    URLConnection c = url.openConnection();
+//                    InputStreamReader isr = new InputStreamReader(c.getInputStream());
+//                    tleReader = new BufferedReader(isr); // from the web
+//
+//                    // update progress?
+//                    dialog.setProgress((int) Math.round((i * 100.0) / tleDownloader.fileNames.length));
+//                    dialog.repaint();
+//                    dialog.setStatusText(tleDownloader.fileNames[i]);
+//
+//
+//
+//                }
+
+
+
+                String nextLine = null;
+
+                while ((nextLine = tleReader.readLine()) != null)
+                {
+                    // needs three lines
+                    currentTLE = new TLE(nextLine, tleReader.readLine(), tleReader.readLine());
+
+                    // save TLE
+                    tleHash.put(currentTLE.getSatName(), currentTLE);
+
+                    // add to tree
+                    currentSecondaryNode.add(new DefaultMutableTreeNode(currentTLE.getSatName()));
+
+                    newSatCount++;
+                }// while there are more lines to read
+
+            }
+            catch (Exception e)
+            {
+
+                // print out error
+                System.out.println("ERROR IN TLE READING POSSIBLE FILE FORMAT OR MISSING TLE FILES:" + e.toString());
+                e.printStackTrace();
+                // the next line cause the app to hang
+                //JOptionPane.showMessageDialog(parentComponent, "Error Loading Satellite TLE Data. Try updating data.\n"+e.toString(), "TLE LOADING ERROR", JOptionPane.ERROR_MESSAGE);
+
+                JOptionPane.showMessageDialog(parentComponent, "Error Loading TLE Data File, bad permissions or file format: \n" + e.toString() , "TLE LOADING ERROR", JOptionPane.ERROR_MESSAGE);
+
+                result = false;
+                return new Boolean(result); // quit, so user doesn't get tons of error messages
+            }
+
+
+
+        //} // for each primary category
+
+      
+
+        // tell tree that the data has been updated!
+        ((DefaultTreeModel)satTree.getModel()).reload();
+
+        // auto expand new Node and select it!
+        satTree.expandPath( getTreePath(currentSecondaryNode) ); // currentSecondaryNode
+        satTree.getSelectionModel().setSelectionPath( getTreePath(currentSecondaryNode) );
+
+        // debug
+        //satTree.expandRow(1);
+
+         // display number of satellites in list
+        tleOutputTextArea.setText("Number of New Satellites add to list: "+newSatCount);
+        //satTree.repaint();
+
+         return new Boolean(result); // quit, so user doesn't get tons of error messages
+         
+    } // loadTLEDataFile
+
+    // Returns a TreePath containing the specified node.
+    public TreePath getTreePath(TreeNode node)
+    {
+        List<TreeNode> list = new ArrayList<TreeNode>();
+
+        // Add all nodes to list
+        while (node != null)
+        {
+            list.add(node);
+            node = node.getParent();
+        }
+        Collections.reverse(list);
+
+        // Convert array of nodes to TreePath
+        return new TreePath(list.toArray());
+    }
+
     
 }

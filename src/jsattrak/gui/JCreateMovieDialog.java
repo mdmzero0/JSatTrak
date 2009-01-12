@@ -419,7 +419,7 @@ public class JCreateMovieDialog extends javax.swing.JDialog
         String outputMoviePath = "test.mov"; // default output
         
         final JFileChooser fc = new JFileChooser();
-        jsattrak.utilities.ImageFilter movFilter = new jsattrak.utilities.ImageFilter("mov", "*.mov");
+        jsattrak.utilities.CustomFileFilter movFilter = new jsattrak.utilities.CustomFileFilter("mov", "*.mov");
         fc.addChoosableFileFilter(movFilter);
 
         int returnVal = fc.showSaveDialog(this);

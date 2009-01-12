@@ -130,16 +130,23 @@ public class ListTransferHandler extends StringTransferHandler  implements java.
             {
                 // is not already in list
                 // add to hashTable
-                SatelliteTleSGP4 prop = new SatelliteTleSGP4(name, tleLine1, tleLine2);
-                satHash.put( name,  prop);
-                
-                // propogate satellite to current date
-                prop.propogate2JulDate( parentApp.getCurrentJulTime() );
-                
-                listModel.add(index++, name); // add to the list
-                
-                // count number of imports
-                satImportedCount++;
+                try
+                {
+                    SatelliteTleSGP4 prop = new SatelliteTleSGP4(name, tleLine1, tleLine2);
+
+                    satHash.put(name, prop);
+
+                    // propogate satellite to current date
+                    prop.propogate2JulDate(parentApp.getCurrentJulTime());
+
+                    listModel.add(index++, name); // add to the list
+
+                    // count number of imports
+                    satImportedCount++;
+                }
+                catch (Exception e)
+                {
+                }
                 
             }
             

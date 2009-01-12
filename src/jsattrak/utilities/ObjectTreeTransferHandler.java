@@ -30,6 +30,7 @@ import java.util.Hashtable;
 import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
+import javax.swing.JOptionPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
@@ -153,29 +154,39 @@ public class ObjectTreeTransferHandler extends StringTransferHandler implements 
                 if (!satHash.containsKey(name))
                 {
                     // is not already in list
-                    // add to hashTable
-                    SatelliteTleSGP4 prop = new SatelliteTleSGP4(name, inLine1, inLine2);
-                    satHash.put(name, prop);
+                   
+                        try
+                        {
+                            // add to hashTable  -- this line is the one can can throw an exception if the data is bad
+                            SatelliteTleSGP4 prop = new SatelliteTleSGP4(name, inLine1, inLine2);
+                            satHash.put(name, prop);
 
-                    // propogate satellite to current date
-                    prop.propogate2JulDate(parentApp.getCurrentJulTime());
-                    
-                    // add item to the tree
-                    //topSatTreeNode.add( new IconTreeNode(name) );
-                    IconTreeNode newNode = new IconTreeNode(name);
-                    treeModel.insertNodeInto(newNode, topSatTreeNode, topSatTreeNode.getChildCount());
-                    
-                    newNode.setIcon( new ImageIcon(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/icons/custom/sat_icon_tle.png")) ) );
-                    
-                    //System.out.println("node added: " + name);                   
-                    target.scrollPathToVisible(getPath(newNode));
-                    
-                    parentApp.setStatusMessage("Satellite Added to Scenario: " + name);
+                            // propogate satellite to current date
+                            prop.propogate2JulDate(parentApp.getCurrentJulTime());
 
-                    // count number of imports
-                    objImportedCount++;
+                            // add item to the tree
+                            //topSatTreeNode.add( new IconTreeNode(name) );
+                            IconTreeNode newNode = new IconTreeNode(name);
+                            treeModel.insertNodeInto(newNode, topSatTreeNode, topSatTreeNode.getChildCount());
 
-                }
+                            newNode.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/icons/custom/sat_icon_tle.png"))));
+
+                            //System.out.println("node added: " + name);
+                            target.scrollPathToVisible(getPath(newNode));
+
+                            parentApp.setStatusMessage("Satellite Added to Scenario: " + name);
+
+                            // count number of imports
+                            objImportedCount++;
+                        }
+                        catch (Exception e)
+                        {
+                            System.out.println("ERROR adding satellite to scenarion, bad TLE data: " + name);
+                            // TLE not valid
+                            JOptionPane.showMessageDialog(parentApp, "TLE data is invalid check TLE data file or Source:" + name, "TLE ERROR", JOptionPane.ERROR_MESSAGE);
+                        }
+                   
+                } // check if sat already in list
             } // if satellite
             else if(type.equalsIgnoreCase("GS"))
             {
