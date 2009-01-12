@@ -24,14 +24,14 @@ import java.io.File;
 import javax.swing.filechooser.*;
 
 /* ImageFilter.java  is used to filter out only image files in Save As dialog */
-public class ImageFilter extends FileFilter  implements java.io.Serializable
+public class CustomFileFilter extends FileFilter  implements java.io.Serializable
 {
 	
     
     private String fileExtension;
     private String description;
     
-    public ImageFilter(String fileExtension, String description)
+    public CustomFileFilter(String fileExtension, String description)
     {
     	this.fileExtension = fileExtension;
     	this.description = description;
