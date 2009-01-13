@@ -85,7 +85,8 @@
  *          3.6.1 22 Dec 2008  - Marvin joined team - started in on UI improvements drag of 2D zoomed in map, mouse wheel zoom (18 Dec 2008)
  *                    Better compression settings for JPG screenshots and movie creation (22 Dec 2008 - SEG)
  *          3.6.2 11 Jan 2009 -- added a menu to the satellite browser - to load custom satellite TLE data, and create a custom sat
- * 
+ *          3.7   ? Jan 2009 -- Updates for helping oberservers (based on feed back from Dave Ortiz?) - added TLE_user directory for custom tle files that are automatically loaded (with options for category specification)
+ *                                                              - ?
  *                              Ideas for next versions: (no particular order)
  *                                  - 3D "Earth Night Lights" mask / 1/2 sphere transparent night shell
  *                                  - Add Objects (Abstract Satellites) like Moon, Sun, Panets maybe (can set view to center on them as well)?
@@ -203,7 +204,7 @@ import name.gano.file.SaveImageFile;
  */
 public class JSatTrak extends javax.swing.JFrame implements InternalFrameListener, WindowListener, Serializable
 {
-    private String versionString = "Version 3.6.2 (11 Jan 2009)"; // Version of app
+    private String versionString = "Version 3.7.0 beta (13 Jan 2009)"; // Version of app
     
     // hastable to store all the statelites currently being processed
     private Hashtable<String,AbstractSatellite> satHash = new Hashtable<String,AbstractSatellite>();

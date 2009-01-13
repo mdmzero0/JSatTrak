@@ -77,7 +77,7 @@ public class JSatBrowser extends javax.swing.JDialog implements java.io.Serializ
         treeModel = new DefaultTreeModel(topTreeNode); // create tree model using root node
         satTree.setModel(treeModel); // set the tree's model
         
-        SatBrowserTleDataLoader sbtdl = new SatBrowserTleDataLoader(parent, topTreeNode, tleHash, tleOutputTextArea, satTree);
+        SatBrowserTleDataLoader sbtdl = new SatBrowserTleDataLoader(app, topTreeNode, tleHash, tleOutputTextArea, satTree);
         
         sbtdl.execute();
         
