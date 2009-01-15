@@ -3,7 +3,7 @@
  * Utility class to help save images to a file -- lets you specify compression if the format supports it
  * 
  * =====================================================================
- * Copyright (C) 2008 Shawn E. Gano
+ * Copyright (C) 2009 Shawn E. Gano
  * 
  * This file is part of JSatTrak.
  * 

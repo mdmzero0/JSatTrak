@@ -1,7 +1,7 @@
 /*
  * Shawn E. Gano - Polar Plotting Label
  * =====================================================================
- * Copyright (C) 2008 Shawn E. Gano
+ * Copyright (C) 2009 Shawn E. Gano
  * 
  * This file is part of JSatTrak.
  * 
@@ -74,6 +74,8 @@ public class JPolarPlotLabel   extends JLabel
     // display options
     private boolean displayTime = true;
     private boolean displayNames = false;
+    private boolean useDarkColors = true;
+    private boolean limit2Horizon = false; // if polar plot is limited to horizon
     
     private String timeString = "";
     private String gs2SatNameString = "";
@@ -180,12 +182,12 @@ public class JPolarPlotLabel   extends JLabel
         // display Time 
         if(displayTime)
         {
-            g2.setPaint(Color.WHITE);
+            g2.setPaint(lineColor);
             g2.drawString(timeString, 2, plotCenter[1]+plotSize/2 );
         }
         if(displayNames)
         {
-            g2.setPaint(Color.WHITE);
+            g2.setPaint(lineColor);
             g2.drawString(gs2SatNameString, 2, plotCenter[1]- plotSize/2 + 12);
         }
         
@@ -388,5 +390,70 @@ public class JPolarPlotLabel   extends JLabel
         BufferedImage buff = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB );
         drawPolarPlot(buff.getGraphics(), width, height);
         return buff;
+    }
+
+    /**
+     * Sets dark color set (or if false light color set - useful for printing)
+     * @param useDarColors
+     */
+    public void setDarkColors(boolean useDarkColorsIn)
+    {
+        if(useDarkColors != useDarkColorsIn)
+        {
+            useDarkColors = useDarkColorsIn;
+        }
+        else
+        {
+            return; // nothing to do
+        }
+
+        if(useDarkColors)
+        {
+            bgColor = Color.BLACK;
+            lineColor = Color.WHITE;
+            constraintElvColor = Color.GREEN;
+        }
+        else
+        {
+            bgColor = Color.WHITE;
+            lineColor = Color.BLACK;
+            constraintElvColor = Color.GREEN;
+        }
+
+        // repaint
+        this.repaint();
+    } // setDarkColors
+
+    /**
+     * @return the limit2Horizon
+     */
+    public boolean isLimit2Horizon()
+    {
+        return limit2Horizon;
+    }
+
+    /**
+     * @param limit2Horizon the limit2Horizon to set
+     */
+    public void setLimit2Horizon(boolean limit2Horizon2)
+    {
+        if( limit2Horizon == limit2Horizon2)
+        {
+            return; // same nothing to do
+        }
+        this.limit2Horizon = limit2Horizon2;
+
+        if(limit2Horizon)
+        {
+            elevationRange[0] = 0; // = new double[] {-90.0,90.0};
+            elevationRange[1] = 90;
+        }
+        else
+        {
+            elevationRange[0] = -90; // = new double[] {-90.0,90.0};
+            elevationRange[1] = 90;
+        }
+
+        this.repaint();
     }
 }
