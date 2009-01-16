@@ -42,6 +42,7 @@ import name.gano.astro.AER;
 import name.gano.astro.AstroConst;
 import name.gano.astro.MathUtils;
 import name.gano.astro.bodies.Sun;
+import name.gano.astro.coordinates.CoordinateConversion;
 import name.gano.astro.time.Time;
 import name.gano.file.FileUtilities;
 
@@ -107,8 +108,10 @@ public class JTrackingPanel extends javax.swing.JPanel
         passTable.setModel(passTableModel);
         
         passTableModel.addColumn("#"); // pass number
-        passTableModel.addColumn("Rise Time"); // 
-        passTableModel.addColumn("Set Time"); // 
+        passTableModel.addColumn("Rise Time"); //
+        passTableModel.addColumn("Rise Az."); // new
+        passTableModel.addColumn("Set Time"); //
+        passTableModel.addColumn("Set Az."); // new
         passTableModel.addColumn("Duration [Sec]"); // 
         passTableModel.addColumn("Visibility"); //
         
@@ -286,6 +289,7 @@ public class JTrackingPanel extends javax.swing.JPanel
         jCheckBox2 = new javax.swing.JCheckBox();
         jCheckBox3 = new javax.swing.JCheckBox();
         jCheckBox4 = new javax.swing.JCheckBox();
+        jCheckBox5 = new javax.swing.JCheckBox();
         jPanel3 = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -299,6 +303,8 @@ public class JTrackingPanel extends javax.swing.JPanel
         go2passButton = new javax.swing.JButton();
         printTableButton = new javax.swing.JButton();
         saveTableButton = new javax.swing.JButton();
+        jLabel7 = new javax.swing.JLabel();
+        azComboBox = new javax.swing.JComboBox();
 
         jLabel1.setText("Ground Station:"); // NOI18N
 
@@ -339,7 +345,7 @@ public class JTrackingPanel extends javax.swing.JPanel
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 392, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 450, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel1)
@@ -386,10 +392,15 @@ public class JTrackingPanel extends javax.swing.JPanel
         jToolBar1.setRollover(true);
 
         jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/gnome_2_18/document-print.png"))); // NOI18N
-        jButton1.setToolTipText("Print Polar Plot");
+        jButton1.setToolTipText("Print Polar Plot - automatically prints with inverted colors, names, and time");
         jButton1.setFocusable(false);
         jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
         jToolBar1.add(jButton1);
 
         leadLagCheckBox.setSelected(true);
@@ -438,6 +449,17 @@ public class JTrackingPanel extends javax.swing.JPanel
             }
         });
         jToolBar1.add(jCheckBox4);
+
+        jCheckBox5.setSelected(true);
+        jCheckBox5.setText("Compass");
+        jCheckBox5.setFocusable(false);
+        jCheckBox5.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jCheckBox5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBox5ActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(jCheckBox5);
 
         jPanel2.add(jToolBar1, java.awt.BorderLayout.SOUTH);
 
@@ -519,6 +541,11 @@ public class JTrackingPanel extends javax.swing.JPanel
             }
         });
 
+        jLabel7.setText("Rise/Set Azimuth:");
+
+        azComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Degrees", "Compass Points" }));
+        azComboBox.setSelectedIndex(1);
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -527,7 +554,7 @@ public class JTrackingPanel extends javax.swing.JPanel
                 .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 392, Short.MAX_VALUE)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 450, Short.MAX_VALUE)
                         .addContainerGap())
                     .addComponent(jLabel6)
                     .addGroup(jPanel3Layout.createSequentialGroup()
@@ -542,12 +569,16 @@ public class JTrackingPanel extends javax.swing.JPanel
                         .addGap(54, 54, 54))
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addComponent(visibleOnlyCheckBox)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 236, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel7)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(azComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 99, Short.MAX_VALUE)
                         .addComponent(runPassPredictionButton)
                         .addContainerGap())
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addComponent(go2passButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 205, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 263, Short.MAX_VALUE)
                         .addComponent(saveTableButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(printTableButton)
@@ -566,7 +597,9 @@ public class JTrackingPanel extends javax.swing.JPanel
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(visibleOnlyCheckBox)
-                    .addComponent(runPassPredictionButton))
+                    .addComponent(runPassPredictionButton)
+                    .addComponent(jLabel7)
+                    .addComponent(azComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 179, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -828,7 +861,19 @@ public class JTrackingPanel extends javax.swing.JPanel
                 // use Time object to convert Julian date to string using program settings (i.e. time zone)
                 String crossTimeStr = currentJulianDate.convertJD2String(riseTime);
                 
-                passTableModel.addRow(new Object[] {passCount,crossTimeStr,"","",""});
+                passTableModel.addRow(new Object[] {passCount,crossTimeStr,"","","","",""});
+
+                // calculate using the rise time - the Azimuth
+                double az = AER.calculate_AER(gs.getLla_deg_m(), sat.calculateMODPositionFromUT(riseTime) , riseTime)[0];
+                if(azComboBox.getSelectedIndex() == 0)
+                {
+                    passTableModel.setValueAt(""+String.format("%.1f", az), passTableModel.getRowCount()-1, 2);
+                }
+                else
+                {
+                    // is AZ in degrees or radians?
+                    passTableModel.setValueAt(CoordinateConversion.degrees2CompassPoints(az), passTableModel.getRowCount()-1, 2);
+                }
             }
             
             // set
@@ -839,8 +884,21 @@ public class JTrackingPanel extends javax.swing.JPanel
                 
                 // add to table
                 String crossTimeStr = currentJulianDate.convertJD2String(setTime);
-                passTableModel.setValueAt(crossTimeStr, passTableModel.getRowCount()-1, 2); // last row, 3rd column (2)
+                passTableModel.setValueAt(crossTimeStr, passTableModel.getRowCount()-1, 3); // last row, 3rd column (2)
                 
+                // calculate using the set time - the Azimuth
+                double az = AER.calculate_AER(gs.getLla_deg_m(), sat.calculateMODPositionFromUT(setTime) , setTime)[0];
+                if(azComboBox.getSelectedIndex() == 0)
+                {
+                    passTableModel.setValueAt(""+String.format("%.1f", az), passTableModel.getRowCount()-1, 4);
+                }
+                else
+                {
+                    // is AZ in degrees or radians?
+                    passTableModel.setValueAt(CoordinateConversion.degrees2CompassPoints(az), passTableModel.getRowCount()-1, 4);
+                } // azimuth
+
+
                 // add duration
                 if(lastRise > 0)
                 {
@@ -848,7 +906,7 @@ public class JTrackingPanel extends javax.swing.JPanel
                     
                     double duration = (setTime - lastRise)*24.0*60.0*60.0; // seconds
                     String durStr = fmt2Dig.format( duration );
-                    passTableModel.setValueAt(durStr, passTableModel.getRowCount()-1, 3); // last row, 4rd column (3)
+                    passTableModel.setValueAt(durStr, passTableModel.getRowCount()-1, 5); // last row, 4rd column (3)
                 }
                 
                 // determine visibility
@@ -883,7 +941,7 @@ public class JTrackingPanel extends javax.swing.JPanel
                     
                     if(sunDotSite > 0 || (90.0-finalSigmaGS) < twilightOffset )
                     {
-                        passTableModel.setValueAt("Radar Sun", passTableModel.getRowCount()-1, 4); // last row, 5rd column (4)
+                        passTableModel.setValueAt("Radar Sun", passTableModel.getRowCount()-1, 6); // last row, 5rd column (4)
                     } // sun light
                     else
                     {
@@ -898,11 +956,11 @@ public class JTrackingPanel extends javax.swing.JPanel
                         if(dist > AstroConst.R_Earth)
                         {
                             // sat is in sunlight!
-                            passTableModel.setValueAt("Visible", passTableModel.getRowCount()-1, 4); // last row, 5rd column (4)
+                            passTableModel.setValueAt("Visible", passTableModel.getRowCount()-1, 6); // last row, 5rd column (4)
                         }
                         else  // Radar Night (both in darkness)
                         {
-                            passTableModel.setValueAt("Radar Night", passTableModel.getRowCount()-1, 4); // last row, 5rd column (4)
+                            passTableModel.setValueAt("Radar Night", passTableModel.getRowCount()-1, 6); // last row, 5rd column (4)
                         }
                         
                     } // site in dark
@@ -918,7 +976,7 @@ public class JTrackingPanel extends javax.swing.JPanel
         if(visibleOnlyCheckBox.isSelected())
         {
             
-            int vizColumn = 4;  // vis text column
+            int vizColumn = 6;  // vis text column
             for(int i=passTableModel.getRowCount()-1; i>=0;i-- )
             {
                
@@ -958,7 +1016,7 @@ public class JTrackingPanel extends javax.swing.JPanel
 
             boolean complete = passTable.print(PrintMode.FIT_WIDTH, // JTable.PrintMode or PrintMode.NORMAL
                                         header, //  MessageFormat headerFormat
-                                        new MessageFormat("- {0} -"), //  MessageFormat footerFormat
+                                        new MessageFormat("JSatTrak Pass Predictions  - {0} -"), //  MessageFormat footerFormat
                                         true, //  boolean showPrintDialog
                                         null, //  PrintRequestAttributeSet attr
                                         false, // boolean interactive
@@ -1068,6 +1126,16 @@ public class JTrackingPanel extends javax.swing.JPanel
     {//GEN-HEADEREND:event_jCheckBox4ActionPerformed
         jPolarPlotLabel.setLimit2Horizon(jCheckBox4.isSelected());
     }//GEN-LAST:event_jCheckBox4ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButton1ActionPerformed
+    {//GEN-HEADEREND:event_jButton1ActionPerformed
+        jPolarPlotLabel.print();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jCheckBox5ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jCheckBox5ActionPerformed
+    {//GEN-HEADEREND:event_jCheckBox5ActionPerformed
+        jPolarPlotLabel.setUseCompassPoints(jCheckBox5.isSelected());
+    }//GEN-LAST:event_jCheckBox5ActionPerformed
     
     /**
      * jumps time to the mid point of a pass
@@ -1144,6 +1212,7 @@ public class JTrackingPanel extends javax.swing.JPanel
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextArea aerTextArea;
+    private javax.swing.JComboBox azComboBox;
     private javax.swing.JButton go2passButton;
     private javax.swing.JComboBox gsComboBox;
     private javax.swing.JButton jButton1;
@@ -1151,12 +1220,14 @@ public class JTrackingPanel extends javax.swing.JPanel
     private javax.swing.JCheckBox jCheckBox2;
     private javax.swing.JCheckBox jCheckBox3;
     private javax.swing.JCheckBox jCheckBox4;
+    private javax.swing.JCheckBox jCheckBox5;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;

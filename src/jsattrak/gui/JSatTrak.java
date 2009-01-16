@@ -85,8 +85,8 @@
  *          3.6.1 22 Dec 2008  - Marvin joined team - started in on UI improvements drag of 2D zoomed in map, mouse wheel zoom (18 Dec 2008)
  *                    Better compression settings for JPG screenshots and movie creation (22 Dec 2008 - SEG)
  *          3.6.2 11 Jan 2009 -- added a menu to the satellite browser - to load custom satellite TLE data, and create a custom sat
- *          3.7   ? Jan 2009 -- Updates for helping oberservers (based on feed back from Dave Ortiz) - added TLE_user directory for custom tle files that are automatically loaded (with options for category specification)
- *                                                              - ?
+ *          3.7   16 Jan 2009 -- Updates for helping oberservers (based on feed back from Dave Ortiz) - added TLE_user directory for custom tle files that are automatically loaded (with options for category specification)
+ *                                                              - Updates to tracking form: polar plot-print,invert colors,limit to horizon, compass points, pass prediction-rize/set Az degrees/compass points, save as csv
  *                              Ideas for next versions: (no particular order)
  *                                  - DATA out! - Reports and graphs and exporting of data out of program
  *                                  - 3D "Earth Night Lights" mask / 1/2 sphere transparent night shell
@@ -205,7 +205,7 @@ import name.gano.file.SaveImageFile;
  */
 public class JSatTrak extends javax.swing.JFrame implements InternalFrameListener, WindowListener, Serializable
 {
-    private String versionString = "Version 3.7.0 beta (13 Jan 2009)"; // Version of app
+    private String versionString = "Version 3.7.0 (16 Jan 2009)"; // Version of app
     
     // hastable to store all the statelites currently being processed
     private Hashtable<String,AbstractSatellite> satHash = new Hashtable<String,AbstractSatellite>();
@@ -2316,7 +2316,7 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         JInternalFrame iframe = new JInternalFrame(windowName,true,true,true,true);
         
         iframe.setContentPane(trackingBrowser );
-        iframe.setSize(400+25,320+25); // w,h
+        iframe.setSize(400+105,320+55); // w,h
         iframe.setLocation(10,10);
         
         // add close action listener -- to remove window from hash

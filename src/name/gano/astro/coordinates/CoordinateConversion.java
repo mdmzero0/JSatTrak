@@ -24,7 +24,6 @@
 package name.gano.astro.coordinates;
 
 import name.gano.astro.AstroConst;
-import name.gano.astro.Kepler;
 import name.gano.astro.MathUtils;
 
 
@@ -419,5 +418,94 @@ public class CoordinateConversion
 	  return  deps_dpsi[1] * Math.cos( MeanObliquity(Mjd_TT) );
 
 	}
+
+
+      /**
+     * Convert an angle in degrees (such as azimuth) to compass points (N, NNE, NE...etc)
+     * @param degrees  (will be converted to [0,360) )
+     * @return compass direction -- if you only want N, NE, E... then check for a length of 3 and drop first char
+     */
+    public static String degrees2CompassPoints(double degrees)
+    {
+        double deg = degrees;
+
+        // make sure it is in the range 0-360
+        while(deg <= 0)
+        {
+            deg += 360.0; // add 360 until it is positive
+        }
+
+        deg = deg % 360.0;  // insure it is less than 360
+
+        if(deg < 11.25)
+        {
+            return "N";
+        }
+        else if(deg < 33.75)
+        {
+            return "NNE";
+        }
+        else if(deg < 56.25)
+        {
+            return "NE";
+        }
+        else if(deg < 78.75)
+        {
+            return "ENE";
+        }
+        else if(deg < 101.25)
+        {
+            return "E";
+        }
+        else if(deg < 123.75)
+        {
+            return "ESE";
+        }
+        else if(deg < 146.25)
+        {
+            return "SE";
+        }
+        else if(deg < 168.75)
+        {
+            return "SSE";
+        }
+        else if(deg < 191.25)
+        {
+            return "S";
+        }
+        else if(deg < 213.75)
+        {
+            return "SSW";
+        }
+        else if(deg < 236.25)
+        {
+            return "SW";
+        }
+        else if(deg < 258.75)
+        {
+            return "WSW";
+        }
+        else if(deg < 281.25)
+        {
+            return "W";
+        }
+        else if(deg < 303.75)
+        {
+            return "WNW";
+        }
+        else if(deg < 326.25)
+        {
+            return "NW";
+        }
+        else if(deg < 348.75)
+        {
+            return "NNW";
+        }
+        else //if(deg => 348.75)
+        {
+            return"N";
+        }
+
+    } //degrees2CompassPoints
         
 }

@@ -29,13 +29,17 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.awt.print.PageFormat;
+import java.awt.print.Printable;
+import java.awt.print.PrinterJob;
 import javax.swing.JLabel;
+import name.gano.astro.coordinates.CoordinateConversion;
 
 /**
  *
  * @author sgano
  */
-public class JPolarPlotLabel   extends JLabel
+public class JPolarPlotLabel extends JLabel implements Printable
 {
     private double aspectRatio = 2.0;// aspect ratio of the image in the frame (should equal value in J2EarthPanel)
     private int imageWidth = 0, imageHeight = 0;
@@ -54,7 +58,7 @@ public class JPolarPlotLabel   extends JLabel
     
     double[] elevationRange = new double[] {-90.0,90.0};
     double elevationMarkInc = 30; // degrees should be evenly divisible by 90
-    double azimuthMarkInc = 30; // deg (should be evenly divisible by 180)
+    double azimuthMarkInc = 22.5; // deg (should be evenly divisible by 180)
     
     private double[] currentAE = new double[] {0,90};
     
@@ -76,6 +80,7 @@ public class JPolarPlotLabel   extends JLabel
     private boolean displayNames = false;
     private boolean useDarkColors = true;
     private boolean limit2Horizon = false; // if polar plot is limited to horizon
+    private boolean useCompassPoints = true; // use Compass directions
     
     private String timeString = "";
     private String gs2SatNameString = "";
@@ -174,7 +179,15 @@ public class JPolarPlotLabel   extends JLabel
             double endY = plotCenter[1] - (plotSize/2)*Math.cos(az*Math.PI/180.0);
             
             g2.drawLine(plotCenter[0], plotCenter[1], (int)endX, (int)endY);
-            g2.drawString("" + ((int)az), (int)endX+2, (int)endY);
+            // draw Azimuth lables (numbers or compass points)
+            if(!useCompassPoints)
+            {
+                g2.drawString("" + ((int)az), (int)endX+2, (int)endY);
+            }
+            else
+            {
+                g2.drawString(CoordinateConversion.degrees2CompassPoints(az), (int)endX+2, (int)endY);
+            }
         }
         
         // end draw plot region ----------------------
@@ -456,4 +469,106 @@ public class JPolarPlotLabel   extends JLabel
 
         this.repaint();
     }
+
+    // SEG 16 jan 2009 -- adds print capibility
+    /**
+     * General printing method
+     */
+    public void print()
+    {
+        //--- Create a printerJob object
+        PrinterJob printJob = PrinterJob.getPrinterJob();
+
+        //--- Set the printable class to this one since we
+        //--- are implementing the Printable interface
+        printJob.setPrintable(this);
+
+        //--- Show a print dialog to the user. If the user
+        //--- click the print button, then print otherwise
+        //--- cancel the print job
+        if(printJob.printDialog())
+        {
+            try
+            {
+                printJob.print();
+            }
+            catch(Exception printException)
+            {
+                //printException.printStackTrace();
+                System.out.println("ERROR printing polar plot: " + printException.toString());
+
+            }
+        }
+    } // print
+
+
+    public int print(Graphics graphics, PageFormat pageFormat, int pageIndex)
+    {
+        if(pageIndex > 0)
+        {
+            return NO_SUCH_PAGE; // plot is only on one page
+        }
+
+        int INCH = 72; // PageFormat uses 72dpi
+
+        double marginInches = 1.0; // margines around the page
+
+        int marginePixels = (int)Math.round(INCH*marginInches);
+
+        boolean darkColorVal = this.useDarkColors; // save this value
+        setDarkColors(false); // set to light for printing
+        // save other values - and turn them on for printing
+        boolean distTimeSave = displayTime;
+        boolean dispNameSave = displayNames;
+        displayTime = true;
+        displayNames = true;
+
+
+        /* width and height of the imageable area */
+        int iw = (int)pageFormat.getImageableWidth();
+        int ih = (int)pageFormat.getImageableHeight();
+
+//        // created image for the plot -- this method looks blurry
+//        BufferedImage plotBuf = new BufferedImage(iw - 2*marginePixels, ih - 2*marginePixels, BufferedImage.TYPE_INT_RGB );
+//        Graphics graphPrint = plotBuf.createGraphics();
+//        // draw polar plot
+//        drawPolarPlot(graphPrint, iw - 2*marginePixels, ih - 2*marginePixels); // with margines
+//        graphics.drawImage(plotBuf, marginePixels,marginePixels, this);
+
+        //drawPolarPlot(graphics, iw, ih); // full page
+
+        // looks a lot sharper, with margines
+        graphics.translate(marginePixels, marginePixels);
+        drawPolarPlot(graphics, iw-2*marginePixels, ih-2*marginePixels);
+
+        // return values back
+        setDarkColors(darkColorVal);
+        displayTime = distTimeSave;
+        displayNames = dispNameSave;
+
+        return PAGE_EXISTS;
+    } // print
+
+    /**
+     * @return the useCompassPoints
+     */
+    public boolean isUseCompassPoints()
+    {
+        return useCompassPoints;
+    }
+
+    /**
+     * @param useCompassPointsIn the useCompassPoints to set
+     */
+    public void setUseCompassPoints(boolean useCompassPointsIn)
+    {
+        if(useCompassPoints == useCompassPointsIn)
+        {
+            return; // the same
+        }
+
+        this.useCompassPoints = useCompassPointsIn;
+        this.repaint(); // repaint
+    }
+
 }
