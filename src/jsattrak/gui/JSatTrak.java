@@ -87,6 +87,9 @@
  *          3.6.2 11 Jan 2009 -- added a menu to the satellite browser - to load custom satellite TLE data, and create a custom sat
  *          3.7   16 Jan 2009 -- Updates for helping oberservers (based on feed back from Dave Ortiz) - added TLE_user directory for custom tle files that are automatically loaded (with options for category specification)
  *                                                              - Updates to tracking form: polar plot-print,invert colors,limit to horizon, compass points, pass prediction-rize/set Az degrees/compass points, save as csv
+ *          3.7.1 19 Mar 2009 -- Change 2D sun terminator resolution to 61 - 51 was reported by a user to cause some unwanted jumps as to which side was filled in.
+ *                               todo: saving issues: which 2d windows show covereage data, "2d night lights" effect and parameters?, window locations?
+ *
  *                              Ideas for next versions: (no particular order)
  *                                  - DATA out! - Reports and graphs and exporting of data out of program
  *                                  - 3D "Earth Night Lights" mask / 1/2 sphere transparent night shell
@@ -205,7 +208,7 @@ import name.gano.file.SaveImageFile;
  */
 public class JSatTrak extends javax.swing.JFrame implements InternalFrameListener, WindowListener, Serializable
 {
-    private String versionString = "Version 3.7.0 (16 Jan 2009)"; // Version of app
+    private String versionString = "Version 3.7.1 (19 Mar 2009)"; // Version of app
     
     // hastable to store all the statelites currently being processed
     private Hashtable<String,AbstractSatellite> satHash = new Hashtable<String,AbstractSatellite>();

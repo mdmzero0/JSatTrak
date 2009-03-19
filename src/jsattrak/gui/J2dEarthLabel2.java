@@ -67,7 +67,7 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
     // sun drawing options
     private boolean drawSun = true;
     private Color sunColor = Color.DARK_GRAY;//Color.BLACK;
-    private int numPtsSunFootPrint = 51; // used to be 101
+    private int numPtsSunFootPrint = 61; // used to be 101, (51 is too low - errors on which side is filled in)
     private float sunAlpha = 0.55f;
     
     // sun
