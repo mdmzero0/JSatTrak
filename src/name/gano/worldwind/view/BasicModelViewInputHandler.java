@@ -618,9 +618,49 @@ public class BasicModelViewInputHandler extends WWObjectImpl //AVListImpl
     }
     
     // NEW
-    @Override
+//    @Override
+//    public void clear()
+//    {
+//
+//    }
+    
+    // replace above after WWJ 0.6
     public void clear()
     {
-        
+        if (this.hoverObjects != null)
+            this.hoverObjects.clear();
+        this.hoverObjects = null;
+
+        if (this.objectsAtButtonPress != null)
+            this.objectsAtButtonPress.clear();
+        this.objectsAtButtonPress = null;
+    }
+
+
+    // -- after upgrade to WWJ v0.6
+    public void removeKeyListener(KeyListener listener)
+    {
+        this.eventListeners.remove(KeyListener.class, listener);
+    }
+
+     public void addKeyListener(KeyListener listener)
+    {
+        this.eventListeners.add(KeyListener.class, listener);
+    }
+
+     public void dispose()
+    {
+        this.hoverTimer.stop();
+        this.hoverTimer = null;
+
+        this.setEventSource(null);
+
+        if (this.hoverObjects != null)
+            this.hoverObjects.clear();
+        this.hoverObjects = null;
+
+        if (this.objectsAtButtonPress != null)
+            this.objectsAtButtonPress.clear();
+        this.objectsAtButtonPress = null;
     }
 }

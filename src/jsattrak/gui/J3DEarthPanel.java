@@ -35,6 +35,7 @@ import gov.nasa.worldwind.examples.WMSLayersPanel;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
+import gov.nasa.worldwind.geom.Vec4;
 import gov.nasa.worldwind.layers.CompassLayer;
 import gov.nasa.worldwind.layers.Earth.CountryBoundariesLayer;
 import gov.nasa.worldwind.layers.Earth.LandsatI3;
@@ -45,6 +46,8 @@ import gov.nasa.worldwind.layers.RenderableLayer;
 import gov.nasa.worldwind.layers.StarsLayer;
 import gov.nasa.worldwind.layers.TerrainProfileLayer;
 import gov.nasa.worldwind.layers.TiledImageLayer;
+import gov.nasa.worldwind.layers.ViewControlsLayer;
+import gov.nasa.worldwind.layers.ViewControlsSelectListener;
 import gov.nasa.worldwind.layers.WorldMapLayer;
 import gov.nasa.worldwind.layers.placename.PlaceNameLayer;
 import gov.nasa.worldwind.render.Polyline;
@@ -67,7 +70,6 @@ import java.io.File;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Hashtable;
-import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
@@ -185,6 +187,18 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         
         // add political boundary layer
         m.getLayers().add(new CountryBoundariesLayer());
+
+         // Add view controls layer and select listener - New in WWJ V0.6
+        ViewControlsLayer viewControlsLayer = new ViewControlsLayer();
+        viewControlsLayer.setLayout(AVKey.LAYOUT_VERTICAL);
+        viewControlsLayer.setScale(6/10d);
+        viewControlsLayer.setPosition(AVKey.SOUTHEAST); // put it on the right side
+        viewControlsLayer.setLocationOffset( new Vec4(15,35,0,0));
+        viewControlsLayer.setEnabled(true); // turn off by default
+        m.getLayers().add(viewControlsLayer);
+        //insertBeforeCompass(wwd, viewControlsLayer);
+        //getLayerPanel().update(wwd);
+        this.getWwd().addSelectListener(new ViewControlsSelectListener(wwd, viewControlsLayer));
 
         // set default layer visabiliy
         for (Layer layer : m.getLayers())

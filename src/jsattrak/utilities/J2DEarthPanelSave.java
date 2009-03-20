@@ -67,6 +67,7 @@ public class J2DEarthPanelSave implements Serializable
     private Color sunColor;//Color.BLACK;
     private int numPtsSunFootPrint;
     private float sunAlpha;
+    private boolean showEarthLightsMask;
     
     // region drawing
     private Color landOutlineColor;
@@ -104,6 +105,7 @@ public class J2DEarthPanelSave implements Serializable
         sunColor = panel.getSunColor();//Color.BLACK;
         numPtsSunFootPrint = panel.getNumPtsSunFootPrint();
         sunAlpha = panel.getSunAlpha();
+        showEarthLightsMask = panel.isShowEarthLightsMask();
         
         // region drawing
         landOutlineColor = panel.getRegionLineColor();
@@ -142,6 +144,7 @@ public class J2DEarthPanelSave implements Serializable
         newPanel.setSunColor(sunColor);
         newPanel.setNumPtsSunFootPrint(numPtsSunFootPrint);
         newPanel.setSunAlpha(sunAlpha);
+        newPanel.setShowEarthLightsMask(showEarthLightsMask);
         
          // region drawing
         newPanel.setRegionDrawingOptions(showLandMassOutlines, dataFileName, landOutlineColor);

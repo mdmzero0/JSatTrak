@@ -49,6 +49,11 @@ import name.gano.astro.time.Time;
  */
 public class JstSaveClass implements Serializable
 {
+    private // app loacation and size
+    Point screenLoc;
+    private int appWidth;
+    private int appHeight;
+
     // main satHash to save
     private Hashtable<String,AbstractSatellite> satHash;
     private Hashtable<String,GroundStation> gsHash;
@@ -157,6 +162,11 @@ public class JstSaveClass implements Serializable
         
         // coverage anaylzer
         ca = app.getCoverageAnalyzer();
+
+        // screen location and size of entire app  -- NEW 20 March 2009
+        screenLoc = app.getLocationOnScreen();
+        appWidth = app.getWidth();
+        appHeight = app.getHeight();
         
     } // JstSaveClass  constructor
 
@@ -376,6 +386,30 @@ public class JstSaveClass implements Serializable
     public void setCa(CoverageAnalyzer ca)
     {
         this.ca = ca;
+    }
+
+    /**
+     * @return the screenLoc
+     */
+    public Point getScreenLoc()
+    {
+        return screenLoc;
+    }
+
+    /**
+     * @return the appWidth
+     */
+    public int getAppWidth()
+    {
+        return appWidth;
+    }
+
+    /**
+     * @return the appHeight
+     */
+    public int getAppHeight()
+    {
+        return appHeight;
     }
     
 } // JstSaveClass
