@@ -143,7 +143,9 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
     private String modelViewString = ""; // to hold name of satellite to view when modelViewMode=true
     private double modelViewNearClip = 10000; // clipping pland for when in Model View mode
     private double modelViewFarClip = 5.0E7;
-    private boolean smoothViewChanges = true; // for 3D view smoothing 
+    private boolean smoothViewChanges = true; // for 3D view smoothing
+
+    ViewControlsLayer viewControlsLayer;
     
     /** Creates new form J3DEarthPanel
      * @param parent
@@ -188,7 +190,7 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
         m.getLayers().add(new CountryBoundariesLayer());
 
         // Add view controls layer and select listener - New in WWJ V0.6
-        ViewControlsLayer viewControlsLayer = new ViewControlsLayer();
+        viewControlsLayer = new ViewControlsLayer();
         viewControlsLayer.setLayout(AVKey.LAYOUT_VERTICAL);
         viewControlsLayer.setScale(6/10d);
         viewControlsLayer.setPosition(AVKey.SOUTHEAST); // put it on the right side
@@ -884,6 +886,9 @@ private void fullScreenButtonActionPerformed(java.awt.event.ActionEvent evt) {//
             // change class for inputHandler
             Configuration.setValue(AVKey.INPUT_HANDLER_CLASS_NAME, 
                         AWTInputHandler.class.getName());
+
+            // re-setup control layer handler
+            this.getWwd().addSelectListener(new ViewControlsSelectListener(wwd, viewControlsLayer));
             
         } // Earth View mode
         else
@@ -944,6 +949,9 @@ private void fullScreenButtonActionPerformed(java.awt.event.ActionEvent evt) {//
             // change class for inputHandler
             Configuration.setValue(AVKey.INPUT_HANDLER_CLASS_NAME, 
                         BasicModelViewInputHandler3.class.getName());
+
+            // re-setup control layer handler
+            this.getWwd().addSelectListener(new ViewControlsSelectListener(wwd, viewControlsLayer));
             
         } // model view mode
         

@@ -90,8 +90,8 @@
  *          3.7.5 23 Mar 2009 -- Change 2D sun terminator resolution to 61 - 51 was reported by a user to cause some unwanted jumps as to which side was filled in, still has issues at times (even for higher res)
  *                               Integrated NASA World Wind Java V0.6 - plus a few new layers (like controls), redid some swing worker routines for thread safteyness
  *                               added substance look and feel (default Raven until Nimbus can work again), fixed: saving of 2D coverage windows, 2D night light effects, and main app window location and size saved.
- *                                   known issue: 3D internal window doesn't work with v0.6 (nimubs Look and feel only), view controls don't work after changin view to center on sat then back to earth. (or on sat itself)
- *                                   known issue: webstart version 3D windows not working with WWJ 0.6, also webstart cannot save movies (no fix)
+ *                                   known issue: 3D internal window doesn't work with v0.6 (nimubs Look and feel only)
+ *                                   known issue: webstart cannot save movies (no fix)
  *
  *
  *                              Ideas for next versions: (no particular order)
