@@ -73,12 +73,54 @@ public class LafChanger
         try
         {
             UIManager.setLookAndFeel(lafClassName);
+
+            boolean canBeDecoratedByLAF = UIManager.getLookAndFeel().getSupportsWindowDecorations();
+
+             //System.out.println("------------------");
             for (Window window : Window.getWindows())
             {
                 SwingUtilities.updateComponentTreeUI(window);
+
+                // Search for JDialogs that can be updated by look and feel-----
+                if( window instanceof JFrame)
+                {
+                    //System.out.println("Jframe Window:" + ((JFrame)window).getTitle() );
+                }
+                else if(window instanceof JDialog)
+                {
+                     //System.out.println("Jdialog Window:" +  ((JDialog)window).getTitle() );
+
+                     if( canBeDecoratedByLAF !=  ((JDialog)window).isUndecorated() )
+                     {
+                        boolean wasVisible = ((JDialog)window).isVisible();
+                        ((JDialog)window).setVisible(false);
+                        ((JDialog)window).dispose();
+                        if(!canBeDecoratedByLAF) //|| wasOriginallyDecoratedByOS
+                        {
+                            // see the java docs under the method
+                            // JFrame.setDefaultLookAndFeelDecorated(boolean
+                            // value) for description of these 2 lines:
+                            ((JDialog)window).setUndecorated(false);
+                            ((JDialog)window).getRootPane().setWindowDecorationStyle(
+                                    JRootPane.NONE);
+
+                        }
+                        else
+                        {
+                            ((JDialog)window).setUndecorated(true);
+                            ((JDialog)window).getRootPane().setWindowDecorationStyle(
+                                    JRootPane.FRAME);
+                        }
+                        ((JDialog)window).setVisible(wasVisible);
+                    }
+                }
+                else
+                {
+                    //System.out.println("NOT Jframe Window:" + window.getName() );
+                } // End of Jdialog search that can be updated by current look and feel -----------
             }
 
-            boolean canBeDecoratedByLAF = UIManager.getLookAndFeel().getSupportsWindowDecorations();
+            //boolean canBeDecoratedByLAF = UIManager.getLookAndFeel().getSupportsWindowDecorations();
             if (canBeDecoratedByLAF == wasDecoratedByOS)
             {
                 boolean wasVisible = frame.isVisible();

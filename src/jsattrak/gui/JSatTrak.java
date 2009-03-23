@@ -85,11 +85,13 @@
  *          3.6.1 22 Dec 2008  - Marvin joined team - started in on UI improvements drag of 2D zoomed in map, mouse wheel zoom (18 Dec 2008)
  *                    Better compression settings for JPG screenshots and movie creation (22 Dec 2008 - SEG)
  *          3.6.2 11 Jan 2009 -- added a menu to the satellite browser - to load custom satellite TLE data, and create a custom sat
- *          3.7   16 Jan 2009 -- Updates for helping oberservers (based on feed back from Dave Ortiz) - added TLE_user directory for custom tle files that are automatically loaded (with options for category specification)
+ *          3.7    16 Jan 2009 (unreleased) -- Updates for helping oberservers (based on feed back from Dave Ortiz) - added TLE_user directory for custom tle files that are automatically loaded (with options for category specification)
  *                                                              - Updates to tracking form: polar plot-print,invert colors,limit to horizon, compass points, pass prediction-rize/set Az degrees/compass points, save as csv
  *          3.7.5 23 Mar 2009 -- Change 2D sun terminator resolution to 61 - 51 was reported by a user to cause some unwanted jumps as to which side was filled in, still has issues at times (even for higher res)
  *                               Integrated NASA World Wind Java V0.6 - plus a few new layers (like controls), redid some swing worker routines for thread safteyness
- *                               added substance look and feel (default Raven until Nimbus can work again), fixed: saving of 2D coverage windows, 2D night light effects, and main app window location and size saved.
+ *                               added substance look and feel (default Raven until Nimbus can work again),
+ *                               fixed: saving of 2D coverage windows, 2D night light effects, and main app window location and size saved.
+ *                               - 3D external windows now decorated to match look and feel (if avaiblilble)
  *                                   known issue: 3D internal window doesn't work with v0.6 (nimubs Look and feel only)
  *                                   known issue: webstart cannot save movies (no fix)
  *
@@ -181,6 +183,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JRootPane;
 import javax.swing.JSeparator;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
@@ -1924,7 +1927,35 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
 
         // add close action listener -- to remove window from hash
         iframe.addWindowListener(this);
-        
+
+        // set icon
+        iframe.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/icons/logo/JSatTrakLogo_16.png")));
+
+        ////// SEG 23 March 2009 ///////////////////////////////
+        // Check look and feel to see if this JDialog should have a deocrated window
+        boolean canBeDecoratedByLAF = UIManager.getLookAndFeel().getSupportsWindowDecorations();
+        if(canBeDecoratedByLAF != iframe.isUndecorated())
+        {
+            //boolean wasVisible = iframe.isVisible();
+            //iframe.setVisible(false);
+            iframe.dispose();
+            if(!canBeDecoratedByLAF) //|| wasOriginallyDecoratedByOS
+            {
+                // see the java docs under the method
+                // JFrame.setDefaultLookAndFeelDecorated(boolean
+                // value) for description of these 2 lines:
+                iframe.setUndecorated(false);
+                iframe.getRootPane().setWindowDecorationStyle(JRootPane.NONE);
+
+            }
+            else
+            {
+                iframe.setUndecorated(true);
+                iframe.getRootPane().setWindowDecorationStyle(JRootPane.FRAME);
+            }
+        }
+        ///////////////////////////////// window decoration check
+
         iframe.setVisible(true);
 
         threeDWorking = true;
