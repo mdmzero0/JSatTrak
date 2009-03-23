@@ -87,11 +87,11 @@
  *          3.6.2 11 Jan 2009 -- added a menu to the satellite browser - to load custom satellite TLE data, and create a custom sat
  *          3.7   16 Jan 2009 -- Updates for helping oberservers (based on feed back from Dave Ortiz) - added TLE_user directory for custom tle files that are automatically loaded (with options for category specification)
  *                                                              - Updates to tracking form: polar plot-print,invert colors,limit to horizon, compass points, pass prediction-rize/set Az degrees/compass points, save as csv
- *          3.7.5 20 Mar 2009 -- Change 2D sun terminator resolution to 61 - 51 was reported by a user to cause some unwanted jumps as to which side was filled in.
- *                               Integrated NASA World Wind Java V0.6 - plus a few new layers (like controls)
- *                               added substance look and feel
- *                                   bugs: 3D internal window doesn't work with v0.6 (nimubs Look and feel only), view controls don't work after changin view to center on sat then back to earth. (or on sat itself)
- *                                   todo: saving issues: which 2d windows show covereage data, "2d night lights" effect and parameters(fixed), window location (fixed - app size and lcoation)
+ *          3.7.5 23 Mar 2009 -- Change 2D sun terminator resolution to 61 - 51 was reported by a user to cause some unwanted jumps as to which side was filled in, still has issues at times (even for higher res)
+ *                               Integrated NASA World Wind Java V0.6 - plus a few new layers (like controls), redid some swing worker routines for thread safteyness
+ *                               added substance look and feel (default Raven until Nimbus can work again), fixed: saving of 2D coverage windows, 2D night light effects, and main app window location and size saved.
+ *                                   known issue: 3D internal window doesn't work with v0.6 (nimubs Look and feel only), view controls don't work after changin view to center on sat then back to earth. (or on sat itself)
+ *                                   
  *
  *
  *                              Ideas for next versions: (no particular order)
@@ -213,7 +213,7 @@ import name.gano.file.SaveImageFile;
  */
 public class JSatTrak extends javax.swing.JFrame implements InternalFrameListener, WindowListener, Serializable
 {
-    private String versionString = "Version 3.7.5 (20 Mar 2009)"; // Version of app
+    private String versionString = "Version 3.7.5 (23 Mar 2009)"; // Version of app
     
     // hastable to store all the statelites currently being processed
     private Hashtable<String,AbstractSatellite> satHash = new Hashtable<String,AbstractSatellite>();
