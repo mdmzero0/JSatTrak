@@ -30,7 +30,9 @@ import jsattrak.gui.J2DEarthPanel;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.io.Serializable;
+import java.util.Vector;
 import javax.swing.JInternalFrame;
+import jsattrak.coverage.JSatTrakRenderable;
 
 /**
  *
@@ -73,6 +75,10 @@ public class J2DEarthPanelSave implements Serializable
     private Color landOutlineColor;
     private String dataFileName;
     private boolean showLandMassOutlines;
+
+    // renderable objects
+    Vector<JSatTrakRenderable> renderableObjects; //added 21 March 2009 -- bug to save coverage anaylsis and other renderables
+
     
     /** Creates a new instance of J2DEarthPanelSave */
     public J2DEarthPanelSave(J2DEarthPanel panel, int x, int y, Dimension d)
@@ -111,8 +117,10 @@ public class J2DEarthPanelSave implements Serializable
         landOutlineColor = panel.getRegionLineColor();
         dataFileName = panel.getRegionFileName();
         showLandMassOutlines = panel.isRegionDrawOn();
-        
-        
+
+        // added 21 March 2009 -- bug to save coverage anaylsis and other renderables
+        renderableObjects = panel.getImageMap().getRenderableObjects();
+         
     } // J2DEarthPanelSave constructor
     
     // OUTPUT function, save data from this object back to a new j2dearthpanel and internal frame
@@ -148,6 +156,18 @@ public class J2DEarthPanelSave implements Serializable
         
          // region drawing
         newPanel.setRegionDrawingOptions(showLandMassOutlines, dataFileName, landOutlineColor);
-    }
-    
+
+        //added 21 March 2009 -- bug to save coverage anaylsis and other renderables
+        try
+        {
+            for (JSatTrakRenderable v : renderableObjects)
+            {
+                newPanel.addRenderableObject(v);
+            }
+        } catch (Exception e)
+        {
+            System.out.println("Saved File didn't contain any 2D renderable objects");
+        }
+
+    }  
 } //J2DEarthPanelSave class

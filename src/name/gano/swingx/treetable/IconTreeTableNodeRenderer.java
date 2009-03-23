@@ -21,18 +21,17 @@
 
 package name.gano.swingx.treetable;
 
-import jsattrak.utilities.*;
 import java.awt.Component;
 import java.util.Hashtable;
 import javax.swing.Icon;
 import javax.swing.JTree;
-import javax.swing.tree.DefaultTreeCellRenderer;
+import org.jvnet.substance.api.renderers.SubstanceDefaultTreeCellRenderer;
 
 /**
  *
  * @author sgano
  */
-public class IconTreeTableNodeRenderer extends DefaultTreeCellRenderer
+public class IconTreeTableNodeRenderer extends SubstanceDefaultTreeCellRenderer //DefaultTreeCellRenderer // to work with Substance LAF
 {
     
     

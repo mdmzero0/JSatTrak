@@ -1,7 +1,22 @@
-/*
- * LookAndFeelJDialog.java
+/**
+ * =====================================================================
+ * Copyright (C) 2009 Shawn E. Gano
  *
- * Created on November 11, 2008, 12:50 PM
+ * This file is part of JSatTrak.
+ *
+ * JSatTrak is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * JSatTrak is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with JSatTrak.  If not, see <http://www.gnu.org/licenses/>.
+ * =====================================================================
  */
 
 package jsattrak.gui;
@@ -11,9 +26,11 @@ import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
 import com.jgoodies.looks.plastic.theme.ExperienceBlue;
 import com.jgoodies.looks.plastic.theme.ExperienceGreen;
 import com.jgoodies.looks.plastic.theme.Silver;
-import java.awt.Frame;
+import java.awt.Window;
+import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import jsattrak.utilities.LafChanger;
 
 /**
  *
@@ -21,10 +38,10 @@ import javax.swing.UIManager;
  */
 public class LookAndFeelJDialog extends javax.swing.JDialog
 {
-    Frame parent;
+    JFrame parent;
 
     /** Creates new form LookAndFeelJDialog */
-    public LookAndFeelJDialog(Frame parent, boolean modal)
+    public LookAndFeelJDialog(JFrame parent, boolean modal)
     {
         super(parent, modal);
         initComponents();
@@ -49,6 +66,9 @@ public class LookAndFeelJDialog extends javax.swing.JDialog
         jButton6 = new javax.swing.JButton();
         jButton9 = new javax.swing.JButton();
         jButton10 = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        LafList = new javax.swing.JList();
+        jButton7 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Look and Feel Selector");
@@ -109,6 +129,20 @@ public class LookAndFeelJDialog extends javax.swing.JDialog
             }
         });
 
+        LafList.setModel(new javax.swing.AbstractListModel() {
+            String[] strings = { "Business", "BusinessBlueSteel", "BusinessBlackSteel", "Creme", "CremeCoffee", "Sahara", "Moderate", "OfficeSilver2007", "OfficeBlue2007", "Nebula", "NebulaBrickWall", "Autumn", "MistSilver", "MistAqua", "RavenGraphite", "RavenGraphiteGlass", "Raven", "Magma", "ChallengerDeep", "EmeraldDusk" };
+            public int getSize() { return strings.length; }
+            public Object getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane1.setViewportView(LafList);
+
+        jButton7.setText("Substance Look and Feel");
+        jButton7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton7ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -123,7 +157,9 @@ public class LookAndFeelJDialog extends javax.swing.JDialog
                     .addComponent(jButton6, javax.swing.GroupLayout.DEFAULT_SIZE, 179, Short.MAX_VALUE)
                     .addComponent(jButton10, javax.swing.GroupLayout.DEFAULT_SIZE, 179, Short.MAX_VALUE)
                     .addComponent(jButton9, javax.swing.GroupLayout.DEFAULT_SIZE, 179, Short.MAX_VALUE)
-                    .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, 179, Short.MAX_VALUE))
+                    .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, 179, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 179, Short.MAX_VALUE)
+                    .addComponent(jButton7, javax.swing.GroupLayout.DEFAULT_SIZE, 179, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -145,6 +181,10 @@ public class LookAndFeelJDialog extends javax.swing.JDialog
                 .addComponent(jButton6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton9)
+                .addGap(35, 35, 35)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton7)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -152,44 +192,61 @@ public class LookAndFeelJDialog extends javax.swing.JDialog
     }// </editor-fold>//GEN-END:initComponents
 
 private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+                 
     try
     {
         UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+        for (Window window : Window.getWindows())
+        {
+            SwingUtilities.updateComponentTreeUI(window);
+        }
         SwingUtilities.updateComponentTreeUI(parent);
         // needs to be applied twice for some reason
         UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+        for (Window window : Window.getWindows())
+        {
+            SwingUtilities.updateComponentTreeUI(window);
+        }
         SwingUtilities.updateComponentTreeUI(parent); // apply look and feel over current L&F (otherwise nimbus shows up in correctly)
     }
     catch(Exception ex)
     {
         //System.out.println("Sorry no Nimbus LookAndFeel needs java 6u10 or higher!");
         //ex.printStackTrace();
-        }
+    }
+
+    LafChanger.changeLaf(parent, "com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+    LafChanger.changeLaf(parent, "com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel"); // needs to run twice? (but it isn't)
+
 }//GEN-LAST:event_jButton1ActionPerformed
 
 private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-    try
-    {
-        UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
-        SwingUtilities.updateComponentTreeUI(parent); // apply look and feel over current L&F (otherwise nimbus shows up in correctly)
-    }
-    catch(Exception ex)
-    {
-    }
+     LafChanger.changeLaf(parent, "javax.swing.plaf.metal.MetalLookAndFeel");
+//    try
+//    {
+//        UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+//        SwingUtilities.updateComponentTreeUI(parent); // apply look and feel over current L&F (otherwise nimbus shows up in correctly)
+//    }
+//    catch(Exception ex)
+//    {
+//    }
 }//GEN-LAST:event_jButton2ActionPerformed
 
 private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-    try
-    {
-        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        SwingUtilities.updateComponentTreeUI(parent); // apply look and feel over current L&F (otherwise nimbus shows up in correctly)
-    }
-    catch(Exception ex)
-    {
-    }
+     LafChanger.changeLaf(parent, UIManager.getSystemLookAndFeelClassName());
+//    try
+//    {
+//        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+//        SwingUtilities.updateComponentTreeUI(parent); // apply look and feel over current L&F (otherwise nimbus shows up in correctly)
+//    }
+//    catch(Exception ex)
+//    {
+//    }
 }//GEN-LAST:event_jButton3ActionPerformed
 
 private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+    
+     //LafChanger.changeLaf(parent, "com.sun.java.swing.plaf.motif.MotifLookAndFeel");
     try
     {
         PlasticLookAndFeel.setPlasticTheme(new ExperienceBlue());
@@ -204,6 +261,8 @@ private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 }//GEN-LAST:event_jButton4ActionPerformed
 
 private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+
+    // LafChanger.changeLaf(parent, "com.sun.java.swing.plaf.motif.MotifLookAndFeel");
     try
     {
         PlasticLookAndFeel.setPlasticTheme(new ExperienceGreen());
@@ -218,7 +277,9 @@ private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 }//GEN-LAST:event_jButton5ActionPerformed
 
 private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
-try
+
+     //LafChanger.changeLaf(parent, "com.sun.java.swing.plaf.motif.MotifLookAndFeel");
+    try
     {
         PlasticLookAndFeel.setPlasticTheme(new Silver());
         PlasticLookAndFeel.setTabStyle("Metal"); // makes tabes look much better
@@ -232,7 +293,9 @@ try
 }//GEN-LAST:event_jButton6ActionPerformed
 
 private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
-try
+
+     //LafChanger.changeLaf(parent, "com.sun.java.swing.plaf.motif.MotifLookAndFeel");
+    try
     {
         UIManager.setLookAndFeel(new PlasticXPLookAndFeel());
 
@@ -245,17 +308,26 @@ try
 }//GEN-LAST:event_jButton9ActionPerformed
 
 private void jButton10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton10ActionPerformed
-try
-    {
-        UIManager.setLookAndFeel("com.sun.java.swing.plaf.motif.MotifLookAndFeel");
 
-        SwingUtilities.updateComponentTreeUI(parent); // apply look and feel over current L&F (otherwise nimbus shows up in correctly)
-    }
-    catch(Exception ex)
-    {
-        System.err.println("err:"+ex.toString());
-    }
+    LafChanger.changeLaf(parent, "com.sun.java.swing.plaf.motif.MotifLookAndFeel");
+//    try
+//    {
+//        UIManager.setLookAndFeel("com.sun.java.swing.plaf.motif.MotifLookAndFeel");
+//
+//        SwingUtilities.updateComponentTreeUI(parent); // apply look and feel over current L&F (otherwise nimbus shows up in correctly)
+//    }
+//    catch(Exception ex)
+//    {
+//        System.err.println("err:"+ex.toString());
+//    }
 }//GEN-LAST:event_jButton10ActionPerformed
+
+private void jButton7ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButton7ActionPerformed
+{//GEN-HEADEREND:event_jButton7ActionPerformed
+    String laf = "org.jvnet.substance.skin.Substance" + LafList.getSelectedValue().toString() + "LookAndFeel";
+    LafChanger.changeLaf(parent, laf);
+
+}//GEN-LAST:event_jButton7ActionPerformed
 
     /**
     * @param args the command line arguments
@@ -275,6 +347,7 @@ try
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JList LafList;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton10;
     private javax.swing.JButton jButton2;
@@ -282,7 +355,9 @@ try
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
+    private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton9;
+    private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
 
 }

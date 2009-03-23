@@ -11,6 +11,7 @@
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
     <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="1"/>
@@ -33,6 +34,8 @@
                   <Component id="jButton10" alignment="0" pref="179" max="32767" attributes="1"/>
                   <Component id="jButton9" alignment="0" pref="179" max="32767" attributes="1"/>
                   <Component id="jButton4" alignment="0" pref="179" max="32767" attributes="0"/>
+                  <Component id="jScrollPane1" alignment="0" pref="179" max="32767" attributes="0"/>
+                  <Component id="jButton7" alignment="0" pref="179" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -57,6 +60,10 @@
               <Component id="jButton6" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jButton9" min="-2" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="35" max="-2" attributes="0"/>
+              <Component id="jScrollPane1" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="jButton7" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
@@ -125,6 +132,51 @@
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton10ActionPerformed"/>
+      </Events>
+    </Component>
+    <Container class="javax.swing.JScrollPane" name="jScrollPane1">
+      <AuxValues>
+        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+      <SubComponents>
+        <Component class="javax.swing.JList" name="LafList">
+          <Properties>
+            <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.editors2.ListModelEditor">
+              <StringArray count="20">
+                <StringItem index="0" value="Business"/>
+                <StringItem index="1" value="BusinessBlueSteel"/>
+                <StringItem index="2" value="BusinessBlackSteel"/>
+                <StringItem index="3" value="Creme"/>
+                <StringItem index="4" value="CremeCoffee"/>
+                <StringItem index="5" value="Sahara"/>
+                <StringItem index="6" value="Moderate"/>
+                <StringItem index="7" value="OfficeSilver2007"/>
+                <StringItem index="8" value="OfficeBlue2007"/>
+                <StringItem index="9" value="Nebula"/>
+                <StringItem index="10" value="NebulaBrickWall"/>
+                <StringItem index="11" value="Autumn"/>
+                <StringItem index="12" value="MistSilver"/>
+                <StringItem index="13" value="MistAqua"/>
+                <StringItem index="14" value="RavenGraphite"/>
+                <StringItem index="15" value="RavenGraphiteGlass"/>
+                <StringItem index="16" value="Raven"/>
+                <StringItem index="17" value="Magma"/>
+                <StringItem index="18" value="ChallengerDeep"/>
+                <StringItem index="19" value="EmeraldDusk"/>
+              </StringArray>
+            </Property>
+          </Properties>
+        </Component>
+      </SubComponents>
+    </Container>
+    <Component class="javax.swing.JButton" name="jButton7">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Substance Look and Feel"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton7ActionPerformed"/>
       </Events>
     </Component>
   </SubComponents>

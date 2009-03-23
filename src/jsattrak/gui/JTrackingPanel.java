@@ -306,6 +306,8 @@ public class JTrackingPanel extends javax.swing.JPanel
         jLabel7 = new javax.swing.JLabel();
         azComboBox = new javax.swing.JComboBox();
 
+        jTabbedPane1.setMinimumSize(new java.awt.Dimension(53, 53));
+
         jLabel1.setText("Ground Station:"); // NOI18N
 
         gsComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
@@ -615,7 +617,7 @@ public class JTrackingPanel extends javax.swing.JPanel
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1)
+            .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

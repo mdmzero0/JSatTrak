@@ -89,7 +89,8 @@
  *                                                              - Updates to tracking form: polar plot-print,invert colors,limit to horizon, compass points, pass prediction-rize/set Az degrees/compass points, save as csv
  *          3.7.5 20 Mar 2009 -- Change 2D sun terminator resolution to 61 - 51 was reported by a user to cause some unwanted jumps as to which side was filled in.
  *                               Integrated NASA World Wind Java V0.6 - plus a few new layers (like controls)
- *                                   bugs: 3D internal window doesn't work with v0.6, view controls don't work after changin view to center on sat then back to earth. (or on sat itself)
+ *                               added substance look and feel
+ *                                   bugs: 3D internal window doesn't work with v0.6 (nimubs Look and feel only), view controls don't work after changin view to center on sat then back to earth. (or on sat itself)
  *                                   todo: saving issues: which 2d windows show covereage data, "2d night lights" effect and parameters(fixed), window location (fixed - app size and lcoation)
  *
  *
@@ -139,10 +140,10 @@ package jsattrak.gui;
 import bsh.Interpreter;
 import bsh.util.JConsole;
 import bsh.util.NameCompletionTable;
-import jsattrak.objects.GroundStation;
-import jsattrak.about.AboutDialog;
 import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 import com.jgoodies.looks.plastic.theme.ExperienceBlue;
+import jsattrak.objects.GroundStation;
+import jsattrak.about.AboutDialog;
 import com.thoughtworks.xstream.XStream;
 import commandclient.CommandClientGUI;
 import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
@@ -197,6 +198,7 @@ import jsattrak.utilities.J2DEarthPanelSave;
 import jsattrak.utilities.J3DEarthComponent;
 import jsattrak.utilities.J3DEarthlPanelSave;
 import jsattrak.utilities.JstSaveClass;
+import jsattrak.utilities.LafChanger;
 import jsattrak.utilities.SatPropertyPanelSave;
 import jsattrak.utilities.TLE;
 import name.gano.astro.bodies.Sun;
@@ -315,26 +317,42 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
     /** Creates new form JSatTrak */
     public JSatTrak()
     {
+        boolean usingNimbus = false; // flag for updating nimbus
+
         // setup look and feel first        
         // if User has java 6u10 or greater that means NimbusLookAndFeel is supported!
         try
         {
-            UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel"); //
+            // TEMP UNTIL NIMBUS WORKS WITH INTERNAL WINDOWS
+            String laf = "org.jvnet.substance.skin.Substance" + "Raven" + "LookAndFeel";
+            LafChanger.changeLaf(this, laf);
+//            for (J2DEarthPanel w : twoDWindowVec) //strange hack to make the map repaint correctly with the LAF (needed if done at the end)
+//            {
+//                w.setSize(w.getWidth() + 1, w.getHeight());
+//                w.setSize(w.getWidth() - 1, w.getHeight());
+//            }
         }
-        catch(Exception ex1) // default using jgoodies looks plastic theme
+        catch(Exception ex2)
         {
-            PlasticLookAndFeel.setPlasticTheme(new ExperienceBlue());
-            PlasticLookAndFeel.setTabStyle("Metal"); // makes tabes look much better
-
             try
             {
-                UIManager.setLookAndFeel(new PlasticLookAndFeel());
-            }
-            catch(Exception ex)
+                UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel"); //
+                usingNimbus = true;
+            } catch (Exception ex1) // default using jgoodies looks plastic theme
             {
-                ex.printStackTrace();
+                PlasticLookAndFeel.setPlasticTheme(new ExperienceBlue());
+                PlasticLookAndFeel.setTabStyle("Metal"); // makes tabes look much better
+
+                try
+                {
+                    UIManager.setLookAndFeel(new PlasticLookAndFeel());
+                } catch (Exception ex)
+                {
+                    ex.printStackTrace();
+                }
             }
         }
+ 
         
         
         // set locale for decimal seperator issue?
@@ -380,6 +398,10 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         
         // add it to the internal Frame
         satListInternalFrame.setContentPane(objListPanel);
+
+//        // TEST
+//        JObjectListInternalFrame t = new JObjectListInternalFrame(satHash,gsHash,this);
+//        this.addInternalFrame(t);
         
         // by default open a new 2D window to start
         createNew2dWindow();
@@ -409,7 +431,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         {
             addSat2ListByName("ISS (ZARYA)             ");
             satHash.get("ISS (ZARYA)             ").setThreeDModelPath("isscomplete/iss_complete.3ds");// set default 3d model
-            
+
         }
                 
         
@@ -533,16 +555,18 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         //this.twoDWindowVec.get(0).setShowEarthLightsMask(true);
         
         // for some reason nimbus has to be reapplied to work correctly
-        try
+        if (usingNimbus)
         {
-            UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
-            SwingUtilities.updateComponentTreeUI(this); // apply look and feel over current L&F (otherwise nimbus shows up in correctly)
-        }
-        catch(Exception ex)
-        {
-            System.out.println("Sorry no Nimbus LookAndFeel needs java 6u10 or higher!");
+            try
+            {
+                UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+                SwingUtilities.updateComponentTreeUI(this); // apply look and feel over current L&F (otherwise nimbus shows up in correctly)
+            } catch (Exception ex)
+            {
+                System.out.println("Sorry no Nimbus LookAndFeel needs java 6u10 or higher!");
             //ex.printStackTrace();
-        }
+            }
+        } // if using nimbus
                    
     } // constructor
         
@@ -907,17 +931,18 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         satListInternalFrame.setMaximizable(true);
         satListInternalFrame.setResizable(true);
         satListInternalFrame.setTitle("Object List"); // NOI18N
+        satListInternalFrame.setFrameIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/logo/JSatTrakLogo_16.png"))); // NOI18N
         satListInternalFrame.setVisible(true);
 
         javax.swing.GroupLayout satListInternalFrameLayout = new javax.swing.GroupLayout(satListInternalFrame.getContentPane());
         satListInternalFrame.getContentPane().setLayout(satListInternalFrameLayout);
         satListInternalFrameLayout.setHorizontalGroup(
             satListInternalFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 180, Short.MAX_VALUE)
+            .addGap(0, 174, Short.MAX_VALUE)
         );
         satListInternalFrameLayout.setVerticalGroup(
             satListInternalFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 315, Short.MAX_VALUE)
+            .addGap(0, 323, Short.MAX_VALUE)
         );
 
         satListInternalFrame.setBounds(610, 5, 190, 350);
@@ -969,7 +994,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
                 .addComponent(jSeparator7, javax.swing.GroupLayout.PREFERRED_SIZE, 5, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(1, 1, 1)
                 .addGroup(statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(statusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
+                    .addComponent(statusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 17, Short.MAX_VALUE)
                     .addComponent(statusAnimationLabel)
                     .addComponent(statusProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
@@ -1434,6 +1459,8 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         iframe.setContentPane( propPanel );
         iframe.setSize(305+35,335+115); // w, h
         iframe.setLocation(15, 20);
+
+        iframe.setFrameIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/logo/JSatTrakLogo_16.png")));
         
         // save frame
         propPanel.setInternalFrame(iframe);
@@ -1814,6 +1841,8 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         iframe.setSize(600, 350);
         iframe.setLocation(5, 5);
 
+        iframe.setFrameIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/logo/JSatTrakLogo_16.png")));
+
         // add close action listener -- to remove window from hash
         iframe.addInternalFrameListener(this);
 
@@ -1848,6 +1877,8 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         iframe.setSize(400, 350);
         Point p = this.getLocation();
         iframe.setLocation(p.x + 15, p.y + 95);
+
+        iframe.setFrameIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/logo/JSatTrakLogo_16.png")));
 
         //iframe.pack(); // makes wwj slow
         
@@ -2117,6 +2148,8 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         
         iframe.setContentPane( newPanel ); // set contents pane
         iframe.setSize(375,230); // set size w,h
+
+        iframe.setFrameIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/logo/JSatTrakLogo_16.png")));
         
         iframe.setVisible(true);
         addInternalFrame(iframe);
@@ -2281,6 +2314,8 @@ private void coverageMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         iframe.setContentPane(coverageBrowser );
         iframe.setSize(530+35,330+85); // w,h
         iframe.setLocation(10,10);
+
+        iframe.setFrameIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/logo/JSatTrakLogo_16.png")));
         
         coverageBrowser.setIframe(iframe);
         
@@ -2324,6 +2359,8 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         iframe.setContentPane(trackingBrowser );
         iframe.setSize(400+105,320+55); // w,h
         iframe.setLocation(10,10);
+
+        iframe.setFrameIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/logo/JSatTrakLogo_16.png")));
         
         // add close action listener -- to remove window from hash
         iframe.addInternalFrameListener(this);
@@ -2357,6 +2394,8 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         iframe.setContentPane( gsBrowser );
         iframe.setSize(261,380); // w,h
         iframe.setLocation(5,5);
+
+        iframe.setFrameIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/logo/JSatTrakLogo_16.png")));
         
         // add close action listener -- to remove window from hash
         iframe.addInternalFrameListener(this);
@@ -2372,64 +2411,7 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         
    } // showGSBrowserInternalFrame
     
-    /**
-     * @param args the command line arguments
-     * 
-     * if run with no command line parameters the GUI is displayed
-     * if run with a command line argument with the path of a script it will be executed
-     * example : java JSatTrak runme.bsh  > satLog.txt  (will run the script runme.bsh and save output to the satLog.txt file)
-     */
-    public static void main(final String args[])
-    {
-        
-        // no command line arguments
-        if(args.length == 0)
-        {
-            java.awt.EventQueue.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-
-                    new JSatTrak().setVisible(true);
-
-                } // run
-            });
-        }
-        else // no GUI
-        {
-            // see if command line is a exisiting file (assume it is a .bsh file and try to run it)
-            File inScriptFile = new File(args[0]);
-            if(inScriptFile.exists())
-            {
-                long t1 = System.currentTimeMillis();
-                JSatTrak app = new JSatTrak();
-                // runnning bash script
-                try
-                {
-                    app.beanShellInterp.source(args[0]);
-                }
-                catch(Exception ee)
-                {
-                    System.err.println("Error running script: " + ee.toString());
-                }
-
-                // close JSatTrakApp
-                app.dispose();
-                
-                long dt = System.currentTimeMillis() - t1;
-                System.err.println("Time to Execute (sec): " + dt / 1000.0);
-
-            } // file exsists
-            else
-            {
-                System.err.println("File does not exist: " + inScriptFile.getAbsolutePath());
-            }    
-        
-            System.exit(0); // exit
-        
-        }// program ran with line args
-        
-    } // main
+    
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem aboutMenuItem;
@@ -2608,6 +2590,9 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         iframe.addInternalFrameListener(this);
         
         iframe.setLocation(xloc,yloc); // set starting loc
+
+        // add default icon
+        iframe.setFrameIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/logo/JSatTrakLogo_16.png")));
         
         iframe.setVisible(true);
         
@@ -2865,6 +2850,8 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         iframe.setContentPane( propPanel );
         iframe.setSize(605,377+30); // w, h
         iframe.setLocation(pt.x + 15, pt.y + 20);
+
+        iframe.setFrameIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/logo/JSatTrakLogo_16.png")));
         
         // save frame
         propPanel.setInternalFrame(iframe);
@@ -3689,4 +3676,67 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         return earthPanel;
         
     }
+
+
+    /**
+     * @param args the command line arguments
+     *
+     * if run with no command line parameters the GUI is displayed
+     * if run with a command line argument with the path of a script it will be executed
+     * example : java JSatTrak runme.bsh  > satLog.txt  (will run the script runme.bsh and save output to the satLog.txt file)
+     */
+    public static void main(final String args[])
+    {
+
+        // no command line arguments
+        if(args.length == 0)
+        {
+
+
+           java.awt.EventQueue.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+
+                    new JSatTrak().setVisible(true);
+
+                } // run
+            });
+        }
+        else // no GUI
+        {
+            // see if command line is a exisiting file (assume it is a .bsh file and try to run it)
+            File inScriptFile = new File(args[0]);
+            if(inScriptFile.exists())
+            {
+                long t1 = System.currentTimeMillis();
+                JSatTrak app = new JSatTrak();
+                // runnning bash script
+                try
+                {
+                    app.beanShellInterp.source(args[0]);
+                }
+                catch(Exception ee)
+                {
+                    System.err.println("Error running script: " + ee.toString());
+                }
+
+                // close JSatTrakApp
+                app.dispose();
+
+                long dt = System.currentTimeMillis() - t1;
+                System.err.println("Time to Execute (sec): " + dt / 1000.0);
+
+            } // file exsists
+            else
+            {
+                System.err.println("File does not exist: " + inScriptFile.getAbsolutePath());
+            }
+
+            System.exit(0); // exit
+
+        }// program ran with line args
+
+    } // main
+
 }

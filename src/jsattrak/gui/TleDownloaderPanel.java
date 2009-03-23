@@ -24,9 +24,11 @@
 
 package jsattrak.gui;
 
+import java.util.List;
 import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
+import jsattrak.utilities.ProgressStatus;
 import jsattrak.utilities.TLEDownloader;
 
 /**
@@ -203,67 +205,141 @@ private void tleStartDowloadButtonActionPerformed(java.awt.event.ActionEvent evt
     
     
     tleStartDowloadButton.setEnabled(false);
+    // before running swing worker start GUI animations
+    tleProgressBar.setValue(0);
+    tleProgressBar.setStringPainted(true);
+    tleProgressBar.repaint();
+    app.startStatusAnimation();
         
     // create a swing worker thread to download data from
-    SwingWorker<Boolean,Object> worker = new SwingWorker<Boolean,Object>() 
+    SwingWorker<Boolean, ProgressStatus> worker = new SwingWorker<Boolean, ProgressStatus>()
     {
+        boolean result;
+        String errorMessage;
 
-        public Boolean doInBackground() 
+        @Override
+        public Boolean doInBackground()
         {
-            tleProgressBar.setValue(0);
-            tleProgressBar.setStringPainted(true);
-            tleProgressBar.repaint();    
-            
-            app.startStatusAnimation(); // start status animation
-    
-            TLEDownloader tleDownloader = new TLEDownloader(tleProgressBar, tleProgressLabel);
-            
+//            tleProgressBar.setValue(0);
+//            tleProgressBar.setStringPainted(true);
+//            tleProgressBar.repaint();
+            publish(new ProgressStatus(0,""));
+
+            //app.startStatusAnimation(); // start status animation, move outside?
+
+            TLEDownloader tleDownloader = new TLEDownloader(); // tleProgressBar, tleProgressLabel);
+
             // get proxy data
-            if(proxyCheckBox.isSelected())
+            if (proxyCheckBox.isSelected())
             {
                 // proxy is on
                 tleDownloader.setUsingProxy(true);
                 tleDownloader.setProxyHost(proxyHostTextField.getText());
                 tleDownloader.setProxyPort(proxyPortField.getText());
             }
+
+            // run the downloader, and publish the progress after each file
+            // do download
+            result = tleDownloader.startTLEDownload();
+
+            // if started okay download the files
+            if (result)
+            {
+                // while there is more to download and there are no errors
+                while (tleDownloader.hasMoreToDownload() && result)
+                {
+                    publish( new ProgressStatus(tleDownloader.getPercentComplete(), tleDownloader.getNextFileName())  );
+
+                    result = tleDownloader.downloadNextTLE();
+                }
+            }
+            publish(new ProgressStatus(100,"")); // finished
+            //boolean result = tleDownloader.downloadTLEs();
+
+            // --- is this stuff below thread safe??? or should this be run in the done() method? -----
+//
+//            // display sucess/failure to user
+//            if (result) // success
+//            {
+//                // update TLE data in JSatTrak list
+//                app.updateTleDataInCurrentList();
+//
+//                // let user know everything went well
+//                String message = "Satellite TLE data was successfully updated!";
+//                JOptionPane.showMessageDialog(app, message, "Update Success", JOptionPane.INFORMATION_MESSAGE);
+//
+//                app.setStatusMessage(message);
+//
+//                iframe.setVisible(false); // close this window
+//            }
+//            else
+//            {
+//                String message = "ERROR Updating TLE Data: " + tleDownloader.getErrorText();
+//                JOptionPane.showMessageDialog(app, message, "ERROR", JOptionPane.ERROR_MESSAGE);
+//                app.setStatusMessage(message);
+//            }
+            // ---------------------------------------------------
+            // save error if there is one
+            if(!result)
+            {
+                errorMessage = "ERROR Updating TLE Data: " + tleDownloader.getErrorText();
+            }
+
+
+            return new Boolean(result);
+
+        }
+
+        // runs every once in a while to update GUI, use publish( int ) and the int will be added to the List
+        @Override
+        protected void process(List<ProgressStatus> chunks)
+        {
+            ProgressStatus ps = chunks.get(chunks.size() - 1);
+            //int val = (int) (); //get the last elelemtn in the list
+            //System.out.println(ps.getPercentComplete()+"");
+            tleProgressBar.setValue(ps.getPercentComplete());
+            tleProgressBar.repaint();
+            tleProgressLabel.setText("Downloading File: " + ps.getStatusText());
             
-            // run the downloader
-            boolean result = tleDownloader.downloadTLEs();
-            
+        }
+
+        @Override
+        protected void done()
+        {
+            // update gui as needed when finished... stop animation reset progress bar etc.
+            app.stopStatusAnimation();
+
+            tleProgressBar.setValue(0);
+            tleProgressBar.setStringPainted(false);
+            tleProgressLabel.setText("");
+
+            // give button back to user
+            tleStartDowloadButton.setEnabled(true);
+
             // display sucess/failure to user
-            if(result) // success
+            if (result) // success
             {
                 // update TLE data in JSatTrak list
                 app.updateTleDataInCurrentList();
-                
+
                 // let user know everything went well
                 String message = "Satellite TLE data was successfully updated!";
                 JOptionPane.showMessageDialog(app, message, "Update Success", JOptionPane.INFORMATION_MESSAGE);
-                
-                app.setStatusMessage(message); 
-                
+
+                app.setStatusMessage(message);
+
                 iframe.setVisible(false); // close this window
             }
             else
             {
-                String message = "ERROR Updating TLE Data: " + tleDownloader.getErrorText();
-                JOptionPane.showMessageDialog(app, message, "ERROR", JOptionPane.ERROR_MESSAGE);
-                app.setStatusMessage(message);   
+                //String message = "ERROR Updating TLE Data: " + tleDownloader.getErrorText();
+                JOptionPane.showMessageDialog(app, errorMessage, "ERROR", JOptionPane.ERROR_MESSAGE);
+                app.setStatusMessage(errorMessage);
             }
-            
-            app.stopStatusAnimation();
-            
-            tleProgressBar.setValue(0);
-            tleProgressBar.setStringPainted(false);
-            tleProgressLabel.setText(""); 
-            
-            // give button back to user
-            tleStartDowloadButton.setEnabled(true);
-            
-            return new Boolean(result);
-            
-         }
+
+        } // done
     };
+    // execute swing worker
     worker.execute();
     //System.out.println(worker.get().toString());
     

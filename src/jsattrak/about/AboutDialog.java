@@ -24,6 +24,7 @@
 package jsattrak.about;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
@@ -87,7 +88,8 @@ public class AboutDialog extends JDialog implements FadeListener
         
         // title
         JLabel title = new JLabel("JSatTrak");
-        title.setFont(new Font("Arial", Font.BOLD, 24)); 
+        title.setFont(new Font("Arial", Font.BOLD, 24));
+        title.setForeground(Color.BLACK);
         Dimension size = title.getPreferredSize();
         title.setBounds(145 + insets.left, 60 + insets.top, size.width, size.height);
         form.add(title);
@@ -100,6 +102,7 @@ public class AboutDialog extends JDialog implements FadeListener
         
         // sub title
         JLabel subtitle= new JLabel("Java Satellite Tracker");
+        subtitle.setForeground(Color.BLACK);
         size = subtitle.getPreferredSize();
         subtitle.setBounds(140 + insets.left, 90 + insets.top, size.width, size.height);
         form.add(subtitle);
@@ -113,12 +116,14 @@ public class AboutDialog extends JDialog implements FadeListener
         JLabel mainText = new JLabel("Created and Developed by:");
         size = mainText.getPreferredSize();
         mainText.setBounds(hozSpace + insets.left, vertSpace + insets.top, size.width, size.height);
+        mainText.setForeground(Color.BLACK);
         form.add(mainText);
         vertSpace = vertSpace + vertDelta; 
         
         JLabel mainText2 = new JLabel("Shawn E. Gano, shawn@gano.name");
         size = mainText2.getPreferredSize();
         mainText2.setBounds(hozSpace+indent + insets.left, vertSpace + insets.top, size.width, size.height);
+        mainText2.setForeground(Color.BLACK);
         form.add(mainText2);
         vertSpace = vertSpace + vertDelta; 
         
@@ -139,13 +144,15 @@ public class AboutDialog extends JDialog implements FadeListener
         JLabel verText = new JLabel(version);
         verText.setFont(new Font("Arial", Font.BOLD, 12)); 
         size = verText.getPreferredSize();
-        verText.setBounds(205 + insets.left, 175 + insets.top, size.width, size.height); 
+        verText.setBounds(205 + insets.left, 175 + insets.top, size.width, size.height);
+        verText.setForeground(Color.BLACK);
         form.add(verText);
         
         // version label  for World Wind:
         JLabel verText2 = new JLabel(wwjVersion);
         size = verText2.getPreferredSize();
         verText2.setBounds(205 + insets.left, 195 + insets.top, size.width, size.height);
+        verText2.setForeground(Color.BLACK);
         form.add(verText2);
         
         form.setOpaque(false);

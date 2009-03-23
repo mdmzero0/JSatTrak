@@ -12,6 +12,7 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.Vector;
 import javax.swing.DefaultListModel;
@@ -26,6 +27,7 @@ import jsattrak.coverage.GrayColorMap;
 import jsattrak.coverage.HotColorMap;
 import jsattrak.objects.AbstractSatellite;
 import jsattrak.utilities.CustomFileFilter;
+import jsattrak.utilities.ProgressStatus;
 import jsattrak.utilities.UnoptimizedDeepCopy;
 import name.gano.astro.time.Time;
 
@@ -928,7 +930,7 @@ private void runButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
     ca.clearCoverageData(startJulianDate);
 
     // create a thread to do calulations in background
-    SwingWorker worker = new SwingWorker()
+    SwingWorker<Object, Integer> worker = new SwingWorker<Object, Integer>()
     {
        @Override
         public Object doInBackground() // Vector<String>
@@ -954,7 +956,8 @@ private void runButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
                 ca.performCoverageAnalysis(currentTime, tempSatHash);
                 
                 //Update progress bar
-                runProgressBar.setValue( (int)Math.round(100*(1.0-(stopJulianDate.getMJD()-currentTime.getMJD())/(stopJulianDate.getMJD()-startJulianDate.getMJD()))) );
+                publish( (int)Math.round(100*(1.0-(stopJulianDate.getMJD()-currentTime.getMJD())/(stopJulianDate.getMJD()-startJulianDate.getMJD()))) );
+                //runProgressBar.setValue( (int)Math.round(100*(1.0-(stopJulianDate.getMJD()-currentTime.getMJD())/(stopJulianDate.getMJD()-startJulianDate.getMJD()))) );
                 
                 // increment time
                 currentTime.addSeconds(timeStep);
@@ -964,12 +967,28 @@ private void runButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
   
             // NEED TO ADD TIME START AND STOP TO CA OBJECT - to SAVE IN DIALOG AND SO USER KNOWS!!!!
 
-            runProgressBar.setValue(0); // update progress bar
-            
-            app.forceRepainting();
 
             return null;
         } //doInBackground
+
+       // runs every once in a while to update GUI, use publish( int ) and the int will be added to the List
+        @Override
+        protected void process(List<Integer> chunks)
+        {
+            int val = chunks.get(chunks.size() - 1);
+
+            runProgressBar.setValue( val );
+            runProgressBar.repaint();
+
+        }
+
+         @Override
+        protected void done()
+        {
+            runProgressBar.setValue(0); // update progress bar
+
+            app.forceRepainting();
+        } // done -- update GUI at the finish of process
 
     }; // swing worker
 

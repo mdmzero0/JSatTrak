@@ -36,9 +36,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.Vector;
-import javax.imageio.ImageIO;
 import javax.media.MediaLocator;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -466,7 +466,7 @@ public class JCreateMovieDialog extends javax.swing.JDialog
         
         // do the long work in a thread so progress bar can be updated
         final String outputMoviePathFinal = outputMoviePath;
-        SwingWorker worker = new SwingWorker()
+        SwingWorker<Object, Integer> worker = new SwingWorker<Object, Integer>()
                 {
                     
                     public Vector<String> doInBackground()
@@ -499,7 +499,8 @@ public class JCreateMovieDialog extends javax.swing.JDialog
                             // save file name
                             inputFiles.addElement(tempDirStr + "/" + rootNameTempImages + i + ".jpg");
 
-                            movieStatusBar.setValue((int) (100.0 * (i + 1.0) / numFrames));
+                             publish((int) (100.0 * (i + 1.0) / numFrames));
+                            //movieStatusBar.setValue((int) (100.0 * (i + 1.0) / numFrames));
 
                             // update time
                             startTime.addSeconds(timeStep);
@@ -542,8 +543,8 @@ public class JCreateMovieDialog extends javax.swing.JDialog
                             JOptionPane.showMessageDialog(null, "ERROR Creating Output File (check permissions)", "ERROR", JOptionPane.ERROR_MESSAGE);
                             System.err.println("Cannot build media locator from: " + outputMoviePathFinal);
                             
-                            movieStatusBar.setIndeterminate(false);
-                            movieStatusBar.setValue(0);
+                            //movieStatusBar.setIndeterminate(false);
+                            publish(0);
                             movieStatusBar.setString("ERROR!");
                             return inputFiles;
                         }
@@ -554,13 +555,34 @@ public class JCreateMovieDialog extends javax.swing.JDialog
                         // clean up ============
                         boolean cleanSuccess = deleteDirectory(tempDirStr);
                         
-                        movieStatusBar.setIndeterminate(false);
-                        movieStatusBar.setValue(0);
+                        //movieStatusBar.setIndeterminate(false);
+                        publish(0);
                         movieStatusBar.setString("Finished!");
                         
                         return inputFiles;
+                    } // doInBackground
+
+                    // runs every once in a while to update GUI, use publish( int ) and the int will be added to the List
+                    @Override
+                    protected void process(List<Integer> chunks)
+                    {
+                        int val = chunks.get(chunks.size() - 1);
+
+                        movieStatusBar.setValue(val);
+                        movieStatusBar.repaint();
+
                     }
-                    
+
+                    @Override
+                    protected void done()
+                    {
+                        movieStatusBar.setIndeterminate(false);
+
+                        movieStatusBar.setValue(0); // update progress bar
+
+                        app.forceRepainting();
+                    } // done -- update GUI at the finish of process
+     
                    
                     
                 }; // swing worker

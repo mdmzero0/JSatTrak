@@ -25,9 +25,9 @@ import java.awt.Component;
 import java.util.Hashtable;
 import javax.swing.Icon;
 import javax.swing.JTree;
-import javax.swing.tree.DefaultTreeCellRenderer;
+import org.jvnet.substance.api.renderers.SubstanceDefaultTreeCellRenderer;
 
-public class IconTreeNodeRenderer extends DefaultTreeCellRenderer
+public class IconTreeNodeRenderer extends SubstanceDefaultTreeCellRenderer //DefaultTreeCellRenderer to work with Substance LAF
 {
 
     public Component getTreeCellRendererComponent(JTree tree, Object value,

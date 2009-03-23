@@ -51,10 +51,10 @@ import name.gano.file.IOFileFilter;
  *
  * @author sgano
  */
-public class SatBrowserTleDataLoader extends SwingWorker
+public class SatBrowserTleDataLoader extends SwingWorker<Boolean,ProgressStatus>
 {
-    JProgressDialog jProgDialog = null;
-    boolean dialogCreated = false;
+    //JProgressDialog jProgDialog = null; // SEG - 22 March 2009 is this needed?
+    //boolean dialogCreated = false; // SEG - 22 March 2009 is this needed?
     
     //JProgressDialog dialog;
     
@@ -73,6 +73,8 @@ public class SatBrowserTleDataLoader extends SwingWorker
 
     // path to local user supplied TLE data files
     static String usrTLEpath = "data/tle_user";
+
+    private JProgressDialog dialog = null;
     
     
     /** Creates a new instance of ProgressBarWorker
@@ -102,7 +104,7 @@ public class SatBrowserTleDataLoader extends SwingWorker
     {
         boolean result = true;
         
-        dialogCreated = true;
+        //dialogCreated = true; // SEG - 22 March 2009 is this needed?
        
         //=================================================================================================
         
@@ -134,8 +136,10 @@ public class SatBrowserTleDataLoader extends SwingWorker
         {
             System.out.println("2 JProgress Dialog Parent == NULL" );
         }
+
+        // SEG - 22 MArch 2009 - don't create unless needed
+        //final JProgressDialog dialog = new JProgressDialog(parentComponent, false);
         
-        final JProgressDialog dialog = new JProgressDialog(parentComponent, false);
         if( !(new File(tleDownloader.getLocalPath()).exists()) ||  !(new File(tleDownloader.getTleFilePath(0)).exists()) )
         {
             // ask user if they want to load them from the web: (and tab for proxy options)
@@ -153,7 +157,7 @@ public class SatBrowserTleDataLoader extends SwingWorker
                 // create a swing worker thread to download data from
                 //worker = new ProgressBarWorker(parent);
                 //worker.execute();
-                //dialog = new JProgressDialog(parent, false);
+                dialog = new JProgressDialog(parentComponent, false);
                 dialog.setVisible(true);
                 
                 
@@ -223,9 +227,10 @@ public class SatBrowserTleDataLoader extends SwingWorker
                     tleReader = new BufferedReader(isr); // from the web
                     
                     // update progress?
-                    dialog.setProgress( (int) Math.round( (i*100.0)/ tleDownloader.fileNames.length) );
-                    dialog.repaint();
-                    dialog.setStatusText(tleDownloader.fileNames[i]);                    
+                    publish( new ProgressStatus((int) Math.round( (i*100.0)/ tleDownloader.fileNames.length), tleDownloader.fileNames[i]) );
+//                    dialog.setProgress( (int) Math.round( (i*100.0)/ tleDownloader.fileNames.length) );
+//                    dialog.repaint();
+//                    dialog.setStatusText(tleDownloader.fileNames[i]);
                 }
                 
                 String nextLine = null;
@@ -314,12 +319,37 @@ public class SatBrowserTleDataLoader extends SwingWorker
         
         return new Boolean(result);
         
-    }
-    
-    public void setProg(int percent)
+    } // do in background
+
+    // runs every once in a while to update GUI, use publish( int ) and the int will be added to the List
+    @Override
+    protected void process(List<ProgressStatus> chunks)
     {
-        jProgDialog.setProgress(percent);
+        if(dialog == null)
+        {
+            dialog = new JProgressDialog(parentComponent, false);
+        }
+
+        ProgressStatus ps = chunks.get(chunks.size() - 1);
+        //int val = (int) (); //get the last elelemtn in the list
+        //System.out.println(ps.getPercentComplete()+"");
+        dialog.setProgress( ps.getPercentComplete() );
+        dialog.repaint();
+        dialog.setStatusText("Downloading File: " + ps.getStatusText());
+
     }
+
+     @Override
+    protected void done()
+    {
+    }
+
+
+// SEG - 22 March 2009 is this needed?
+//    public void setProg(int percent)
+//    {
+//        jProgDialog.setProgress(percent);
+//    }
 
 
     // =========================================================

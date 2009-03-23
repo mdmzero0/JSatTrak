@@ -170,7 +170,7 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
 
         // make a new instace from the shared wwj resource!
         wwd = new WorldWindowGLJPanel(app.getWwd());
-        
+
         // add WWJ to panel
         //wwd = new WorldWindowGLJPanel(); // lightweight component
         wwd.setPreferredSize(new java.awt.Dimension(600, 400));
