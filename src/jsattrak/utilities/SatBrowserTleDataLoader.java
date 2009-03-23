@@ -1,7 +1,7 @@
 /*
  * ProgressBarWorker.java
  *=====================================================================
- * Copyright (C) 2008 Shawn E. Gano
+ * Copyright (C) 2009 Shawn E. Gano
  * 
  * This file is part of JSatTrak.
  * 
@@ -19,6 +19,8 @@
  * along with JSatTrak.  If not, see <http://www.gnu.org/licenses/>.
  * =====================================================================
  * Created on August 22, 2007, 1:23 PM
+ *
+ * updated 23 MArch 2009 - made thread safe
  *
  */
 
@@ -75,6 +77,11 @@ public class SatBrowserTleDataLoader extends SwingWorker<Boolean,ProgressStatus>
     static String usrTLEpath = "data/tle_user";
 
     private JProgressDialog dialog = null;
+
+    boolean loadTLEfromWeb = false;
+    TLEDownloader tleDownloader;
+    boolean userSelectedNoToDownload = false;
+    int satCount = 0;
     
     
     /** Creates a new instance of ProgressBarWorker
@@ -91,8 +98,57 @@ public class SatBrowserTleDataLoader extends SwingWorker<Boolean,ProgressStatus>
         this.parentComponent = parentComponent;
         this.tleOutputTextArea = tleOutputTextArea;
         this.satTree = satTree;
+
+        // do checks to see if data storage dir exsists and determine if this is webstart
+      // Check to see if TLE directory exisits if not ask user if they want to download them from the web
+        // no Local TLE were found would you like to download them directly from the web?
+
+        tleDownloader = new TLEDownloader();
+
+        loadTLEfromWeb = false;
+        //ProgressBarWorker worker = null;
+        //dialog  = new JProgressDialog(parentComponent, true);
+        if(parentComponent == null)
+        {
+            System.out.println("2 JProgress Dialog Parent == NULL" );
+        }
+
+        // SEG - 22 MArch 2009 - don't create unless needed
+        //final JProgressDialog dialog = new JProgressDialog(parentComponent, false);
+
+        if( !(new File(tleDownloader.getLocalPath()).exists()) ||  !(new File(tleDownloader.getTleFilePath(0)).exists()) )
+        {
+            // ask user if they want to load them from the web: (and tab for proxy options)
+            // tell them it may take longer to open
+            LoadTleDirectDialog dlg = new LoadTleDirectDialog(parentComponent, true); // modal so it waits for the user to respond
+            dlg.setVisible(true);
+
+
+            // if they want to load them from the web:
+            if(dlg.isWasYesSelected())
+            {
+                loadTLEfromWeb = true; // must load them
+
+                // maybe pop open a progress bar here??
+                // create a swing worker thread to download data from
+                //worker = new ProgressBarWorker(parent);
+                //worker.execute();
+                dialog = new JProgressDialog(parentComponent, false);
+                dialog.setVisible(true);
+
+
+
+            }
+            else
+            {
+                loadTLEfromWeb = true; // must load them (but user said no)
+                userSelectedNoToDownload = true;
+                //return new Boolean(result); // return as if nothing was wrong but no sat browswer will be shown
+            }
+
+        } // TLE files exisit?
         
-    }
+    } // SatBrowserTleDataLoader
     
 
     /**
@@ -109,7 +165,7 @@ public class SatBrowserTleDataLoader extends SwingWorker<Boolean,ProgressStatus>
         //=================================================================================================
         
         
-        TLEDownloader tleDownloader = new TLEDownloader();
+        //TLEDownloader tleDownloader = new TLEDownloader();
         
         // create a hashmap of top level nodes
         mainNodesHash = new Hashtable<String,DefaultMutableTreeNode>();
@@ -124,51 +180,15 @@ public class SatBrowserTleDataLoader extends SwingWorker<Boolean,ProgressStatus>
         // current TLE
         TLE currentTLE = null;
         
-        int satCount = 0;
+        satCount = 0;
         
-        
-        // Check to see if TLE directory exisits if not ask user if they want to download them from the web
-        // no Local TLE were found would you like to download them directly from the web?
-        boolean loadTLEfromWeb = false;
-        //ProgressBarWorker worker = null;
-        //dialog  = new JProgressDialog(parentComponent, true);
-        if(parentComponent == null)
-        {
-            System.out.println("2 JProgress Dialog Parent == NULL" );
-        }
-
-        // SEG - 22 MArch 2009 - don't create unless needed
-        //final JProgressDialog dialog = new JProgressDialog(parentComponent, false);
-        
-        if( !(new File(tleDownloader.getLocalPath()).exists()) ||  !(new File(tleDownloader.getTleFilePath(0)).exists()) )
-        {
-            // ask user if they want to load them from the web: (and tab for proxy options)
-            // tell them it may take longer to open
-            LoadTleDirectDialog dlg = new LoadTleDirectDialog(parentComponent, true); // modal so it waits for the user to respond
-            dlg.setVisible(true);
-            
-            
-            // if they want to load them from the web: 
-            if(dlg.isWasYesSelected())
-            {
-                loadTLEfromWeb = true; // must load them
-                
-                // maybe pop open a progress bar here??
-                // create a swing worker thread to download data from
-                //worker = new ProgressBarWorker(parent);
-                //worker.execute();
-                dialog = new JProgressDialog(parentComponent, false);
-                dialog.setVisible(true);
-                
-                
-                
-            }
-            else
-            {
+        /////////////////////////////////////////////////////////
+        // if data file dir doesn't exist and the user said no to downloading them then exit
+       if(loadTLEfromWeb && userSelectedNoToDownload )
+       {
                 return new Boolean(result); // return as if nothing was wrong but no sat browswer will be shown
-            }
-            
-        } // TLE files exisit?
+       }
+        ///////////////////////////////////////////////
 
         
 
@@ -300,18 +320,7 @@ public class SatBrowserTleDataLoader extends SwingWorker<Boolean,ProgressStatus>
             System.out.println("Error loading user supplied TLE data files:" + e.toString());
         } // end of trying to load user supplied TLE files
 
-        if(loadTLEfromWeb)
-        {
-            dialog.setVisible(false); // close progress dialog
-        }
-        
-        
-        // display number of satellites in list
-        tleOutputTextArea.setText("Number of Satellites in list: "+satCount);
-        
-               
-        // auto expand root node
-        satTree.expandRow(0);
+       
         
         //=================================================================================================
         
@@ -342,7 +351,17 @@ public class SatBrowserTleDataLoader extends SwingWorker<Boolean,ProgressStatus>
      @Override
     protected void done()
     {
-    }
+        if(loadTLEfromWeb)
+        {
+            dialog.setVisible(false); // close progress dialog
+        }
+
+        // display number of satellites in list
+        tleOutputTextArea.setText("Number of Satellites in list: " + satCount);
+
+        // auto expand root node
+        satTree.expandRow(0);
+    } // done
 
 
 // SEG - 22 March 2009 is this needed?

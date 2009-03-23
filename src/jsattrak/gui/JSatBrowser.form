@@ -114,7 +114,7 @@
                   <SubComponents>
                     <Component class="javax.swing.JTree" name="satTree">
                       <Properties>
-                        <Property name="toolTipText" type="java.lang.String" value="Drag Satellite(s) over to Satellite List"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Drag Satellite(s) over to Object List"/>
                         <Property name="dragEnabled" type="boolean" value="true"/>
                       </Properties>
                       <Events>

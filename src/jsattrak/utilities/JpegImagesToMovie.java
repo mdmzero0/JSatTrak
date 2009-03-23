@@ -193,6 +193,21 @@ public class JpegImagesToMovie implements ControllerListener, DataSinkListener {
 	DataSink dsink;
 
 	try {
+        // to fix saving movies from web start
+//        SecurityManager security = System.getSecurityManager();
+//        if(security != null)
+//        {
+//             System.out.println("resetting secuirty mangager");
+//             com.sun.media.util.Registry.set("secure.allowSaveFileFromApplets", Boolean.TRUE);
+//
+//             SecurityManager sm = new SecurityManager();
+//             System.setSecurityManager(sm);
+//        }
+//        else
+//        {
+//            System.out.println("no secuirty mangager");
+//        }
+
 	    System.err.println("- create DataSink for: " + outML);
 	    dsink = Manager.createDataSink(ds, outML);
 	    dsink.open();

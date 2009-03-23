@@ -43,6 +43,8 @@ public class Console extends FilterOutputStream
                 new PrintStream(
                 new Console(new ByteArrayOutputStream()));
         System.setOut(printStream);
+        // send errors to the console -- 23 March 2009 -- for web start debugging
+        System.setErr(printStream);
     }
 
     public Console(OutputStream out)
