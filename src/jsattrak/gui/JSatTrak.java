@@ -102,6 +102,7 @@
  *                                  - Launch Vehicle "Simple Ascent" (or missile - Ballistic) 
  *                                  - Orbit Dertermination tool
  *                                  - track aircraft? (does this mean I need to rename the app?)
+ *                                  - swath planning
  *        
  */
 // notes: not good to use rk78 in a solver loop because direvatives inaccurate, because solution changes slightly near end.?
