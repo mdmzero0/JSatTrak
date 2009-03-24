@@ -388,6 +388,8 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         wwjPanel = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
 
+        setMinimumSize(new java.awt.Dimension(50, 50));
+        setPreferredSize(new java.awt.Dimension(50, 50));
         setLayout(new java.awt.BorderLayout());
 
         jToolBar1.setFloatable(false);
