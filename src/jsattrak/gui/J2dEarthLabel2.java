@@ -820,6 +820,7 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
 // ==============================================================================================
 ///  FUNCTION TO DRAW A FOOT PRINT ==============================================================
      // alpha = 0-1 amount of transparency in footprint (~0.2f)
+    // Assumes a spherical Earth? - maybe not see ecef2lla()
     private void drawFootPrint(Graphics2D g2, double lat, double lon, double alt, boolean fillFootPrint, Color outlineColor, Color FillColor, float alpha, int numPtsFootPrint)
     {
         
@@ -862,7 +863,7 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
         double theta = 0+Math.PI/2.0; // with extra offset of pi/2 so circle starts left of center going counter clockwise
         double phi = lambda0;
         
-        // position
+        // position - on the surface of the Earth (spherical approx) - depending on how LLA is calculated geodetic or geographic
         double[] pos = new double[3];
         pos[0] = AstroConst.R_Earth*Math.cos(theta)*Math.sin(phi);
         pos[1] = AstroConst.R_Earth*Math.sin(theta)*Math.sin(phi);

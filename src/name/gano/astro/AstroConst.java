@@ -35,7 +35,7 @@ public class AstroConst
      */
     public final static double GM_Earth = 398600.4415e+9; // 9
     /**
-     * Radius Earth [m]; WGS-84 (semi-major axis, a)
+     * Radius Earth [m]; WGS-84 (semi-major axis, a) (Equatorial Radius)
      */
     public final static double R_Earth = 6378.1363E3; // Radius Earth [m]; WGS-84
     /**
