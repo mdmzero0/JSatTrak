@@ -94,7 +94,7 @@
  *                               - 3D external windows now decorated to match look and feel (if avaiblilble)
  *                                   known issue: 3D internal window doesn't work with v0.6 (nimubs Look and feel only)
  *                                   known issue: webstart cannot save movies (no fix)
- *
+ *          3.7.6 24 Mar 2009 -- resize fix on 3D external window (in 3.7.5 they could only be made bigger)
  *
  *                              Ideas for next versions: (no particular order)
  *                                  - DATA out! - Reports and graphs and exporting of data out of program
@@ -217,7 +217,7 @@ import name.gano.file.SaveImageFile;
  */
 public class JSatTrak extends javax.swing.JFrame implements InternalFrameListener, WindowListener, Serializable
 {
-    private String versionString = "Version 3.7.5 (23 Mar 2009)"; // Version of app
+    private String versionString = "Version 3.7.6 (24 Mar 2009)"; // Version of app
     
     // hastable to store all the statelites currently being processed
     private Hashtable<String,AbstractSatellite> satHash = new Hashtable<String,AbstractSatellite>();
