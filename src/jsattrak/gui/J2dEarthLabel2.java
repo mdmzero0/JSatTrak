@@ -856,7 +856,7 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
         double beta = (90*Math.PI/180.0-lat); // latitude center (pitch)
         double gamma = -lon+180.0*Math.PI/180.0; // longitude (yaw)
         
-        // rotation matrix - 20-March 2009 SEG -- amy want to convert LLA from geodetic to spherical
+        // rotation matrix - 20-March 2009 SEG -- may want to convert LLA from geographic to geocentric?
         double[][] M = new double[][] {{Math.cos(beta)*Math.cos(gamma), Math.sin(gamma), -Math.sin(beta)*Math.cos(gamma)},
         {-Math.cos(beta)*Math.sin(gamma),Math.cos(gamma), Math.sin(beta)*Math.sin(gamma)},
         {Math.sin(beta), 0.0, Math.cos(beta)}};
