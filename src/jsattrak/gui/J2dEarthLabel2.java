@@ -851,12 +851,12 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
         // Polygon shape -- for filling?
         footprint = new Polygon();
         
-        double lambda0 = Math.acos(AstroConst.R_Earth/(AstroConst.R_Earth+alt));
+        double lambda0 = Math.acos(AstroConst.R_Earth/(AstroConst.R_Earth+alt)); // assumes a spherical Earth - cone half angle from the center of the earth
         
         double beta = (90*Math.PI/180.0-lat); // latitude center (pitch)
         double gamma = -lon+180.0*Math.PI/180.0; // longitude (yaw)
         
-        // rotation matrix
+        // rotation matrix - 20-March 2009 SEG -- amy want to convert LLA from geodetic to spherical
         double[][] M = new double[][] {{Math.cos(beta)*Math.cos(gamma), Math.sin(gamma), -Math.sin(beta)*Math.cos(gamma)},
         {-Math.cos(beta)*Math.sin(gamma),Math.cos(gamma), Math.sin(beta)*Math.sin(gamma)},
         {Math.sin(beta), 0.0, Math.cos(beta)}};
@@ -864,6 +864,8 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
         double phi = lambda0;
         
         // position - on the surface of the Earth (spherical approx) - depending on how LLA is calculated geodetic or geographic
+        // uses the parametric equation of a sphere, around( varies by theta) the bottom of the sphere with the radius of the earth up an angle phi 
+        // maybe should use mean radius here instead of equatorial?? - doesn't make much difference in the pixel noise
         double[] pos = new double[3];
         pos[0] = AstroConst.R_Earth*Math.cos(theta)*Math.sin(phi);
         pos[1] = AstroConst.R_Earth*Math.sin(theta)*Math.sin(phi);

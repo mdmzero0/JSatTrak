@@ -1,6 +1,6 @@
 /**
  * =====================================================================
- * Copyright (C) 2008 Shawn E. Gano
+ * Copyright (C) 2009 Shawn E. Gano
  * 
  * This file is part of JSatTrak.
  * 
@@ -38,6 +38,18 @@ public class AstroConst
      * Radius Earth [m]; WGS-84 (semi-major axis, a) (Equatorial Radius)
      */
     public final static double R_Earth = 6378.1363E3; // Radius Earth [m]; WGS-84
+    /**
+     * Arithmetic mean radius of the Earth = (2a+b)/3 [m]; WGS-84
+     */
+    public final static double R_Earth_mean = 6371008.7714; // Mean Radius Earth [m]; WGS-84
+    /**
+     * Semi-minor axis of the Earth = polar radius = b = (1?f)a [m]; WGS-84 (semi-major axis, a) (Equatorial Radius)
+     */
+    public final static double R_Earth_minor = 6356752.3142; // [m]; WGS-84
+    /**
+     * Radius Earth [m]; WGS-84 (semi-major axis, a) (Equatorial Radius)
+     */
+    public final static double R_Earth_major = 6378.1363E3; // Radius Earth [m]; WGS-84
     /**
      * Earth Flattening; WGS-84
      */

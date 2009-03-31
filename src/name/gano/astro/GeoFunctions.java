@@ -119,6 +119,40 @@ public class GeoFunctions
         return LLA; //h
         
     } // calculateGeodeticLLA
+
+    /*------------------------------------------------------------------------------
+     *
+     * Site: Calculates the geocentric position of a site on the Earth's surface
+     *
+     * Input:
+     *
+     *   lambda    Geographical longitude (east positive) in [rad]
+     *   phi       Geographical latitude  in [rad]
+     *
+     *<return>:   Geocentric position in [km]
+     *
+     *---------------------------------------------------------------------------- */
+    public static double[] ll2ecef(double lambda, double phi)
+    {
+        //
+        // Constants
+        //
+        //double f = 1.0 / 298.257;   // Flattening
+        double e_sqr = AstroConst.f_Earth * (2.0 - AstroConst.f_Earth);     // Square of eccentricity
+        double cos_phi = Math.cos(phi);    // (Co)sine of geographical latitude
+        double sin_phi = Math.sin(phi);
+        
+        //
+        // Variables
+        //
+        double N = AstroConst.R_Earth_major / Math.sqrt(1.0 - e_sqr * (sin_phi * sin_phi));
+
+
+        // Cartesian position vector [km]
+        return new double[] {N * cos_phi * Math.cos(lambda),
+                             N * cos_phi * Math.sin(lambda),
+                             (1.0 - e_sqr) * N * sin_phi};
+    }
     
     
      /**

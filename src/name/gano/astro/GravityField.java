@@ -35,7 +35,7 @@ public class GravityField
      * @param r Satellite position vector in the inertial system
      * @param E Transformation matrix to body-fixed system
      * @param GM Gravitational coefficient
-     * @param R_ref Reference radius 
+     * @param R_ref Reference radius (equatorial)
      * @param CS Spherical harmonics coefficients (un-normalized)
      * @param n_max Maximum degree 
      * @param m_max Maximum order (m_max<=n_max; m_max=0 for zonals, only)

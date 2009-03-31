@@ -955,7 +955,7 @@ public class JTrackingPanel extends javax.swing.JPanel
                         double finalSigma = Math.asin(sinFinalSigma);
                         double dist = MathUtils.norm(satMOD) * Math.cos( finalSigma - Math.PI/2.0);
                         
-                        if(dist > AstroConst.R_Earth)
+                        if(dist > AstroConst.R_Earth_mean) // changed to mean 30/March/2009 SEG
                         {
                             // sat is in sunlight!
                             passTableModel.setValueAt("Visible", passTableModel.getRowCount()-1, 6); // last row, 5rd column (4)
