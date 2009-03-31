@@ -106,7 +106,7 @@ public class GeoFunctions
         LLA[2] = Nh - N; // altitute, h
         
         //System.out.println("LLA[1]: "+ LLA[1]);
-        LLA[1] = LLA[1] -(280.4606 +360.9856473*d)*Math.PI/180.0; 
+        LLA[1] = LLA[1] -(280.4606 +360.9856473*d)*Math.PI/180.0; // shift based on time
         double div = Math.floor(LLA[1]/(2*Math.PI));
         LLA[1] = LLA[1] - div*2*Math.PI;
         if(LLA[1] > Math.PI)
@@ -128,11 +128,12 @@ public class GeoFunctions
      *
      *   lambda    Geographical longitude (east positive) in [rad]
      *   phi       Geographical latitude  in [rad]
+     *   alt       altitude in meters (this is 0 if on the Earth's surface)
      *
-     *<return>:   Geocentric position in [km]
+     *<return>:   Geocentric position in [m]
      *
      *---------------------------------------------------------------------------- */
-    public static double[] ll2ecef(double lambda, double phi)
+    public static double[] lla2ecef(double lambda, double phi, double alt)
     {
         //
         // Constants
@@ -149,10 +150,79 @@ public class GeoFunctions
 
 
         // Cartesian position vector [km]
-        return new double[] {N * cos_phi * Math.cos(lambda),
-                             N * cos_phi * Math.sin(lambda),
-                             (1.0 - e_sqr) * N * sin_phi};
+        return new double[] {(N+alt) * cos_phi * Math.cos(lambda),
+                             (N+alt) * cos_phi * Math.sin(lambda),
+                             ((1.0 - e_sqr) * N + alt) * sin_phi};
+        // also see (for adding in alt - http://www.posc.org/Epicentre.2_2/DataModel/ExamplesofUsage/eu_cs35.html
     }
+
+    // function to convert earth-centered earth-fixed (ECEF) cartesian coordinates to Lat, Long, Alt
+    // DOES NOT INCLUDE UPDATES FOR time
+    // SEG 31 Match 2009 -- slightly less accurate (but faster) version of: GeoFunctions.calculateGeodeticLLA without time shift of latitude
+    // source: http://www.mathworks.com/matlabcentral/fx_files/7941/1/ecef2lla.m
+    // http://www.mathworks.com/matlabcentral/fileexchange/7941
+    // for the reverse see: (which is the same as: GeoFunctions.lla2ecef
+    // http://www.mathworks.com/matlabcentral/fileexchange/7942
+    public static double[] ecef2lla_Fast(double[] pos) // d is current MDT time
+    {
+        double[] lla = new double[3];
+
+        // WGS84 ellipsoid constants:
+        double a = 6378137;
+        double e = 8.1819190842622e-2; // 0;%8.1819190842622e-2/a;%8.1819190842622e-2;  % 0.003352810664747
+
+        double b = Math.sqrt(Math.pow(a,2.0)*(1-Math.pow(e,2)));
+        double ep = Math.sqrt( (Math.pow(a,2.0)-Math.pow(b,2.0))/Math.pow(b,2.0));
+        double p   = Math.sqrt(Math.pow(pos[0],2.0)+Math.pow(pos[1],2.0));
+        double th  = Math.atan2(a*pos[2],b*p);
+        lla[1] = Math.atan2(pos[1],pos[0]);
+        lla[0] = Math.atan2((pos[2]+Math.pow(ep,2.0)*b*Math.pow(Math.sin(th),3.0)),(p-Math.pow(e,2.0)*a*Math.pow(Math.cos(th),3.0)));
+        double N   = a/Math.sqrt(1-Math.pow(e,2.0)*Math.pow(Math.sin(lla[0]),2.0));
+        lla[2] = p/Math.cos(lla[0])-N;
+
+
+        if(lla[1] < 0)
+        {
+            lla[1] = 2.0*Math.PI + lla[1];
+        }
+
+        // return lon in range [0,2*pi)
+        lla[1] = lla[1] % (2.0*Math.PI); // modulus
+
+        // correct for numerical instability in altitude near exact poles:
+        // (after this correction, error is about 2 millimeters, which is about
+        // the same as the numerical precision of the overall function)
+
+        if(Math.abs(pos[0])<1.0 & Math.abs(pos[1])<1.0)
+        {
+            lla[2] = Math.abs(pos[2])-b;
+        }
+
+        // now scale longitude from [0,360] -> [-180,180]
+        if(lla[1] > Math.PI) // > 180
+        {
+            lla[1] = lla[1] - 2.0*Math.PI;
+        }
+/*
+                // now correct for time shift
+                // account for earth rotations
+                lla[1] = lla[1]-(280.4606 +360.9856473*d)*Math.PI/180.0;
+
+                // correction ??
+                //lla[1] = lla[1]-Math.PI/2.0;
+
+                // now insure [-180,180] range
+                double div = Math.floor(lla[1]/(2*Math.PI));
+                lla[1] = lla[1] - div*2*Math.PI;
+                if(lla[1] > Math.PI)
+                {
+                        lla[1] = lla[1]- 2.0*Math.PI;
+                }
+ */
+
+        return lla;
+
+    } // ecef2lla
     
     
      /**

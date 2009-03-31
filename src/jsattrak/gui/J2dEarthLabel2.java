@@ -1,6 +1,6 @@
 /**
  * =====================================================================
- * Copyright (C) 2008 Shawn E. Gano
+ * Copyright (C) 2009 Shawn E. Gano
  * 
  * This file is part of JSatTrak.
  * 
@@ -32,6 +32,7 @@ import javax.swing.*;
 import jsattrak.coverage.JSatTrakRenderable;
 import jsattrak.objects.AbstractSatellite;
 import name.gano.astro.AstroConst;
+import name.gano.astro.GeoFunctions;
 import name.gano.astro.bodies.Sun;
 import name.gano.astro.time.Time;
 
@@ -627,70 +628,7 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
         
         return  ( lat1+(Math.PI - long1)*(lat2-lat1)/(long2-long1) );
     }
-    
-    // function to convert earth-centered earth-fixed (ECEF) cartesian coordinates to Lat, Long, Alt
-    // DOES NOT INCLUDE UPDATES FOR time
-    public double[] ecef2lla(double[] pos) // d is current MDT time
-    {
-        double[] lla = new double[3];
         
-        // WGS84 ellipsoid constants:
-        double a = 6378137;
-        double e = 8.1819190842622e-2; // 0;%8.1819190842622e-2/a;%8.1819190842622e-2;  % 0.003352810664747
-        
-        double b = Math.sqrt(Math.pow(a,2.0)*(1-Math.pow(e,2)));
-        double ep = Math.sqrt( (Math.pow(a,2.0)-Math.pow(b,2.0))/Math.pow(b,2.0));
-        double p   = Math.sqrt(Math.pow(pos[0],2.0)+Math.pow(pos[1],2.0));
-        double th  = Math.atan2(a*pos[2],b*p);
-        lla[1] = Math.atan2(pos[1],pos[0]);
-        lla[0] = Math.atan2((pos[2]+Math.pow(ep,2.0)*b*Math.pow(Math.sin(th),3.0)),(p-Math.pow(e,2.0)*a*Math.pow(Math.cos(th),3.0)));
-        double N   = a/Math.sqrt(1-Math.pow(e,2.0)*Math.pow(Math.sin(lla[0]),2.0));
-        lla[2] = p/Math.cos(lla[0])-N;
-        
-        
-        if(lla[1] < 0)
-        {
-            lla[1] = 2.0*Math.PI + lla[1];
-        }
-        
-        // return lon in range [0,2*pi)
-        lla[1] = lla[1] % (2.0*Math.PI); // modulus
-        
-        // correct for numerical instability in altitude near exact poles:
-        // (after this correction, error is about 2 millimeters, which is about
-        // the same as the numerical precision of the overall function)
-        
-        if(Math.abs(pos[0])<1.0 & Math.abs(pos[1])<1.0)
-        {
-            lla[2] = Math.abs(pos[2])-b;
-        }
-        
-        // now scale longitude from [0,360] -> [-180,180]
-        if(lla[1] > Math.PI) // > 180
-        {
-            lla[1] = lla[1] - 2.0*Math.PI;
-        }
-/*
-                // now correct for time shift
-                // account for earth rotations
-                lla[1] = lla[1]-(280.4606 +360.9856473*d)*Math.PI/180.0;
- 
-                // correction ??
-                //lla[1] = lla[1]-Math.PI/2.0;
- 
-                // now insure [-180,180] range
-                double div = Math.floor(lla[1]/(2*Math.PI));
-                lla[1] = lla[1] - div*2*Math.PI;
-                if(lla[1] > Math.PI)
-                {
-                        lla[1] = lla[1]- 2.0*Math.PI;
-                }
- */
-        
-        return lla;
-        
-    } // ecef2lla
-    
     public void setImageWidth(int w)
     {
         imageWidth = w;
@@ -850,13 +788,25 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
         
         // Polygon shape -- for filling?
         footprint = new Polygon();
-        
-        double lambda0 = Math.acos(AstroConst.R_Earth/(AstroConst.R_Earth+alt)); // assumes a spherical Earth - cone half angle from the center of the earth
+
+        // correction to convert latitude from geographic to geo-centric because foot print is created and rotated about center so it uses geocentric rotations
+        // for conversion see: http://en.wikipedia.org/wiki/Latitude
+        lat = Math.atan( Math.pow(AstroConst.R_Earth_minor/AstroConst.R_Earth_major,2.0) * Math.tan(lat) );
+
+        // assumes a spherical Earth - cone half angle from the center of the earth
+        // an improvement could find the radius of the earth at the given latitude
+        //double lambda0 = Math.acos(AstroConst.R_Earth/(AstroConst.R_Earth+alt));
+        // improvement - 31 March 2009 - SEG (though still assumes that the visible area is a perfect circle, but that is very close
+        // improves accuracy by about 0.02 deg at extremes of a 51.6 deg inclination LEO 
+        double earthRadiusAtLat = AstroConst.R_Earth_major - (AstroConst.R_Earth_major-AstroConst.R_Earth_minor)*Math.sin(lat);
+        double lambda0 = Math.acos(earthRadiusAtLat/(earthRadiusAtLat+alt));
+
         
         double beta = (90*Math.PI/180.0-lat); // latitude center (pitch)
         double gamma = -lon+180.0*Math.PI/180.0; // longitude (yaw)
         
-        // rotation matrix - 20-March 2009 SEG -- may want to convert LLA from geographic to geocentric?
+        // rotation matrix - 20-March 2009 SEG -- may want to convert LLA from geographic to geocentric -- See correction Above
+        // for conversion see: http://en.wikipedia.org/wiki/Latitude
         double[][] M = new double[][] {{Math.cos(beta)*Math.cos(gamma), Math.sin(gamma), -Math.sin(beta)*Math.cos(gamma)},
         {-Math.cos(beta)*Math.sin(gamma),Math.cos(gamma), Math.sin(beta)*Math.sin(gamma)},
         {Math.sin(beta), 0.0, Math.cos(beta)}};
@@ -875,7 +825,7 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
         pos = mult(M,pos);
         
         // calculate Lat Long of point (first time save it)
-        double[] llaOld = ecef2lla(pos);
+        double[] llaOld = GeoFunctions.ecef2lla_Fast(pos);
         //llaOld[1] = llaOld[1] - 90.0*Math.PI/180.0;
         double[] lla = new double[3]; // prepare array
         
@@ -926,7 +876,7 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
             pos = mult(M,pos);
             
             // find lla
-            lla = ecef2lla(pos);
+            lla = GeoFunctions.ecef2lla_Fast(pos);
             //lla[1] = lla[1]-90.0*Math.PI/180.0;
             //System.out.println("ll=" +lla[0]*180.0/Math.PI + "," + (lla[1]*180.0/Math.PI));
             
@@ -1056,7 +1006,8 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
         // seems not to work for GEO sats too, fills wrong side at times
         // see if polygon should be split into two polygons
         // -- could be divited up 4 seperate peices!
-        // NEED to make this very transparent
+        // NEED to make this very transparent (works now)
+        // still some issues with fill side: see sun /- one minute around - 23 Mar 2009 01:14:12.000 MDT
         if( fillFootPrint )
         {
             Color satCol = FillColor;
@@ -1272,7 +1223,7 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
         pos = mult(M,pos);
         
         // calculate Lat Long of point (first time save it)
-        double[] llaOld = ecef2lla(pos);
+        double[] llaOld = GeoFunctions.ecef2lla_Fast(pos);
         //llaOld[1] = llaOld[1] - 90.0*Math.PI/180.0;
         double[] lla = new double[3]; // prepare array
         
@@ -1311,7 +1262,7 @@ public class J2dEarthLabel2 extends JLabel  implements java.io.Serializable
             pos = mult(M,pos);
             
             // find lla
-            lla = ecef2lla(pos);
+            lla = GeoFunctions.ecef2lla_Fast(pos);
             //lla[1] = lla[1]-90.0*Math.PI/180.0;
             //System.out.println("ll=" +lla[0]*180.0/Math.PI + "," + (lla[1]*180.0/Math.PI));
             
