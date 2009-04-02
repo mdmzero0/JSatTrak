@@ -95,7 +95,8 @@
  *                                   known issue: 3D internal window doesn't work with v0.6 (nimubs Look and feel only)
  *                                   known issue: webstart cannot save movies (no fix)
  *          3.7.6 24 Mar 2009 -- resize fix on 3D external window (in 3.7.5 they could only be made bigger)
- *
+ *          3.7.7 2 April 2009 -- added Microsfot virtual earth layer/yahoo/open maps from WWJ Experimental code
+ * 
  *                              Ideas for next versions: (no particular order)
  *                                  - DATA out! - Reports and graphs and exporting of data out of program
  *                                  - 3D "Earth Night Lights" mask / 1/2 sphere transparent night shell

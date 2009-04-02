@@ -42,6 +42,11 @@ import gov.nasa.worldwind.layers.Earth.LandsatI3;
 import gov.nasa.worldwind.layers.Earth.USGSUrbanAreaOrtho;
 import gov.nasa.worldwind.layers.Layer;
 import gov.nasa.worldwind.layers.LayerList;
+import gov.nasa.worldwind.layers.Mercator.examples.OSMCycleMapLayer;
+import gov.nasa.worldwind.layers.Mercator.examples.OSMMapnikLayer;
+import gov.nasa.worldwind.layers.Mercator.examples.OSMMapnikTransparentLayer;
+import gov.nasa.worldwind.layers.Mercator.examples.VirtualEarthLayer;
+import gov.nasa.worldwind.layers.Mercator.examples.YahooMapsLayer;
 import gov.nasa.worldwind.layers.RenderableLayer;
 import gov.nasa.worldwind.layers.StarsLayer;
 import gov.nasa.worldwind.layers.TerrainProfileLayer;
@@ -143,7 +148,7 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
     private String modelViewString = ""; // to hold name of satellite to view when modelViewMode=true
     private double modelViewNearClip = 10000; // clipping pland for when in Model View mode
     private double modelViewFarClip = 5.0E7;
-    private boolean smoothViewChanges = true; // for 3D view smoothing
+    private boolean smoothViewChanges = true; // for 3D view smoothing (only is set after model/earth view has been changed -needs to be fixed)
 
     ViewControlsLayer viewControlsLayer;
     
@@ -189,6 +194,24 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         
         // add political boundary layer
         m.getLayers().add(new CountryBoundariesLayer());
+        // MS  Virtual Earth imagery
+        VirtualEarthLayer ve = new VirtualEarthLayer();
+        ve.setEnabled(false);  // off by default
+        m.getLayers().add(ve);
+        // yahoo imagergy
+        YahooMapsLayer ya = new YahooMapsLayer();
+        ya.setEnabled(false);  // off by default
+        m.getLayers().add(ya);
+        // open maps
+        OSMMapnikLayer ol = new OSMMapnikLayer();
+        ol.setEnabled(false);  // off by default
+        m.getLayers().add(ol);
+        OSMCycleMapLayer  ol2 = new OSMCycleMapLayer();
+        ol2.setEnabled(false);  // off by default
+        m.getLayers().add(ol2);
+        OSMMapnikTransparentLayer  ol3 = new OSMMapnikTransparentLayer();
+        ol3.setEnabled(false);  // off by default
+        m.getLayers().add(ol3);
 
          // Add view controls layer and select listener - New in WWJ V0.6
         viewControlsLayer = new ViewControlsLayer();
