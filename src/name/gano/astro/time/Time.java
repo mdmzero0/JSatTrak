@@ -89,7 +89,7 @@ public class Time implements java.io.Serializable
     
     // time zone
     private final static TimeZone tz=TimeZone.getTimeZone("UTC");  // default internal timezone
-    private static TimeZone tzStringFormat = TimeZone.getTimeZone("UTC");
+    private TimeZone tzStringFormat = TimeZone.getTimeZone("UTC"); // SEG removed static April 16 2009
     
     
     public static void main(String args[])
@@ -248,7 +248,7 @@ public class Time implements java.io.Serializable
      * Sets timezone for the output string to use via the function getDateTimeStr()
      * @param aTzStringFormat time zone to format output strings with
      */
-    public static void setTzStringFormat(TimeZone aTzStringFormat)
+    public void setTzStringFormat(TimeZone aTzStringFormat)
     {
         tzStringFormat = aTzStringFormat;
     }
