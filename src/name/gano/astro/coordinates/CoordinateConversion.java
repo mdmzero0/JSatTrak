@@ -163,17 +163,17 @@ public class CoordinateConversion
 	} // NutMatrix
         
 
-        /**
-         *  Computes the mean obliquity of the ecliptic
-         * @param Mjd_TT Modified Julian Date (Terrestrial Time)
-         * @return Mean obliquity of the ecliptic
-         */
-        public static double MeanObliquity(double Mjd_TT)
-	{
-	  final double T = (Mjd_TT-AstroConst.MJD_J2000)/36525.0;
+      /**
+     *  Computes the mean obliquity of the ecliptic
+     * @param Mjd_TT Modified Julian Date (Terrestrial Time)
+     * @return Mean obliquity of the ecliptic
+     */
+    public static double MeanObliquity(double Mjd_TT)
+    {
+        final double T = (Mjd_TT - AstroConst.MJD_J2000) / 36525.0;
 
-	  return  AstroConst.Rad *( 23.43929111-(46.8150+(0.00059-0.001813*T)*T)*T/3600.0 );
-	}
+        return AstroConst.Rad * (23.43929111 - (46.8150 + (0.00059 - 0.001813 * T) * T) * T / 3600.0);
+    }
         
 
         /**

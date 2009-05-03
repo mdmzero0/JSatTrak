@@ -245,7 +245,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
     JObjectListPanel objListPanel;
     
     // Sun object
-    Sun sun;
+    private Sun sun;
     
     // ----- TIME parameters --------------------
     // UTCG 
@@ -3772,5 +3772,13 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         }// program ran with line args
 
     } // main
+
+    /**
+     * @return the sun
+     */
+    public Sun getSun()
+    {
+        return sun;
+    }
 
 }
