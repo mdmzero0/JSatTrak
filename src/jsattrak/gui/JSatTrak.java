@@ -94,8 +94,9 @@
  *                               - 3D external windows now decorated to match look and feel (if avaiblilble)
  *                                   known issue: 3D internal window doesn't work with v0.6 (nimubs Look and feel only)
  *                                   known issue: webstart cannot save movies (no fix)
- *          3.7.6 24 Mar 2009 -- resize fix on 3D external window (in 3.7.5 they could only be made bigger) - se min size on globe panel (0,0) preferred size(50,50)
+ *          3.7.6 24 Mar 2009 -- resize fix on 3D external window (in 3.7.5 they could only be made bigger) - set min size on globe panel (0,0) preferred size(50,50)
  *          3.7.7 2 April 2009 -- added Microsfot virtual earth layer/yahoo/open maps from WWJ Experimental code
+ *          3.7.8 26 May 2009 - bug fix, close app by file->exit doesn't close process - fixed (bug found by Horst Meyerdierks - SGP4 author)
  * 
  *                              Ideas for next versions: (no particular order)
  *                                  - DATA out! - Reports and graphs and exporting of data out of program
@@ -1404,6 +1405,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
     {//GEN-HEADEREND:event_exitMenuItemActionPerformed
         // how to exit:
         this.dispose(); // close app
+        System.exit(0); // SEG added 26 May 2009 bug fix
     }//GEN-LAST:event_exitMenuItemActionPerformed
 
     private void saveAsMenuItemActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_saveAsMenuItemActionPerformed
