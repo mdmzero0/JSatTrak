@@ -608,7 +608,9 @@ public String getDateTimeStr()
         Double dsec = new Double((dmin.doubleValue() - (double) dmin.longValue()) * 60.0);
         Integer second=new Integer(dsec.intValue());
         
-        int ms = (int)((dsec.doubleValue() - (double) second.longValue()) * 1000.0);
+        //int ms = (int)((dsec.doubleValue() - (double) second.longValue()) * 1000.0);
+        // rounding fix - e-mailed to SEG by Hani A. Altwaijry 28 May 2009
+        int ms = (int) Math.round((dsec.doubleValue() - (double) second.longValue()) * 1000.0);
         
         // create Calendar object
         GregorianCalendar newTime = new GregorianCalendar(tz); // set default timezone
