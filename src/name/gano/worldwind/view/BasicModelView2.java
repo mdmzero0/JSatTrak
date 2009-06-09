@@ -298,7 +298,7 @@ public class BasicModelView2 extends BasicOrbitView //implements OrbitView
         return Position.ZERO;
     }
     
-     private double computeNearDistance(Position eyePosition)
+     protected double computeNearDistance(Position eyePosition)
     {
         double near = 0;
         if (eyePosition != null && this.dc != null)
@@ -310,7 +310,7 @@ public class BasicModelView2 extends BasicOrbitView //implements OrbitView
         return near < MINIMUM_NEAR_DISTANCE ? MINIMUM_NEAR_DISTANCE : near;
     }
 
-    private double computeFarDistance(Position eyePosition)
+    protected double computeFarDistance(Position eyePosition)
     {
         double far = 0;
         if (eyePosition != null)
@@ -321,7 +321,7 @@ public class BasicModelView2 extends BasicOrbitView //implements OrbitView
         return far < MINIMUM_FAR_DISTANCE ? MINIMUM_FAR_DISTANCE : far;
     }
     
-    private double computeHorizonDistance(Position eyePosition)
+    protected double computeHorizonDistance(Position eyePosition)
     {
         if (this.globe != null && eyePosition != null)
         {
@@ -345,7 +345,7 @@ public class BasicModelView2 extends BasicOrbitView //implements OrbitView
         return horizon;
     }
     
-    private Position computeEyePositionFromModelview()
+    protected Position computeEyePositionFromModelview()
     {
 //        if (this.globe != null)
 //        {

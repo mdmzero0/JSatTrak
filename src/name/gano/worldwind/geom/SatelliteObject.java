@@ -88,8 +88,9 @@ public class SatelliteObject  implements Renderable
         this.lastLat = centerLatRad;
         this.lastLon = centerLonRad;
         this.lastAlt = centerAltitude;
-        
-        surfCirc = new SurfaceCircle(wwd.getModel().getGlobe(),LatLon.fromRadians(centerLatRad,centerLonRad),calcFootPrintRadiusFromAlt(centerAltitude),32); //calcFootPrintRadiusFromAlt(double alt)  500000.0 
+
+        // WWJ VOTD removed need for argument first argument: wwd.getModel().getGlobe()
+        surfCirc = new SurfaceCircle(LatLon.fromRadians(centerLatRad,centerLonRad),calcFootPrintRadiusFromAlt(centerAltitude),32); //calcFootPrintRadiusFromAlt(double alt)  500000.0 
         
         //wwd.getModel().getGlobe().
         

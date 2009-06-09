@@ -32,6 +32,7 @@ import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.awt.AWTInputHandler;
 import gov.nasa.worldwind.awt.WorldWindowGLJPanel;
 import gov.nasa.worldwind.examples.WMSLayersPanel;
+import gov.nasa.worldwind.examples.sunlight.RectangularNormalTessellator;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
@@ -39,6 +40,7 @@ import gov.nasa.worldwind.geom.Vec4;
 import gov.nasa.worldwind.layers.CompassLayer;
 import gov.nasa.worldwind.layers.Earth.CountryBoundariesLayer;
 import gov.nasa.worldwind.layers.Earth.LandsatI3;
+import gov.nasa.worldwind.layers.Earth.USGSTopographicMaps;
 import gov.nasa.worldwind.layers.Earth.USGSUrbanAreaOrtho;
 import gov.nasa.worldwind.layers.Layer;
 import gov.nasa.worldwind.layers.LayerList;
@@ -95,6 +97,7 @@ import jsattrak.utilities.J3DEarthComponent;
 import jsattrak.utilities.OrbitModelRenderable;
 import name.gano.file.SaveImageFile;
 import name.gano.swingx.fullscreen.ToggleFullscreen;
+import name.gano.worldwind.WwjUtils;
 import name.gano.worldwind.layers.Earth.CoverageRenderableLayer;
 import name.gano.worldwind.layers.Earth.ECEFRenderableLayer;
 import name.gano.worldwind.layers.Earth.ECIRenderableLayer;
@@ -175,6 +178,10 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
         Configuration.setValue(AVKey.INITIAL_HEADING, 0.0);
         Configuration.setValue(AVKey.INITIAL_PITCH, 0.0);
 
+        // Use normal/shading tessellator
+        // sun shading needs this
+        Configuration.setValue(AVKey.TESSELLATOR_CLASS_NAME, RectangularNormalTessellator.class.getName());
+
         // make a new instace from the shared wwj resource!
         wwd = new WorldWindowGLJPanel(app.getWwd());
 
@@ -214,7 +221,7 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
 
         // Add view controls layer and select listener - New in WWJ V0.6
         viewControlsLayer = new ViewControlsLayer();
-        viewControlsLayer.setLayout(AVKey.LAYOUT_VERTICAL);
+        viewControlsLayer.setLayout(AVKey.VERTICAL); // VOTD change from LAYOUT_VERTICAL (9/june/09)
         viewControlsLayer.setScale(6/10d);
         viewControlsLayer.setPosition(AVKey.SOUTHEAST); // put it on the right side
         viewControlsLayer.setLocationOffset( new Vec4(15,35,0,0));
@@ -270,6 +277,11 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
         
         
         wwd.setModel(m);
+
+        // add USGS topo layer
+        USGSTopographicMaps topo = new USGSTopographicMaps();
+        topo.setEnabled(false);
+        WwjUtils.insertBeforePlacenames(getWwd(), topo);
         
         // Coverage Data Layer
         cel = new CoverageRenderableLayer(app.getCoverageAnalyzer());

@@ -31,7 +31,14 @@ import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.awt.AWTInputHandler;
 import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
+import gov.nasa.worldwind.event.PositionEvent;
+import gov.nasa.worldwind.event.PositionListener;
 import gov.nasa.worldwind.examples.WMSLayersPanel;
+import gov.nasa.worldwind.examples.sunlight.AtmosphereLayer;
+import gov.nasa.worldwind.examples.sunlight.BasicSunPositionProvider;
+import gov.nasa.worldwind.examples.sunlight.LensFlareLayer;
+import gov.nasa.worldwind.examples.sunlight.RectangularNormalTessellator;
+import gov.nasa.worldwind.examples.sunlight.SunPositionProvider;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
@@ -39,6 +46,7 @@ import gov.nasa.worldwind.geom.Vec4;
 import gov.nasa.worldwind.layers.CompassLayer;
 import gov.nasa.worldwind.layers.Earth.CountryBoundariesLayer;
 import gov.nasa.worldwind.layers.Earth.LandsatI3;
+import gov.nasa.worldwind.layers.Earth.USGSTopographicMaps;
 import gov.nasa.worldwind.layers.Earth.USGSUrbanAreaOrtho;
 import gov.nasa.worldwind.layers.Layer;
 import gov.nasa.worldwind.layers.LayerList;
@@ -48,6 +56,7 @@ import gov.nasa.worldwind.layers.Mercator.examples.OSMMapnikTransparentLayer;
 import gov.nasa.worldwind.layers.Mercator.examples.VirtualEarthLayer;
 import gov.nasa.worldwind.layers.Mercator.examples.YahooMapsLayer;
 import gov.nasa.worldwind.layers.RenderableLayer;
+import gov.nasa.worldwind.layers.SkyGradientLayer;
 import gov.nasa.worldwind.layers.StarsLayer;
 import gov.nasa.worldwind.layers.TerrainProfileLayer;
 import gov.nasa.worldwind.layers.TiledImageLayer;
@@ -94,6 +103,7 @@ import jsattrak.utilities.J3DEarthComponent;
 import jsattrak.utilities.OrbitModelRenderable;
 import name.gano.file.SaveImageFile;
 import name.gano.swingx.fullscreen.ToggleFullscreen;
+import name.gano.worldwind.WwjUtils;
 import name.gano.worldwind.layers.Earth.CoverageRenderableLayer;
 import name.gano.worldwind.layers.Earth.ECEFRenderableLayer;
 import name.gano.worldwind.layers.Earth.ECIRenderableLayer;
@@ -151,6 +161,12 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
     private boolean smoothViewChanges = true; // for 3D view smoothing (only is set after model/earth view has been changed -needs to be fixed)
 
     ViewControlsLayer viewControlsLayer;
+
+    // Testing sun shader
+    private RectangularNormalTessellator tessellator;
+    private LensFlareLayer lensFlareLayer;
+    private AtmosphereLayer atmosphereLayer;
+    private SunPositionProvider spp = new BasicSunPositionProvider(); // REPLACE with Custom one! so it updates time correctly (and postion matches JSatTrak)
     
     /** Creates new form J3DEarthPanel
      * @param parent
@@ -174,6 +190,10 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         Configuration.setValue(AVKey.INITIAL_ALTITUDE, 1.913445320360136E7);
         Configuration.setValue(AVKey.INITIAL_HEADING, 0.0);
         Configuration.setValue(AVKey.INITIAL_PITCH, 0.0);
+
+        // Use normal/shading tessellator
+        // sun shading needs this
+        Configuration.setValue(AVKey.TESSELLATOR_CLASS_NAME, RectangularNormalTessellator.class.getName());
 
         // make a new instace from the shared wwj resource!
         wwd = new WorldWindowGLCanvas(app.getWwd());
@@ -215,7 +235,7 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
 
          // Add view controls layer and select listener - New in WWJ V0.6
         viewControlsLayer = new ViewControlsLayer();
-        viewControlsLayer.setLayout(AVKey.LAYOUT_VERTICAL);
+        viewControlsLayer.setLayout(AVKey.VERTICAL); // VOTD change from LAYOUT_VERTICAL (9/june/09)
         viewControlsLayer.setScale(6/10d);
         viewControlsLayer.setPosition(AVKey.SOUTHEAST); // put it on the right side
         viewControlsLayer.setLocationOffset( new Vec4(15,35,0,0));
@@ -271,6 +291,11 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
 
 
         wwd.setModel(m);
+
+        // add USGS topo layer
+        USGSTopographicMaps topo = new USGSTopographicMaps();
+        topo.setEnabled(false);
+        WwjUtils.insertBeforePlacenames(getWwd(), topo);
         
         // Coverage Data Layer
         cel = new CoverageRenderableLayer(app.getCoverageAnalyzer());
@@ -330,10 +355,113 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         //wwd.getView().setFarClipDistance(10000000000d); // really slow
         wwd.getView().setFarClipDistance(app.getFarClippingPlaneDist()); // 200000000d good out to geo, but slower than not setting it
         wwd.getView().setNearClipDistance(app.getNearClippingPlaneDist()); // -1 for auto adjust
-        
 
-    }
-    
+
+        // TESTING SUN SHADING
+        // Replace sky gradient with atmosphere layer
+            this.atmosphereLayer = new AtmosphereLayer();
+            for (int i = 0; i < this.getWwd().getModel().getLayers().size(); i++)
+            {
+                Layer l = this.getWwd().getModel().getLayers().get(i);
+                if (l instanceof SkyGradientLayer)
+                    this.getWwd().getModel().getLayers().set(i, this.atmosphereLayer);
+            }
+
+            // Add lens flare layer
+            this.lensFlareLayer = LensFlareLayer.getPresetInstance(LensFlareLayer.PRESET_BOLD);
+            this.getWwd().getModel().getLayers().add(this.lensFlareLayer);
+
+            // Update layer panel
+            //this.getLayerPanel().update(getWwd());
+
+            // Get tessellator
+            this.tessellator = (RectangularNormalTessellator)getWwd().getModel().getGlobe().getTessellator();
+
+            // Add control panel
+            //this.getLayerPanel().add(makeControlPanel(),  BorderLayout.SOUTH);
+
+            // Add position listener to update light direction relative to the eye
+            getWwd().addPositionListener(new PositionListener()
+            {
+                Vec4 eyePoint;
+                public void moved(PositionEvent event)
+                {
+                    if (eyePoint == null || eyePoint.distanceTo3(getWwd().getView().getEyePoint()) > 1000)
+                    {
+                        update();
+                        eyePoint = getWwd().getView().getEyePoint();
+                    }
+                }
+            });
+            // END TESTING -------------
+
+    } // constructor
+
+     // Update worldwind wun shading
+        private void update()
+        {
+            if (true) //this.enableCheckBox.isSelected())
+            {
+                // Enable UI controls
+//                this.colorButton.setEnabled(true);
+//                this.ambientButton.setEnabled(true);
+//                this.absoluteRadioButton.setEnabled(true);
+//                this.relativeRadioButton.setEnabled(true);
+//                this.azimuthSlider.setEnabled(true);
+//                this.elevationSlider.setEnabled(true);
+                // Update colors
+                this.tessellator.setLightColor(Color.WHITE); //this.colorButton.getBackground());
+                this.tessellator.setAmbientColor(Color.BLACK); //this.ambientButton.getBackground());
+                // Compute Sun direction
+                Vec4 sun, light;
+//                if (false); //this.relativeRadioButton.isSelected())
+//                {
+//                    // Enable UI controls
+//                    this.azimuthSlider.setEnabled(true);
+//                    this.elevationSlider.setEnabled(true);
+//                    // Compute Sun position relative to the eye position
+//                    Angle elevation = Angle.fromDegrees(this.elevationSlider.getValue());
+//                    Angle azimuth = Angle.fromDegrees(this.azimuthSlider.getValue());
+//                    Position eyePos = getWwd().getView().getEyePosition();
+//                    sun = Vec4.UNIT_Y;
+//                    sun = sun.transformBy3(Matrix.fromRotationX(elevation));
+//                    sun = sun.transformBy3(Matrix.fromRotationZ(azimuth.multiply(-1)));
+//                    sun = sun.transformBy3(getWwd().getModel().getGlobe().computeTransformToPosition(
+//                        eyePos.getLatitude(), eyePos.getLongitude(), 0));
+//               }
+//                else
+//                {
+                    // Disable UI controls
+//                    this.azimuthSlider.setEnabled(false);
+//                    this.elevationSlider.setEnabled(false);
+                    // Compute Sun position according to current date and time
+                    LatLon sunPos = spp.getPosition();
+                    sun = getWwd().getModel().getGlobe().computePointFromPosition(new Position(sunPos, 0)).normalize3();
+//                }
+                light = sun.getNegative3();
+                this.tessellator.setLightDirection(light);
+                this.lensFlareLayer.setSunDirection(sun);
+                this.atmosphereLayer.setSunDirection(sun);
+            }
+//            else
+//            {
+//                // Disable UI controls
+//                this.colorButton.setEnabled(false);
+//                this.ambientButton.setEnabled(false);
+//                this.absoluteRadioButton.setEnabled(false);
+//                this.relativeRadioButton.setEnabled(false);
+//                this.azimuthSlider.setEnabled(false);
+//                this.elevationSlider.setEnabled(false);
+//                // Turn off lighting
+//                this.tessellator.setLightDirection(null);
+//                this.lensFlareLayer.setSunDirection(null);
+//                this.atmosphereLayer.setSunDirection(null);
+//            }
+            // Redraw
+            this.getWwd().redraw();
+        } // update - for sun shading
+
+
     private RenderableLayer createLatLongLinesLayer()
     {
         RenderableLayer shapeLayer = new RenderableLayer();

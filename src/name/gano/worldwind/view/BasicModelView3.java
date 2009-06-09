@@ -17,6 +17,7 @@ import gov.nasa.worldwind.view.AbstractView;
 import gov.nasa.worldwind.view.BasicOrbitViewModel;
 import gov.nasa.worldwind.view.OrbitView;
 import gov.nasa.worldwind.view.OrbitViewCollisionSupport;
+import gov.nasa.worldwind.view.OrbitViewLimits;
 import gov.nasa.worldwind.view.OrbitViewModel;
 import gov.nasa.worldwind.view.ViewSupport;
 import javax.media.opengl.GL;
@@ -68,7 +69,10 @@ public class BasicModelView3 extends AbstractView implements OrbitView
     private double XYOffsetMultiplier = 0.05*Math.PI/180.0;//2500; // amount to increment each time
     private double ZOffsetMultiplier = 2500;
     // satellite object to follow
-    private AbstractSatellite sat; 
+    private AbstractSatellite sat;
+
+    // new WWJ values
+    protected OrbitViewLimits orbitViewLimits;
 
     public BasicModelView3()
     {
@@ -1000,5 +1004,18 @@ public class BasicModelView3 extends AbstractView implements OrbitView
     public void setSat(AbstractSatellite sat)
     {
         this.sat = sat;
+    }
+
+
+    // new methods added to BasicOrbitView / (OrbitView) but not implemented here
+    // see BasicOrbitView.java for details on how this could be added
+    public void setOrbitViewLimits(OrbitViewLimits viewLimits)
+    {
+        this.orbitViewLimits = viewLimits;
+    }
+
+    public OrbitViewLimits getOrbitViewLimits()
+    {
+        return orbitViewLimits;
     }
 }

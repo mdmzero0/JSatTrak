@@ -3740,10 +3740,6 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
     public static void main(final String args[])
     {
         
-        // Use normal/shading tessellator
-        // sun shading needs this
-        Configuration.setValue(AVKey.TESSELLATOR_CLASS_NAME, RectangularNormalTessellator.class.getName());
-
         // no command line arguments
         if(args.length == 0)
         {
