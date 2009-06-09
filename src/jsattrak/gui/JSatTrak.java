@@ -97,7 +97,11 @@
  *          3.7.6 24 Mar 2009 -- resize fix on 3D external window (in 3.7.5 they could only be made bigger) - set min size on globe panel (0,0) preferred size(50,50)
  *          3.7.7 2 April 2009 -- added Microsfot virtual earth layer/yahoo/open maps from WWJ Experimental code
  *          3.7.8 26 May 2009 - bug fix, close app by file->exit doesn't close process - fixed (bug found by Horst Meyerdierks - SGP4 author)
- * 
+ *          3.8.0alpha 9 June 2009 - added sun shading effects in latest WWJ verion of the day. See posts:
+ *                                    http://forum.worldwindcentral.com/showthread.php?t=21021&highlight=sun+shading
+ *                                    http://patmurris.blogspot.com/2009/04/sunlight-package-for-worldwind-java.html
+ *                                  (VOTD - WWJ Broke COLOR OF 3D ORBIT TRACE!)
+ *
  *                              Ideas for next versions: (no particular order)
  *                                  - DATA out! - Reports and graphs and exporting of data out of program
  *                                  - 3D "Earth Night Lights" mask / 1/2 sphere transparent night shell
@@ -151,7 +155,10 @@ import jsattrak.objects.GroundStation;
 import jsattrak.about.AboutDialog;
 import com.thoughtworks.xstream.XStream;
 import commandclient.CommandClientGUI;
+import gov.nasa.worldwind.Configuration;
+import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
+import gov.nasa.worldwind.examples.sunlight.RectangularNormalTessellator;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -3732,6 +3739,10 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
      */
     public static void main(final String args[])
     {
+        
+        // Use normal/shading tessellator
+        // sun shading needs this
+        Configuration.setValue(AVKey.TESSELLATOR_CLASS_NAME, RectangularNormalTessellator.class.getName());
 
         // no command line arguments
         if(args.length == 0)
