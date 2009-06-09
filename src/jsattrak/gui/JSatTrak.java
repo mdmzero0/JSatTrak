@@ -430,14 +430,23 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         
         // auto select local timezon button 
         localTimeZoneCheckBox.doClick();
+
+        //this.setVisible(true); // only needed to debug if there is a problem below this point in constructor
         
         // Default sats in list: -- load if TLE data is local
-        TLEDownloader tleDownloader = new TLEDownloader();
-        if( (new File(tleDownloader.getLocalPath()).exists()) && (new File(tleDownloader.getTleFilePath(0)).exists()) )
+        try
         {
-            addSat2ListByName("ISS (ZARYA)             ");
-            satHash.get("ISS (ZARYA)             ").setThreeDModelPath("isscomplete/iss_complete.3ds");// set default 3d model
+            TLEDownloader tleDownloader = new TLEDownloader();
+            if((new File(tleDownloader.getLocalPath()).exists()) && (new File(tleDownloader.getTleFilePath(0)).exists()))
+            {
+                addSat2ListByName("ISS (ZARYA)             ");
+                satHash.get("ISS (ZARYA)             ").setThreeDModelPath("isscomplete/iss_complete.3ds");// set default 3d model
 
+            }
+        }
+        catch(Exception e)
+        {
+            System.err.println("Error loading Local Default TLE Data");
         }
                 
         
