@@ -100,7 +100,7 @@
  *          3.8.0alpha 10 June 2009 - added sun shading effects in latest WWJ verion of the day. See posts:
  *                                    http://forum.worldwindcentral.com/showthread.php?t=21021&highlight=sun+shading
  *                                    http://patmurris.blogspot.com/2009/04/sunlight-package-for-worldwind-java.html
- *                                  (VOTD - WWJ Broke COLOR OF 3D ORBIT TRACE!)
+ *                                  (VOTD - WWJ Broke COLOR OF 3D ORBIT TRACE - fixed - disabled 2D textures in OrbitModelRenderable and EFEFModelRenderable)
  *
  *                              Ideas for next versions: (no particular order)
  *                                  - Vectors tool (make them seperate objects) axis, grids, lines, arrows (data providers)
