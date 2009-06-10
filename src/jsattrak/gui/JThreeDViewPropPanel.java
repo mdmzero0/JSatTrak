@@ -97,7 +97,15 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
         {
             earthViewRadioButton.doClick(); // set selected
         }
-        
+
+        // lighting
+        if(threeDPanel.getSunShadingOn())
+        {
+            sunShadingCheckBox.doClick();
+        }
+
+        ambientSlider.setValue( threeDPanel.getAmbientLightLevel() );
+        flareCheckBox.setSelected( threeDPanel.isLensFlareEnabled() );
         
     } // JThreeDViewPropPanel
     
@@ -128,6 +136,12 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
         earthViewRadioButton = new javax.swing.JRadioButton();
         modelViewRadioButton = new javax.swing.JRadioButton();
         modeViewComboBox = new javax.swing.JComboBox();
+        jPanel3 = new javax.swing.JPanel();
+        sunShadingCheckBox = new javax.swing.JCheckBox();
+        flareCheckBox = new javax.swing.JCheckBox();
+        jCheckBox3 = new javax.swing.JCheckBox();
+        jLabel3 = new javax.swing.JLabel();
+        ambientSlider = new javax.swing.JSlider();
 
         buttonGroup1.add(earthViewRadioButton);
         buttonGroup1.add(modelViewRadioButton);
@@ -254,7 +268,58 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(modelViewRadioButton)
                     .addComponent(modeViewComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(25, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Lightning Effects / Sun"));
+
+        sunShadingCheckBox.setText("Enable Sun Light Shading");
+
+        flareCheckBox.setText("Solar Flare / Sun");
+
+        jCheckBox3.setText("Terminator Line");
+
+        jLabel3.setText("Ambient Light Level:");
+
+        ambientSlider.setMajorTickSpacing(25);
+        ambientSlider.setMinorTickSpacing(5);
+        ambientSlider.setPaintLabels(true);
+        ambientSlider.setPaintTicks(true);
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(sunShadingCheckBox)
+                            .addComponent(jCheckBox3)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addGap(21, 21, 21)
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel3)
+                                    .addComponent(flareCheckBox)))))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGap(45, 45, 45)
+                        .addComponent(ambientSlider, javax.swing.GroupLayout.DEFAULT_SIZE, 148, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                .addComponent(sunShadingCheckBox)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(flareCheckBox)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(ambientSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jCheckBox3)
+                .addGap(178, 178, 178))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -270,6 +335,7 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
                 .addComponent(cancelButton)
                 .addGap(3, 3, 3))
             .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -277,7 +343,9 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 65, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(applyButton)
                     .addComponent(okButton)
@@ -376,20 +444,26 @@ private void modelViewRadioButtonStateChanged(javax.swing.event.ChangeEvent evt)
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JSlider ambientSlider;
     private javax.swing.JButton applyButton;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JButton cancelButton;
     private javax.swing.JRadioButton earthViewRadioButton;
     private javax.swing.JRadioButton ecefRadioButton;
     private javax.swing.JRadioButton eciRadioButton;
+    private javax.swing.JCheckBox flareCheckBox;
     private javax.swing.JTextField fovTextField;
+    private javax.swing.JCheckBox jCheckBox3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JComboBox modeViewComboBox;
     private javax.swing.JRadioButton modelViewRadioButton;
     private javax.swing.JButton okButton;
+    private javax.swing.JCheckBox sunShadingCheckBox;
     // End of variables declaration//GEN-END:variables
     
     
@@ -425,7 +499,12 @@ private void modelViewRadioButtonStateChanged(javax.swing.event.ChangeEvent evt)
         {
             threeDPanel.setModelViewMode(false);
         }
-        
+
+        // sun shading
+        threeDPanel.setSunShadingOn( sunShadingCheckBox.isSelected() );
+        threeDPanel.setLensFlare(flareCheckBox.isSelected());
+        threeDPanel.setAmbientLightLevel( ambientSlider.getValue() ); // causes re-render always
+      
         return updateMapData;
     } // saveSettings
 }

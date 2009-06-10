@@ -92,9 +92,12 @@ public class ECEFModelRenderable implements Renderable
         
         javax.media.opengl.GL gl = dc.getGL();
         
-        gl.glEnable(GL.GL_TEXTURE_2D);        
+        //gl.glEnable(GL.GL_TEXTURE_2D); // removed so the sun shading wouldn't effect line colors
         gl.glPushAttrib(javax.media.opengl.GL.GL_TEXTURE_BIT | javax.media.opengl.GL.GL_ENABLE_BIT | javax.media.opengl.GL.GL_CURRENT_BIT);
         gl.glMatrixMode(javax.media.opengl.GL.GL_MODELVIEW);
+
+        // Added so that the colors wouldn't depend on sun shading
+        gl.glDisable(GL.GL_TEXTURE_2D);
               
         // for each satellite
         for(AbstractSatellite sat : satHash.values() ) // search through all sat nodes

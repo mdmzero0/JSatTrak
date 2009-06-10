@@ -35,7 +35,6 @@ import gov.nasa.worldwind.event.PositionEvent;
 import gov.nasa.worldwind.event.PositionListener;
 import gov.nasa.worldwind.examples.WMSLayersPanel;
 import gov.nasa.worldwind.examples.sunlight.AtmosphereLayer;
-import gov.nasa.worldwind.examples.sunlight.BasicSunPositionProvider;
 import gov.nasa.worldwind.examples.sunlight.LensFlareLayer;
 import gov.nasa.worldwind.examples.sunlight.RectangularNormalTessellator;
 import gov.nasa.worldwind.examples.sunlight.SunPositionProvider;
@@ -76,6 +75,7 @@ import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Robot;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
@@ -91,8 +91,10 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -107,6 +109,7 @@ import name.gano.worldwind.WwjUtils;
 import name.gano.worldwind.layers.Earth.CoverageRenderableLayer;
 import name.gano.worldwind.layers.Earth.ECEFRenderableLayer;
 import name.gano.worldwind.layers.Earth.ECIRenderableLayer;
+import name.gano.worldwind.sunshader.CustomSunPositionProvider;
 import name.gano.worldwind.view.BasicModelView3;
 import name.gano.worldwind.view.BasicModelViewInputHandler3;
 
@@ -162,11 +165,12 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
 
     ViewControlsLayer viewControlsLayer;
 
-    // Testing sun shader
+    // sun shader
     private RectangularNormalTessellator tessellator;
     private LensFlareLayer lensFlareLayer;
     private AtmosphereLayer atmosphereLayer;
-    private SunPositionProvider spp = new BasicSunPositionProvider(); // REPLACE with Custom one! so it updates time correctly (and postion matches JSatTrak)
+    private SunPositionProvider spp;
+    private boolean sunShadingOn = false; // controls if sun shading is used
     
     /** Creates new form J3DEarthPanel
      * @param parent
@@ -183,7 +187,7 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         this.gsHash = gsHash;
         
         initComponents();
-        
+
         // set default initial view
         Configuration.setValue(AVKey.INITIAL_LATITUDE, 38.0);
         Configuration.setValue(AVKey.INITIAL_LONGITUDE, -90.0);
@@ -199,6 +203,7 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         wwd = new WorldWindowGLCanvas(app.getWwd());
         
         // add WWJ to panel
+        //
         wwd.setPreferredSize(new java.awt.Dimension(600, 400));
         this.add(wwd, java.awt.BorderLayout.CENTER);
         //wwd.setModel(new BasicModel());
@@ -286,7 +291,6 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
             {
                 ((CountryBoundariesLayer) layer).setEnabled(false); // off by default
             }
-            
         } // for layers
 
 
@@ -314,12 +318,6 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         ecefModel = new ECEFModelRenderable(satHash, gsHash, wwd.getModel().getGlobe());
         ecefLayer.addRenderable(ecefModel); // add renderable object
         m.getLayers().add(ecefLayer); // add ECI Layer
-        
-//        // add ECI Layer
-//        eciLayer = new ECIRenderableLayer(currentMJD); // create ECI layer
-//        orbitModel = new OrbitModelRenderable(satHash, wwd.getModel().getGlobe());
-//        eciLayer.addRenderable(orbitModel); // add renderable object
-//        m.getLayers().add(eciLayer); // add ECI Layer
         
         // add terrain profile layer
         terrainProfileLayer = new TerrainProfileLayer();
@@ -350,117 +348,160 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
 //        {
             starsLayer.setLongitudeOffset(Angle.fromDegrees(-eciLayer.getRotateECIdeg()));
 //        }
-            
+
+          // SUN SHADING -------------
+
+        // set the sun provider to the shader
+        spp = new CustomSunPositionProvider(app.getSun());
+
+        // Replace sky gradient with this atmosphere layer when using sun shading
+        this.atmosphereLayer = new AtmosphereLayer();
+
+        // Add lens flare layer
+        this.lensFlareLayer = LensFlareLayer.getPresetInstance(LensFlareLayer.PRESET_BOLD);
+        this.getWwd().getModel().getLayers().add(this.lensFlareLayer);
+
+        // Get tessellator
+        this.tessellator = (RectangularNormalTessellator)getWwd().getModel().getGlobe().getTessellator();
+        // set default colors for shading
+        //this.tessellator.setLightColor(Color.WHITE); //this.colorButton.getBackground());
+        //this.tessellator.setAmbientColor(Color.BLACK); //this.ambientButton.getBackground());
+        this.tessellator.setAmbientColor(new Color(0.50f, 0.50f, 0.50f));
+
+        // Add position listener to update light direction relative to the eye
+        getWwd().addPositionListener(new PositionListener()
+        {
+            Vec4 eyePoint;
+
+            public void moved(PositionEvent event)
+            {
+                if(eyePoint == null || eyePoint.distanceTo3(getWwd().getView().getEyePoint()) > 1000)
+                {
+                    update(true);
+                    eyePoint = getWwd().getView().getEyePoint();
+                }
+            }
+        });
+
+        setSunShadingOn(true); // enable sun shading by default
+    // END Sun Shading -------------
+
         // correct clipping plane -- so entire orbits are shown - maybe make variable?
         //wwd.getView().setFarClipDistance(10000000000d); // really slow
         wwd.getView().setFarClipDistance(app.getFarClippingPlaneDist()); // 200000000d good out to geo, but slower than not setting it
         wwd.getView().setNearClipDistance(app.getNearClippingPlaneDist()); // -1 for auto adjust
 
-
-        // TESTING SUN SHADING
-        // Replace sky gradient with atmosphere layer
-            this.atmosphereLayer = new AtmosphereLayer();
-            for (int i = 0; i < this.getWwd().getModel().getLayers().size(); i++)
-            {
-                Layer l = this.getWwd().getModel().getLayers().get(i);
-                if (l instanceof SkyGradientLayer)
-                    this.getWwd().getModel().getLayers().set(i, this.atmosphereLayer);
-            }
-
-            // Add lens flare layer
-            this.lensFlareLayer = LensFlareLayer.getPresetInstance(LensFlareLayer.PRESET_BOLD);
-            this.getWwd().getModel().getLayers().add(this.lensFlareLayer);
-
-            // Update layer panel
-            //this.getLayerPanel().update(getWwd());
-
-            // Get tessellator
-            this.tessellator = (RectangularNormalTessellator)getWwd().getModel().getGlobe().getTessellator();
-
-            // Add control panel
-            //this.getLayerPanel().add(makeControlPanel(),  BorderLayout.SOUTH);
-
-            // Add position listener to update light direction relative to the eye
-            getWwd().addPositionListener(new PositionListener()
-            {
-                Vec4 eyePoint;
-                public void moved(PositionEvent event)
-                {
-                    if (eyePoint == null || eyePoint.distanceTo3(getWwd().getView().getEyePoint()) > 1000)
-                    {
-                        update();
-                        eyePoint = getWwd().getView().getEyePoint();
-                    }
-                }
-            });
-            // END TESTING -------------
-
     } // constructor
 
-     // Update worldwind wun shading
-        private void update()
+    // Update worldwind wun shading
+    private void update(boolean redraw)
+    {
+        if(sunShadingOn) //this.enableCheckBox.isSelected())
         {
-            if (true) //this.enableCheckBox.isSelected())
-            {
-                // Enable UI controls
-//                this.colorButton.setEnabled(true);
-//                this.ambientButton.setEnabled(true);
-//                this.absoluteRadioButton.setEnabled(true);
-//                this.relativeRadioButton.setEnabled(true);
-//                this.azimuthSlider.setEnabled(true);
-//                this.elevationSlider.setEnabled(true);
-                // Update colors
-                this.tessellator.setLightColor(Color.WHITE); //this.colorButton.getBackground());
-                this.tessellator.setAmbientColor(Color.BLACK); //this.ambientButton.getBackground());
-                // Compute Sun direction
-                Vec4 sun, light;
-//                if (false); //this.relativeRadioButton.isSelected())
-//                {
-//                    // Enable UI controls
-//                    this.azimuthSlider.setEnabled(true);
-//                    this.elevationSlider.setEnabled(true);
-//                    // Compute Sun position relative to the eye position
-//                    Angle elevation = Angle.fromDegrees(this.elevationSlider.getValue());
-//                    Angle azimuth = Angle.fromDegrees(this.azimuthSlider.getValue());
-//                    Position eyePos = getWwd().getView().getEyePosition();
-//                    sun = Vec4.UNIT_Y;
-//                    sun = sun.transformBy3(Matrix.fromRotationX(elevation));
-//                    sun = sun.transformBy3(Matrix.fromRotationZ(azimuth.multiply(-1)));
-//                    sun = sun.transformBy3(getWwd().getModel().getGlobe().computeTransformToPosition(
-//                        eyePos.getLatitude(), eyePos.getLongitude(), 0));
-//               }
-//                else
-//                {
-                    // Disable UI controls
-//                    this.azimuthSlider.setEnabled(false);
-//                    this.elevationSlider.setEnabled(false);
-                    // Compute Sun position according to current date and time
-                    LatLon sunPos = spp.getPosition();
-                    sun = getWwd().getModel().getGlobe().computePointFromPosition(new Position(sunPos, 0)).normalize3();
-//                }
-                light = sun.getNegative3();
-                this.tessellator.setLightDirection(light);
-                this.lensFlareLayer.setSunDirection(sun);
-                this.atmosphereLayer.setSunDirection(sun);
-            }
-//            else
-//            {
-//                // Disable UI controls
-//                this.colorButton.setEnabled(false);
-//                this.ambientButton.setEnabled(false);
-//                this.absoluteRadioButton.setEnabled(false);
-//                this.relativeRadioButton.setEnabled(false);
-//                this.azimuthSlider.setEnabled(false);
-//                this.elevationSlider.setEnabled(false);
-//                // Turn off lighting
-//                this.tessellator.setLightDirection(null);
-//                this.lensFlareLayer.setSunDirection(null);
-//                this.atmosphereLayer.setSunDirection(null);
-//            }
-            // Redraw
-            this.getWwd().redraw();
-        } // update - for sun shading
+            // Compute Sun position according to current date and time
+            LatLon sunPos = spp.getPosition();
+            Vec4 sun = getWwd().getModel().getGlobe().computePointFromPosition(new Position(sunPos, 0)).normalize3();
 
+            Vec4 light = sun.getNegative3();
+            this.tessellator.setLightDirection(light);
+            this.lensFlareLayer.setSunDirection(sun);
+            this.atmosphereLayer.setSunDirection(sun);
+
+            // Redraw if needed
+            if(redraw)
+            {
+                this.getWwd().redraw();
+            }
+        } // if sun Shading
+        
+    } // update - for sun shading
+
+    public void setSunShadingOn(boolean useSunShading)
+    {
+        if(useSunShading == sunShadingOn)
+        {
+            return; // nothing to do
+        }
+
+        sunShadingOn = useSunShading;
+
+        if(sunShadingOn)
+        {
+            // enable shading - use special atmosphere
+            for(int i = 0; i < this.getWwd().getModel().getLayers().size(); i++)
+            {
+                Layer l = this.getWwd().getModel().getLayers().get(i);
+                if(l instanceof SkyGradientLayer)
+                {
+                    this.getWwd().getModel().getLayers().set(i, this.atmosphereLayer);
+                }
+            }
+        }
+        else
+        {
+            // disable shading
+            // Turn off lighting
+            this.tessellator.setLightDirection(null);
+            this.lensFlareLayer.setSunDirection(null);
+            this.atmosphereLayer.setSunDirection(null);
+
+            // use standard atmosphere
+            for(int i = 0; i < this.getWwd().getModel().getLayers().size(); i++)
+            {
+                Layer l = this.getWwd().getModel().getLayers().get(i);
+                if(l instanceof AtmosphereLayer)
+                {
+                    this.getWwd().getModel().getLayers().set(i, new SkyGradientLayer());
+                }
+            }
+            
+        } // if/else shading
+
+        this.update(true); // redraw
+    } // setSunShadingOn
+
+    public boolean getSunShadingOn()
+    {
+        return sunShadingOn;
+    }
+
+     /**
+     * set the ambient light level for sun shading
+     * @param level 0-100
+     */
+    public void setAmbientLightLevel(int level)
+    {
+        this.tessellator.setAmbientColor(new Color(level/100.0f,level/100.0f,level/100.0f) );
+
+        this.update(true);
+    }
+
+    /**
+     *
+     * @return ambient light level 0-100
+     */
+    public int getAmbientLightLevel()
+    {
+        return (int) Math.round( 100.0*this.tessellator.getAmbientColor().getRed()/255.0 );
+    }
+
+    /**
+     * if lens flair rendering is enabeled
+     * @return
+     */
+    public boolean isLensFlareEnabled()
+    {
+        return lensFlareLayer.isEnabled();
+    }
+
+    /**
+     * Set if the lens flair and sun are rendered if sun shading is enabeled
+     * @param enabled
+     */
+    public void setLensFlare(boolean enabled)
+    {
+        lensFlareLayer.setEnabled(enabled);
+    }
 
     private RenderableLayer createLatLongLinesLayer()
     {
@@ -698,6 +739,8 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         Point p = parent.getLocation();
         iframe.setLocation(p.x + 15, p.y + 15);
 
+        setLookandFeel(iframe);
+
         iframe.setVisible(true);
         
     }//GEN-LAST:event_globeLayersButtonActionPerformed
@@ -766,6 +809,8 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         Point p = parent.getLocation();
         iframe.setLocation(p.x + 15, p.y + 15);
 
+        setLookandFeel(iframe);
+
         iframe.setVisible(true);
         
         
@@ -788,23 +833,56 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         JDialog iframe = new JDialog(parent, windowName, false);
 
         iframe.setContentPane(newPanel); // set contents pane
-        iframe.setSize(220+40, 260+65); // set size w,h
+        iframe.setSize(220+40, 260+65+125); // set size w,h
         
         Point p = this.getLocationOnScreen();
         iframe.setLocation(p.x + 15, p.y + 55);
         
         newPanel.setParentDialog(iframe); // save parent for closing
+
+        setLookandFeel(iframe);
         
         iframe.setVisible(true);
         
             
     }//GEN-LAST:event_viewPropButtonActionPerformed
 
+    private void setLookandFeel(JDialog iframe)
+    {
+        // set icon
+        iframe.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/icons/logo/JSatTrakLogo_16.png")));
+        ////// SEG 23 March 2009 ///////////////////////////////
+        // Check look and feel to see if this JDialog should have a deocrated window
+        boolean canBeDecoratedByLAF = UIManager.getLookAndFeel().getSupportsWindowDecorations();
+        if(canBeDecoratedByLAF != iframe.isUndecorated())
+        {
+            //boolean wasVisible = iframe.isVisible();
+            //iframe.setVisible(false);
+            iframe.dispose();
+            if(!canBeDecoratedByLAF) //|| wasOriginallyDecoratedByOS
+            {
+                // see the java docs under the method
+                // JFrame.setDefaultLookAndFeelDecorated(boolean
+                // value) for description of these 2 lines:
+                iframe.setUndecorated(false);
+                iframe.getRootPane().setWindowDecorationStyle(JRootPane.NONE);
+
+            }
+            else
+            {
+                iframe.setUndecorated(true);
+                iframe.getRootPane().setWindowDecorationStyle(JRootPane.FRAME);
+            }
+        }
+        ///////////////////////////////// window decoration check
+    } // setLookandFeel
+
     private void genMovieButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_genMovieButtonActionPerformed
     {//GEN-HEADEREND:event_genMovieButtonActionPerformed
         JCreateMovieDialog panel = new JCreateMovieDialog(app, false, this, app);
         Point p = this.getLocationOnScreen();
         panel.setLocation(p.x + 15, p.y + 55);
+        setLookandFeel(panel);
         panel.setVisible(true);
     }//GEN-LAST:event_genMovieButtonActionPerformed
 
@@ -813,6 +891,7 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         JTerrainProfileDialog panel = new JTerrainProfileDialog(app, false, app, this);
         Point p = this.getLocationOnScreen();
         panel.setLocation(p.x + 15, p.y + 55);
+        setLookandFeel(panel);
         panel.setVisible(true);
 }//GEN-LAST:event_terrainProfileButtonActionPerformed
 
@@ -1226,6 +1305,7 @@ private void fullScreenButtonActionPerformed(java.awt.event.ActionEvent evt) {//
     public void repaintWWJ()
     {
         //wwd.redraw(); // may not force repaint when it is slow to repaint (thus skiped)
+        this.update(false); // shader update when updating time??
         wwd.redrawNow(); //force it to happen now -- needed when plotting coverage data 
     }
 

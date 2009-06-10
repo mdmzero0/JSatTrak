@@ -31,8 +31,13 @@ import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.awt.AWTInputHandler;
 import gov.nasa.worldwind.awt.WorldWindowGLJPanel;
+import gov.nasa.worldwind.event.PositionEvent;
+import gov.nasa.worldwind.event.PositionListener;
 import gov.nasa.worldwind.examples.WMSLayersPanel;
+import gov.nasa.worldwind.examples.sunlight.AtmosphereLayer;
+import gov.nasa.worldwind.examples.sunlight.LensFlareLayer;
 import gov.nasa.worldwind.examples.sunlight.RectangularNormalTessellator;
+import gov.nasa.worldwind.examples.sunlight.SunPositionProvider;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
@@ -50,6 +55,7 @@ import gov.nasa.worldwind.layers.Mercator.examples.OSMMapnikTransparentLayer;
 import gov.nasa.worldwind.layers.Mercator.examples.VirtualEarthLayer;
 import gov.nasa.worldwind.layers.Mercator.examples.YahooMapsLayer;
 import gov.nasa.worldwind.layers.RenderableLayer;
+import gov.nasa.worldwind.layers.SkyGradientLayer;
 import gov.nasa.worldwind.layers.StarsLayer;
 import gov.nasa.worldwind.layers.TerrainProfileLayer;
 import gov.nasa.worldwind.layers.TiledImageLayer;
@@ -69,6 +75,7 @@ import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Robot;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
@@ -85,8 +92,10 @@ import javax.swing.JFileChooser;
 import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -101,6 +110,7 @@ import name.gano.worldwind.WwjUtils;
 import name.gano.worldwind.layers.Earth.CoverageRenderableLayer;
 import name.gano.worldwind.layers.Earth.ECEFRenderableLayer;
 import name.gano.worldwind.layers.Earth.ECIRenderableLayer;
+import name.gano.worldwind.sunshader.CustomSunPositionProvider;
 import name.gano.worldwind.view.BasicModelView3;
 import name.gano.worldwind.view.BasicModelViewInputHandler3;
 
@@ -154,6 +164,13 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
     private boolean smoothViewChanges = true; // for 3D view smoothing (only is set after model/earth view has been changed -needs to be fixed)
 
     ViewControlsLayer viewControlsLayer;
+
+    // sun shader
+    private RectangularNormalTessellator tessellator;
+    private LensFlareLayer lensFlareLayer;
+    private AtmosphereLayer atmosphereLayer;
+    private SunPositionProvider spp;
+    private boolean sunShadingOn = false; // controls if sun shading is used
     
     /** Creates new form J3DEarthPanel
      * @param parent
@@ -190,7 +207,9 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
         wwd.setPreferredSize(new java.awt.Dimension(600, 400));
         this.add(wwd, java.awt.BorderLayout.CENTER);
         //wwd.setModel(new BasicModel());
-        
+
+        // turn network loading off -- this is a global switch
+        //gov.nasa.worldwind.WorldWind.getNetworkStatus().setOfflineMode(true);
         
         Model m = (Model) WorldWind.createConfigurationComponent(AVKey.MODEL_CLASS_NAME);
         // m.setLayers(layerList);
@@ -275,7 +294,6 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
         } // for layers
         
         
-        
         wwd.setModel(m);
 
         // add USGS topo layer
@@ -306,7 +324,6 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
         m.getLayers().add(terrainProfileLayer); // add ECI Layer
         terrainProfileLayer.setEventSource(this.getWwd());
 
-        
         // ini start and end - to avoid null calculations
         terrainProfileLayer.setStartLatLon(LatLon.fromDegrees(0.0, 0.0));
         terrainProfileLayer.setEndLatLon(LatLon.fromDegrees(50.0, 50.0));
@@ -331,6 +348,43 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
         //        {
         starsLayer.setLongitudeOffset(Angle.fromDegrees(-eciLayer.getRotateECIdeg()));
         //        }
+
+         // SUN SHADING -------------
+
+        // set the sun provider to the shader
+        spp = new CustomSunPositionProvider(app.getSun());
+
+        // Replace sky gradient with this atmosphere layer when using sun shading
+        this.atmosphereLayer = new AtmosphereLayer();
+
+        // Add lens flare layer
+        this.lensFlareLayer = LensFlareLayer.getPresetInstance(LensFlareLayer.PRESET_BOLD);
+        this.getWwd().getModel().getLayers().add(this.lensFlareLayer);
+
+        // Get tessellator
+        this.tessellator = (RectangularNormalTessellator)getWwd().getModel().getGlobe().getTessellator();
+        // set default colors for shading
+        //this.tessellator.setLightColor(Color.WHITE); //this.colorButton.getBackground());
+        //this.tessellator.setAmbientColor(Color.BLACK); //this.ambientButton.getBackground());
+        this.tessellator.setAmbientColor(new Color(0.50f, 0.50f, 0.50f));
+
+        // Add position listener to update light direction relative to the eye
+        getWwd().addPositionListener(new PositionListener()
+        {
+            Vec4 eyePoint;
+
+            public void moved(PositionEvent event)
+            {
+                if(eyePoint == null || eyePoint.distanceTo3(getWwd().getView().getEyePoint()) > 1000)
+                {
+                    update(true);
+                    eyePoint = getWwd().getView().getEyePoint();
+                }
+            }
+        });
+
+        setSunShadingOn(true); // enable sun shading by default
+    // END Sun Shading -------------
         
         // correct clipping plane -- so entire orbits are shown - maybe make variable?
         //wwd.getView().setFarClipDistance(10000000000d);
@@ -338,7 +392,116 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
         wwd.getView().setNearClipDistance(app.getNearClippingPlaneDist()); // -1 for auto adjust
              
     } // constructor
-    
+
+    // Update worldwind wun shading
+    private void update(boolean redraw)
+    {
+        if(sunShadingOn) //this.enableCheckBox.isSelected())
+        {
+            // Compute Sun position according to current date and time
+            LatLon sunPos = spp.getPosition();
+            Vec4 sun = getWwd().getModel().getGlobe().computePointFromPosition(new Position(sunPos, 0)).normalize3();
+
+            Vec4 light = sun.getNegative3();
+            this.tessellator.setLightDirection(light);
+            this.lensFlareLayer.setSunDirection(sun);
+            this.atmosphereLayer.setSunDirection(sun);
+
+            // Redraw if needed
+            if(redraw)
+            {
+                this.getWwd().redraw();
+            }
+        } // if sun Shading
+
+    } // update - for sun shading
+
+    public void setSunShadingOn(boolean useSunShading)
+    {
+        if(useSunShading == sunShadingOn)
+        {
+            return; // nothing to do
+        }
+
+        sunShadingOn = useSunShading;
+
+        if(sunShadingOn)
+        {
+            // enable shading - use special atmosphere
+            for(int i = 0; i < this.getWwd().getModel().getLayers().size(); i++)
+            {
+                Layer l = this.getWwd().getModel().getLayers().get(i);
+                if(l instanceof SkyGradientLayer)
+                {
+                    this.getWwd().getModel().getLayers().set(i, this.atmosphereLayer);
+                }
+            }
+        }
+        else
+        {
+            // disable shading
+            // Turn off lighting
+            this.tessellator.setLightDirection(null);
+            this.lensFlareLayer.setSunDirection(null);
+            this.atmosphereLayer.setSunDirection(null);
+
+            // use standard atmosphere
+            for(int i = 0; i < this.getWwd().getModel().getLayers().size(); i++)
+            {
+                Layer l = this.getWwd().getModel().getLayers().get(i);
+                if(l instanceof AtmosphereLayer)
+                {
+                    this.getWwd().getModel().getLayers().set(i, new SkyGradientLayer());
+                }
+            }
+
+        } // if/else shading
+
+        this.update(true); // redraw
+    } // setSunShadingOn
+
+    public boolean getSunShadingOn()
+    {
+        return sunShadingOn;
+    }
+
+    /**
+     * set the ambient light level for sun shading
+     * @param level 0-100
+     */
+    public void setAmbientLightLevel(int level)
+    {
+        this.tessellator.setAmbientColor(new Color(level/100.0f,level/100.0f,level/100.0f) );
+
+        this.update(true);
+    }
+
+    /**
+     *
+     * @return ambient light level 0-100
+     */
+    public int getAmbientLightLevel()
+    {
+        return (int) Math.round( 100.0*this.tessellator.getAmbientColor().getRed()/255.0 );
+    }
+
+    /**
+     * if lens flair rendering is enabeled
+     * @return
+     */
+    public boolean isLensFlareEnabled()
+    {
+        return lensFlareLayer.isEnabled();
+    }
+
+    /**
+     * Set if the lens flair and sun are rendered if sun shading is enabeled
+     * @param enabled
+     */
+    public void setLensFlare(boolean enabled)
+    {
+        lensFlareLayer.setEnabled(enabled);
+    }
     
     private RenderableLayer createLatLongLinesLayer()
     {
@@ -593,6 +756,8 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
         
         Point p = this.getWwdLocationOnScreen();
         iframe.setLocation(p.x + 15, p.y + 15);
+
+        setLookandFeel(iframe);
         
         iframe.setVisible(true);
         
@@ -661,6 +826,8 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
         
         Point p = parent.getLocation();
         iframe.setLocation(p.x + 15, p.y + 15);
+
+        setLookandFeel(iframe);
         
         iframe.setVisible(true);
         
@@ -684,23 +851,56 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
         JDialog iframe = new JDialog(app, windowName, false);
         
         iframe.setContentPane(newPanel); // set contents pane
-        iframe.setSize(220+40, 260+65); // set size w,h
+        iframe.setSize(220+40, 260+65+125); // set size w,h
         
         Point p = this.getLocationOnScreen();
         iframe.setLocation(p.x + 15, p.y + 55);
         
         newPanel.setParentDialog(iframe); // save parent for closing
         
+        setLookandFeel(iframe);
+
         iframe.setVisible(true);
         
         
     }//GEN-LAST:event_viewPropButtonActionPerformed
     
+    private void setLookandFeel(JDialog iframe)
+    {
+        // set icon
+        iframe.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/icons/logo/JSatTrakLogo_16.png")));
+        ////// SEG 23 March 2009 ///////////////////////////////
+        // Check look and feel to see if this JDialog should have a deocrated window
+        boolean canBeDecoratedByLAF = UIManager.getLookAndFeel().getSupportsWindowDecorations();
+        if(canBeDecoratedByLAF != iframe.isUndecorated())
+        {
+            //boolean wasVisible = iframe.isVisible();
+            //iframe.setVisible(false);
+            iframe.dispose();
+            if(!canBeDecoratedByLAF) //|| wasOriginallyDecoratedByOS
+            {
+                // see the java docs under the method
+                // JFrame.setDefaultLookAndFeelDecorated(boolean
+                // value) for description of these 2 lines:
+                iframe.setUndecorated(false);
+                iframe.getRootPane().setWindowDecorationStyle(JRootPane.NONE);
+
+            }
+            else
+            {
+                iframe.setUndecorated(true);
+                iframe.getRootPane().setWindowDecorationStyle(JRootPane.FRAME);
+            }
+        }
+        ///////////////////////////////// window decoration check
+    } // setLookandFeel
+
     private void genMovieButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_genMovieButtonActionPerformed
     {//GEN-HEADEREND:event_genMovieButtonActionPerformed
         JCreateMovieDialog panel = new JCreateMovieDialog(app, false, this, app);
         Point p = this.getLocationOnScreen();
         panel.setLocation(p.x + 15, p.y + 55);
+        setLookandFeel(panel);
         panel.setVisible(true);
     }//GEN-LAST:event_genMovieButtonActionPerformed
     
@@ -709,6 +909,7 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
         JTerrainProfileDialog panel = new JTerrainProfileDialog(app, false, app, this);
         Point p = this.getLocationOnScreen();
         panel.setLocation(p.x + 15, p.y + 55);
+        setLookandFeel(panel);
         panel.setVisible(true);
     }//GEN-LAST:event_terrainProfileButtonActionPerformed
 
