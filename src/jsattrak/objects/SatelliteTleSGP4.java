@@ -191,9 +191,15 @@ public class SatelliteTleSGP4 extends AbstractSatellite
         // get position information back out - convert to J2000 (does TT time need to be used?)
         j2kPos = CoordinateConversion.EquatorialEquinoxToJ2K(julDate-2400000.5, sdp4Prop.itsR);
         j2kVel = CoordinateConversion.EquatorialEquinoxToJ2K(julDate-2400000.5, sdp4Prop.itsV);
+        // SEG - 10 June corrections the position from SGP4 is actual MOD for this epoch! not the current date
+        // nope STK closer to the other way??
+        //j2kPos = CoordinateConversion.EquatorialEquinoxToJ2K(sdp4Prop.itsEpochJD+49999.5, sdp4Prop.itsR); // +2450000-2400000.5 = 49999.5
+        //j2kVel = CoordinateConversion.EquatorialEquinoxToJ2K(sdp4Prop.itsEpochJD+49999.5, sdp4Prop.itsV);
         
         //System.out.println("Date: " + julDate +", Pos: " + sdp4Prop.itsR[0] + ", " + sdp4Prop.itsR[1] + ", " + sdp4Prop.itsR[2]);
-        
+
+        //posMOD = CoordinateConversion.EquatorialEquinoxChange(sdp4Prop.itsEpochJD+49999.5, sdp4Prop.itsR, julDate-2400000.5); // +2450000-2400000.5 = 49999.5
+        //velMOD = CoordinateConversion.EquatorialEquinoxChange(sdp4Prop.itsEpochJD+49999.5, sdp4Prop.itsV, julDate-2400000.5);
         
         // correct scaling factor of lenths
         
@@ -205,6 +211,12 @@ public class SatelliteTleSGP4 extends AbstractSatellite
             // MOD
              posMOD[i] = sdp4Prop.itsR[i]*1000000000.0;
              velMOD[i] = sdp4Prop.itsV[i]*1000.0;
+             // change from equoiox of epock to TOD vs MOD?? - STK closer the other way
+             //posMOD[i] = posMOD[i]*1000000000.0;
+             //velMOD[i] =  velMOD[i]*1000.0;
+
+             // debug:
+             System.out.println("axis, J2k, MOD : " + i + ", " + j2kPos[i] + ", " + posMOD[i]);
         }
         
         // save old lat/long for ascending node check

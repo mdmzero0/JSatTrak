@@ -97,11 +97,13 @@
  *          3.7.6 24 Mar 2009 -- resize fix on 3D external window (in 3.7.5 they could only be made bigger) - set min size on globe panel (0,0) preferred size(50,50)
  *          3.7.7 2 April 2009 -- added Microsfot virtual earth layer/yahoo/open maps from WWJ Experimental code
  *          3.7.8 26 May 2009 - bug fix, close app by file->exit doesn't close process - fixed (bug found by Horst Meyerdierks - SGP4 author)
- *          3.8.0alpha 10 June 2009 - added sun shading effects in latest WWJ verion of the day. See posts:
+ *          3.8.0alpha 11 June 2009 - added sun shading effects in latest WWJ verion of the day. See posts:
  *                                    http://forum.worldwindcentral.com/showthread.php?t=21021&highlight=sun+shading
  *                                    http://patmurris.blogspot.com/2009/04/sunlight-package-for-worldwind-java.html
  *                                  (VOTD - WWJ Broke COLOR OF 3D ORBIT TRACE - fixed - disabled 2D textures in OrbitModelRenderable and EFEFModelRenderable)
+ *                                  - Increased precision of GeoFunctions.GeodeticLLA
  *
+ * 
  *                              Ideas for next versions: (no particular order)
  *                                  - Vectors tool (make them seperate objects) axis, grids, lines, arrows (data providers)
  *                                  - DATA out! - Reports and graphs and exporting of data out of program
@@ -224,7 +226,7 @@ import name.gano.file.SaveImageFile;
  */
 public class JSatTrak extends javax.swing.JFrame implements InternalFrameListener, WindowListener, Serializable
 {
-    private String versionString = "Version 3.8.0alpha (10 June 2009)"; // Version of app
+    private String versionString = "Version 3.8.0alpha (11 June 2009)"; // Version of app
     
     // hastable to store all the statelites currently being processed
     private Hashtable<String,AbstractSatellite> satHash = new Hashtable<String,AbstractSatellite>();

@@ -106,7 +106,9 @@ public class GeoFunctions
         LLA[2] = Nh - N; // altitute, h
         
         //System.out.println("LLA[1]: "+ LLA[1]);
-        LLA[1] = LLA[1] -(280.4606 +360.9856473*d)*Math.PI/180.0; // shift based on time
+        //LLA[1] = LLA[1] -(280.4606 +360.9856473*d)*Math.PI/180.0; // shift based on time
+        // add fidelity to the line above
+        LLA[1] = LLA[1] - earthRotationDeg(d)*Math.PI/180.0; // shift based on time
         double div = Math.floor(LLA[1]/(2*Math.PI));
         LLA[1] = LLA[1] - div*2*Math.PI;
         if(LLA[1] > Math.PI)
@@ -119,6 +121,19 @@ public class GeoFunctions
         return LLA; //h
         
     } // calculateGeodeticLLA
+
+    // SEG 10 June 2009 - help standardize earth Rotations
+    private static double earthRotationDeg(double d) // days since y2K
+    {
+        // LLA[1] = LLA[1] -(280.4606 +360.9856473*d)*Math.PI/180.0; // shift based on time
+
+        // calculate T
+        double T = (d)/36525.0;
+
+        // do calculation
+        return ( (280.46061837 + 360.98564736629*(d)) + 0.000387933*T*T - T*T*T/38710000.0) % 360.0;
+
+    } // earthRotationRad
 
     /*------------------------------------------------------------------------------
      *
