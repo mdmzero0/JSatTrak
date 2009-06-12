@@ -188,21 +188,29 @@ public class SatelliteTleSGP4 extends AbstractSatellite
         //print differene TT-UT
         //System.out.println("TT-UT [days]= " + SDP4TimeUtilities.DeltaT(julDate-2450000)*24.0*60*60);
         
+        
+        // SEG - 11 June 2009 -- new information (to me) on SGP4 propogator coordinate system:
+        // SGP4 output is in true equator and mean equinox (TEME) of Date *** note some think of epoch, but STK beleives it is of date from tests **
+        // It depends also on the source for the TLs if from the Nasa MCC might be MEME but most US Gov - TEME
+        // Also the Lat/Lon/Alt calculations are based on TEME (of Date) so that is correct as it was used before!
+        // References:
+        // http://www.stk.com/pdf/STKandSGP4/STKandSGP4.pdf  (STK's stance on SGP4)
+        // http://www.agi.com/resources/faqSystem/files/2144.pdf  (newer version of above)
+        // http://www.satobs.org/seesat/Aug-2004/0111.html
+        // http://celestrak.com/columns/v02n01/ "Orbital Coordinate Systems, Part I" by Dr. T.S. Kelso
+        // http://en.wikipedia.org/wiki/Earth_Centered_Inertial
+        // http://ccar.colorado.edu/asen5050/projects/projects_2004/aphanuphong/p1.html  (bad coefficients? conversion between TEME and J2000 (though slightly off?))
+        //  http://www.centerforspace.com/downloads/files/pubs/AIAA-2000-4025.pdf
+        // http://www.mpe-garching.mpg.de/gamma/instruments/swift/software/headas_psi/attitude/tasks/prefilter/tle.c
+
         // get position information back out - convert to J2000 (does TT time need to be used?)
         j2kPos = CoordinateConversion.EquatorialEquinoxToJ2K(julDate-2400000.5, sdp4Prop.itsR);
         j2kVel = CoordinateConversion.EquatorialEquinoxToJ2K(julDate-2400000.5, sdp4Prop.itsV);
-        // SEG - 10 June corrections the position from SGP4 is actual MOD for this epoch! not the current date
-        // nope STK closer to the other way??
-        //j2kPos = CoordinateConversion.EquatorialEquinoxToJ2K(sdp4Prop.itsEpochJD+49999.5, sdp4Prop.itsR); // +2450000-2400000.5 = 49999.5
-        //j2kVel = CoordinateConversion.EquatorialEquinoxToJ2K(sdp4Prop.itsEpochJD+49999.5, sdp4Prop.itsV);
-        
+        // based on new info about coordinate system, to get the J2K other conversions are needed!
+
         //System.out.println("Date: " + julDate +", Pos: " + sdp4Prop.itsR[0] + ", " + sdp4Prop.itsR[1] + ", " + sdp4Prop.itsR[2]);
 
-        //posMOD = CoordinateConversion.EquatorialEquinoxChange(sdp4Prop.itsEpochJD+49999.5, sdp4Prop.itsR, julDate-2400000.5); // +2450000-2400000.5 = 49999.5
-        //velMOD = CoordinateConversion.EquatorialEquinoxChange(sdp4Prop.itsEpochJD+49999.5, sdp4Prop.itsV, julDate-2400000.5);
-        
-        // correct scaling factor of lenths
-        
+        // correct scaling factor of lengths
         for(int i=0;i<3;i++)
         {
             // J2000
@@ -211,10 +219,7 @@ public class SatelliteTleSGP4 extends AbstractSatellite
             // MOD
              posMOD[i] = sdp4Prop.itsR[i]*1000000000.0;
              velMOD[i] = sdp4Prop.itsV[i]*1000.0;
-             // change from equoiox of epock to TOD vs MOD?? - STK closer the other way
-             //posMOD[i] = posMOD[i]*1000000000.0;
-             //velMOD[i] =  velMOD[i]*1000.0;
-
+             
              // debug:
              System.out.println("axis, J2k, MOD : " + i + ", " + j2kPos[i] + ", " + posMOD[i]);
         }
