@@ -166,9 +166,9 @@ public class JTrackingPanel extends javax.swing.JPanel
         
         // calculate AER
         //double[] aer = gs.calculate_AER( sat.getJ2000Position() ); // in J2k position - incorrect
-        if(sat.getPosMOD() != null && !nanDbl.equals(sat.getPosMOD()[0])) // check for NAN
+        if(sat.getPosTEME() != null && !nanDbl.equals(sat.getPosTEME()[0])) // check for NAN
         {
-            double[] aer = gs.calculate_AER(sat.getPosMOD());  // MOD
+            double[] aer = gs.calculate_AER(sat.getPosTEME());  // MOD
 
             // add text AER and string
             aerTextArea.setText(timeAsString + "\n\n" + "Azimuth [deg]: " + aer[0] + "\nElevation [deg]: " + aer[1] + "\nRange [m]: " + aer[2]);
@@ -201,14 +201,14 @@ public class JTrackingPanel extends javax.swing.JPanel
                 if (jPolarPlotLabel.getAerLead() == null || jPolarPlotLabel.getAerLead().length < 1)
                 {
                     updateLeadData = true;
-                    oldLeadX = sat.getModPosLead()[0][0];
+                    oldLeadX = sat.getTemePosLead()[0][0];
                 }
                 else
                 {
-                    if (oldLeadX != sat.getModPosLead()[0][0])
+                    if (oldLeadX != sat.getTemePosLead()[0][0])
                     {
                         updateLeadData = true;
-                        oldLeadX = sat.getModPosLead()[0][0];
+                        oldLeadX = sat.getTemePosLead()[0][0];
                     }
                 }
 
@@ -216,28 +216,28 @@ public class JTrackingPanel extends javax.swing.JPanel
                 if (jPolarPlotLabel.getAerLag() == null || jPolarPlotLabel.getAerLag().length < 1)
                 {
                     updateLagData = true;
-                    oldLagX = sat.getModPosLag()[0][0];
+                    oldLagX = sat.getTemePosLag()[0][0];
                 }
                 else
                 {
-                    if (oldLagX != sat.getModPosLag()[0][0])
+                    if (oldLagX != sat.getTemePosLag()[0][0])
                     {
                         updateLagData = true;
-                        oldLagX = sat.getModPosLag()[0][0];
+                        oldLagX = sat.getTemePosLag()[0][0];
                     }
                 }
 
                 // update Lead data if needed
                 if (updateLeadData) //|| check to see if lead/lag data has been updated..
                 {
-                    jPolarPlotLabel.setAerLead(AER.calculate_AER(new double[]{gs.getLatitude(), gs.getLongitude(), gs.getAltitude()}, sat.getModPosLead(), sat.getTimeLead()));
+                    jPolarPlotLabel.setAerLead(AER.calculate_AER(new double[]{gs.getLatitude(), gs.getLongitude(), gs.getAltitude()}, sat.getTemePosLead(), sat.getTimeLead()));
                 //System.out.println("Lead updated");
                 }
 
                 // update lag data if needed
                 if (updateLagData) //|| heck to see if lead/lag data has been updated..
                 {
-                    jPolarPlotLabel.setAerLag(AER.calculate_AER(new double[]{gs.getLatitude(), gs.getLongitude(), gs.getAltitude()}, sat.getModPosLag(), sat.getTimeLag()));
+                    jPolarPlotLabel.setAerLag(AER.calculate_AER(new double[]{gs.getLatitude(), gs.getLongitude(), gs.getAltitude()}, sat.getTemePosLag(), sat.getTimeLag()));
                 //System.out.println("Lag updated");
                 }
 
@@ -731,8 +731,8 @@ public class JTrackingPanel extends javax.swing.JPanel
             AbstractSatellite sat = satHash.get(satComboBox.getSelectedItem().toString());
             if (jPolarPlotLabel.isShowLeadLagData() && sat.getShowGroundTrack())
             {
-                jPolarPlotLabel.setAerLead(AER.calculate_AER(new double[]{gs.getLatitude(), gs.getLongitude(), gs.getAltitude()}, sat.getModPosLead(), sat.getTimeLead()));
-                jPolarPlotLabel.setAerLag(AER.calculate_AER(new double[]{gs.getLatitude(), gs.getLongitude(), gs.getAltitude()}, sat.getModPosLag(), sat.getTimeLag()));
+                jPolarPlotLabel.setAerLead(AER.calculate_AER(new double[]{gs.getLatitude(), gs.getLongitude(), gs.getAltitude()}, sat.getTemePosLead(), sat.getTimeLead()));
+                jPolarPlotLabel.setAerLag(AER.calculate_AER(new double[]{gs.getLatitude(), gs.getLongitude(), gs.getAltitude()}, sat.getTemePosLag(), sat.getTimeLag()));
             }
         }
         
@@ -828,7 +828,7 @@ public class JTrackingPanel extends javax.swing.JPanel
         // linear search
         double time0, h0;
         double time1 = jdStart;
-        double h1 = AER.calculate_AER(gs.getLla_deg_m(), sat.calculateMODPositionFromUT(time1) , time1)[1] - gs.getElevationConst();
+        double h1 = AER.calculate_AER(gs.getLla_deg_m(), sat.calculateTemePositionFromUT(time1) , time1)[1] - gs.getElevationConst();
         
         int passCount = 0;
         
@@ -848,7 +848,7 @@ public class JTrackingPanel extends javax.swing.JPanel
             // calculate elevations at each time step (if needed)
             h0 = h1;
             // calculate the elevation at this newly visited point
-            h1 = AER.calculate_AER(gs.getLla_deg_m(), sat.calculateMODPositionFromUT(time1) , time1)[1] - gs.getElevationConst();
+            h1 = AER.calculate_AER(gs.getLla_deg_m(), sat.calculateTemePositionFromUT(time1) , time1)[1] - gs.getElevationConst();
             
             // rise
             if(h0<=0 && h1 >0)
@@ -866,7 +866,7 @@ public class JTrackingPanel extends javax.swing.JPanel
                 passTableModel.addRow(new Object[] {passCount,crossTimeStr,"","","","",""});
 
                 // calculate using the rise time - the Azimuth
-                double az = AER.calculate_AER(gs.getLla_deg_m(), sat.calculateMODPositionFromUT(riseTime) , riseTime)[0];
+                double az = AER.calculate_AER(gs.getLla_deg_m(), sat.calculateTemePositionFromUT(riseTime) , riseTime)[0];
                 if(azComboBox.getSelectedIndex() == 0)
                 {
                     passTableModel.setValueAt(""+String.format("%.1f", az), passTableModel.getRowCount()-1, 2);
@@ -889,7 +889,7 @@ public class JTrackingPanel extends javax.swing.JPanel
                 passTableModel.setValueAt(crossTimeStr, passTableModel.getRowCount()-1, 3); // last row, 3rd column (2)
                 
                 // calculate using the set time - the Azimuth
-                double az = AER.calculate_AER(gs.getLla_deg_m(), sat.calculateMODPositionFromUT(setTime) , setTime)[0];
+                double az = AER.calculate_AER(gs.getLla_deg_m(), sat.calculateTemePositionFromUT(setTime) , setTime)[0];
                 if(azComboBox.getSelectedIndex() == 0)
                 {
                     passTableModel.setValueAt(""+String.format("%.1f", az), passTableModel.getRowCount()-1, 4);
@@ -934,11 +934,11 @@ public class JTrackingPanel extends javax.swing.JPanel
                     
                     // MOD - sun dot site positions to determine if station is in sunlight
                     double[] gsECI = AER.calculateECIposition(julDateVizCalc, gs.getLla_deg_m());
-                    double sunDotSite = MathUtils.dot(internalSun.getCurrentPositionMOD(),gsECI );
+                    double sunDotSite = MathUtils.dot(internalSun.getCurrentPositionTEME(),gsECI );
                     
                     // TEST - find angle between sun -> center of Earth -> Ground Station
-                    double sinFinalSigmaGS = MathUtils.norm( MathUtils.cross(internalSun.getCurrentPositionMOD(), gsECI) ) 
-                             / ( MathUtils.norm(internalSun.getCurrentPositionMOD()) * MathUtils.norm(gsECI)  ); 
+                    double sinFinalSigmaGS = MathUtils.norm( MathUtils.cross(internalSun.getCurrentPositionTEME(), gsECI) )
+                             / ( MathUtils.norm(internalSun.getCurrentPositionTEME()) * MathUtils.norm(gsECI)  );
                     double finalSigmaGS = Math.asin(sinFinalSigmaGS)*180.0/Math.PI; // in degrees
                     
                     if(sunDotSite > 0 || (90.0-finalSigmaGS) < twilightOffset )
@@ -949,9 +949,9 @@ public class JTrackingPanel extends javax.swing.JPanel
                     {
                         // now we know the site is in darkness - need to figure out if the satelite is in light
                         // use predict algorithm from Vallado 2nd ed.
-                        double[] satMOD = sat.calculateMODPositionFromUT(julDateVizCalc);
-                        double sinFinalSigma = MathUtils.norm( MathUtils.cross(internalSun.getCurrentPositionMOD(), satMOD) ) 
-                                / ( MathUtils.norm(internalSun.getCurrentPositionMOD()) * MathUtils.norm(satMOD)  ); 
+                        double[] satMOD = sat.calculateTemePositionFromUT(julDateVizCalc);
+                        double sinFinalSigma = MathUtils.norm( MathUtils.cross(internalSun.getCurrentPositionTEME(), satMOD) )
+                                / ( MathUtils.norm(internalSun.getCurrentPositionTEME()) * MathUtils.norm(satMOD)  );
                         double finalSigma = Math.asin(sinFinalSigma);
                         double dist = MathUtils.norm(satMOD) * Math.cos( finalSigma - Math.PI/2.0);
                         
@@ -1182,7 +1182,7 @@ public class JTrackingPanel extends javax.swing.JPanel
         {
             //Calculate midpoint of domain
             double timeMid = (time1 + time0) / 2.0;
-            double fmid = AER.calculate_AER(gs.getLla_deg_m(), sat.calculateMODPositionFromUT(timeMid) , timeMid)[1] - gs.getElevationConst();
+            double fmid = AER.calculate_AER(gs.getLla_deg_m(), sat.calculateTemePositionFromUT(timeMid) , timeMid)[1] - gs.getElevationConst();
             
             if( f0 * fmid > 0) // same sign
             {

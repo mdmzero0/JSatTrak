@@ -442,11 +442,11 @@ public class WWModel3D_new implements Renderable
                 sat.getAltitude()));
         // set roll pitch yaw (assume user wants LVLH, velcorty aligned)
 
-        // calculate MOD velocity and set rotation angles and axis
-        setMainRotationAngleAxis(sat.getMODVelocity(), sat.getPosMOD());
+        // calculate TEME velocity and set rotation angles and axis
+        setMainRotationAngleAxis(sat.getTEMEVelocity(), sat.getPosTEME());
 
         // set velcoity for test plotting
-        this.velUnitVec = MathUtils.UnitVector(sat.getMODVelocity());
+        this.velUnitVec = MathUtils.UnitVector(sat.getTEMEVelocity());
 
         // Set ECI angle
         double T = (MJD-51544.5)/36525.0;  // centuries since J2000.0

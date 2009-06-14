@@ -460,7 +460,7 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
         this.update(true); // redraw
     } // setSunShadingOn
 
-    public boolean getSunShadingOn()
+    public boolean isSunShadingOn()
     {
         return sunShadingOn;
     }
@@ -851,7 +851,7 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
         JDialog iframe = new JDialog(app, windowName, false);
         
         iframe.setContentPane(newPanel); // set contents pane
-        iframe.setSize(220+40, 260+65+125); // set size w,h
+        iframe.setSize(220+40, 260+65+175); // set size w,h
         
         Point p = this.getLocationOnScreen();
         iframe.setLocation(p.x + 15, p.y + 55);
@@ -1192,7 +1192,29 @@ private void fullScreenButtonActionPerformed(java.awt.event.ActionEvent evt) {//
         } // model view mode
         
     } // setupView
-    
+
+    /**
+     * @return the smoothViewChanges
+     */
+    public boolean isSmoothViewChanges()
+    {
+        return smoothViewChanges;
+    }
+
+    /**
+     * @param smoothViewChanges the smoothViewChanges to set
+     */
+    @Override
+    public void setSmoothViewChanges(boolean smoothViewChanges)
+    {
+        if(smoothViewChanges == this.smoothViewChanges)
+        {
+            return; //nothing to do
+        }
+
+        this.smoothViewChanges = smoothViewChanges;
+        setupView();
+    }
     //    public void setWwd(WorldWindowGLCanvas wwd)
     //    {
     //        this.wwd = wwd;

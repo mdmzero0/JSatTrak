@@ -59,9 +59,11 @@ public interface  J3DEarthComponent
     public double getModelViewFarClip();
     public void setModelViewFarClip(double modelViewFarClip);
     public void resetWWJdisplay();
+    public boolean isSmoothViewChanges();
+    public void setSmoothViewChanges(boolean smoothViewChanges);
     // sun shading
     public void setSunShadingOn(boolean useSunShading);
-    public boolean getSunShadingOn();
+    public boolean isSunShadingOn();
     public void setAmbientLightLevel(int level);
     public int getAmbientLightLevel();
     public boolean isLensFlareEnabled();

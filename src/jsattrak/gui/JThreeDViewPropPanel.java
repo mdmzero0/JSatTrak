@@ -98,8 +98,10 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
             earthViewRadioButton.doClick(); // set selected
         }
 
+        smoothViewCheckBox.setSelected(threeDPanel.isSmoothViewChanges());
+
         // lighting
-        if(threeDPanel.getSunShadingOn())
+        if(threeDPanel.isSunShadingOn())
         {
             sunShadingCheckBox.doClick();
         }
@@ -129,6 +131,7 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
         jLabel2 = new javax.swing.JLabel();
         ecefRadioButton = new javax.swing.JRadioButton();
         eciRadioButton = new javax.swing.JRadioButton();
+        smoothViewCheckBox = new javax.swing.JCheckBox();
         applyButton = new javax.swing.JButton();
         okButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
@@ -174,6 +177,8 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
             }
         });
 
+        smoothViewCheckBox.setText("Smooth view changes");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -189,7 +194,10 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(eciRadioButton)
-                            .addComponent(ecefRadioButton))))
+                            .addComponent(ecefRadioButton)))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(smoothViewCheckBox)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -203,7 +211,10 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
                     .addComponent(jLabel2)
                     .addComponent(ecefRadioButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(eciRadioButton))
+                .addComponent(eciRadioButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(smoothViewCheckBox)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         applyButton.setText("Apply"); // NOI18N
@@ -278,6 +289,7 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
         flareCheckBox.setText("Solar Flare / Sun");
 
         jCheckBox3.setText("Terminator Line");
+        jCheckBox3.setEnabled(false);
 
         jLabel3.setText("Ambient Light Level:");
 
@@ -326,7 +338,6 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(applyButton)
                 .addGap(33, 33, 33)
@@ -336,6 +347,7 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
                 .addGap(3, 3, 3))
             .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -345,7 +357,7 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 65, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 35, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(applyButton)
                     .addComponent(okButton)
@@ -463,6 +475,7 @@ private void modelViewRadioButtonStateChanged(javax.swing.event.ChangeEvent evt)
     private javax.swing.JComboBox modeViewComboBox;
     private javax.swing.JRadioButton modelViewRadioButton;
     private javax.swing.JButton okButton;
+    private javax.swing.JCheckBox smoothViewCheckBox;
     private javax.swing.JCheckBox sunShadingCheckBox;
     // End of variables declaration//GEN-END:variables
     
@@ -499,6 +512,9 @@ private void modelViewRadioButtonStateChanged(javax.swing.event.ChangeEvent evt)
         {
             threeDPanel.setModelViewMode(false);
         }
+
+        // smooth view
+        threeDPanel.setSmoothViewChanges(smoothViewCheckBox.isSelected());
 
         // sun shading
         threeDPanel.setSunShadingOn( sunShadingCheckBox.isSelected() );

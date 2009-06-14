@@ -474,9 +474,11 @@ public class PropogatorNode extends CustomTreeTableNode implements OrbitProblem
         
         // calculate current UT time from TT
         double Mjd_UT1 = Mjd_TT - Time.deltaT(Mjd_TT); //
-        
+
+        // careful if Mjd_TT > J2000.0 - should be take care of in PrecMatrix_Equ_Mjd
+        // good use of PrecMatrix_Equ_Mjd - followed by nutation to get TOD
         T = MathUtils.mult(CoordinateConversion.NutMatrix(Mjd_TT), CoordinateConversion.PrecMatrix_Equ_Mjd(AstroConst.MJD_J2000, Mjd_TT));
-        E = CoordinateConversion.GHAMatrix(Mjd_UT1);
+        //E = CoordinateConversion.GHAMatrix(Mjd_UT1);
         E = MathUtils.mult(CoordinateConversion.GHAMatrix(Mjd_UT1), T);
 
         // Acceleration due to harmonic gravity field
@@ -651,33 +653,39 @@ public class PropogatorNode extends CustomTreeTableNode implements OrbitProblem
                 case 14: // Latitude [deg]
                     // get current j2k pos
                     double[] currentJ2kPos = new double[]{lastStateVector.state[1], lastStateVector.state[2], lastStateVector.state[3]};
-                    // mod pos
-                    double[] modPos = CoordinateConversion.EquatorialEquinoxFromJ2K(lastStateVector.state[0] - AstroConst.JDminusMJD, currentJ2kPos);
+                    // mod pos -needs to be TEME of date
+                    //double[] modPos = CoordinateConversion.EquatorialEquinoxFromJ2K(lastStateVector.state[0] - AstroConst.JDminusMJD, currentJ2kPos)
+                    // teme pos
+                    double[] temePos = CoordinateConversion.J2000toTEME(lastStateVector.state[0] - AstroConst.JDminusMJD, currentJ2kPos);
                     // lla  (submit time in UTC)
                     double deltaTT2UTC = Time.deltaT(lastStateVector.state[0] - AstroConst.JDminusMJD); // = TT - UTC
-                    double[] lla = GeoFunctions.GeodeticLLA(modPos, lastStateVector.state[0] - AstroConst.JDminusMJD - deltaTT2UTC); // tt-UTC = deltaTT2UTC
+                    double[] lla = GeoFunctions.GeodeticLLA(temePos, lastStateVector.state[0] - AstroConst.JDminusMJD - deltaTT2UTC); // tt-UTC = deltaTT2UTC
 
                     val = lla[0] * 180.0 / Math.PI;
                     break;
                 case 15: // Longitude [deg]
                     // get current j2k pos
                     currentJ2kPos = new double[]{lastStateVector.state[1], lastStateVector.state[2], lastStateVector.state[3]};
-                    // mod pos
-                    modPos = CoordinateConversion.EquatorialEquinoxFromJ2K(lastStateVector.state[0] - AstroConst.JDminusMJD, currentJ2kPos);
+                    // mod pos - needs to be TEME of date
+                    //modPos = CoordinateConversion.EquatorialEquinoxFromJ2K(lastStateVector.state[0] - AstroConst.JDminusMJD, currentJ2kPos)
+                    // teme pos
+                    temePos = CoordinateConversion.J2000toTEME(lastStateVector.state[0] - AstroConst.JDminusMJD, currentJ2kPos);
                     // lla  (submit time in UTC)
                     deltaTT2UTC = Time.deltaT(lastStateVector.state[0] - AstroConst.JDminusMJD); // = TT - UTC
-                    lla = GeoFunctions.GeodeticLLA(modPos, lastStateVector.state[0] - AstroConst.JDminusMJD - deltaTT2UTC); // tt-UTC = deltaTT2UTC
+                    lla = GeoFunctions.GeodeticLLA(temePos, lastStateVector.state[0] - AstroConst.JDminusMJD - deltaTT2UTC); // tt-UTC = deltaTT2UTC
 
                     val = lla[1] * 180.0 / Math.PI;
                     break;
                 case 16: // Altitude [m]
                     // get current j2k pos
                     currentJ2kPos = new double[]{lastStateVector.state[1], lastStateVector.state[2], lastStateVector.state[3]};
-                    // mod pos
-                    modPos = CoordinateConversion.EquatorialEquinoxFromJ2K(lastStateVector.state[0] - AstroConst.JDminusMJD, currentJ2kPos);
+                    // mod pos - needs to be TEME of date
+                    //modPos = CoordinateConversion.EquatorialEquinoxFromJ2K(lastStateVector.state[0] - AstroConst.JDminusMJD, currentJ2kPos)
+                    // teme pos
+                    temePos = CoordinateConversion.J2000toTEME(lastStateVector.state[0] - AstroConst.JDminusMJD, currentJ2kPos);
                     // lla  (submit time in UTC)
                     deltaTT2UTC = Time.deltaT(lastStateVector.state[0] - AstroConst.JDminusMJD); // = TT - UTC
-                    lla = GeoFunctions.GeodeticLLA(modPos, lastStateVector.state[0] - AstroConst.JDminusMJD - deltaTT2UTC); // tt-UTC = deltaTT2UTC
+                    lla = GeoFunctions.GeodeticLLA(temePos, lastStateVector.state[0] - AstroConst.JDminusMJD - deltaTT2UTC); // tt-UTC = deltaTT2UTC
 
                     val = lla[2];
                     break;   

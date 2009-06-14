@@ -1,7 +1,7 @@
 /*
  * Abstract Class for Satellite Types
  * =====================================================================
- * Copyright (C) 2008 Shawn E. Gano
+ * Copyright (C) 2008-9 Shawn E. Gano
  * 
  * This file is part of JSatTrak.
  * 
@@ -42,11 +42,11 @@ public abstract class AbstractSatellite implements Serializable
     public abstract double[] calculateJ2KPositionFromUT(double julDate);
 
     /**
-     * Calculate MOD position of this sat at a given JulDateTime (doesn't save the time) - can be useful for event searches or optimization
+     * Calculate TEME of date position of this sat at a given JulDateTime (doesn't save the time) - can be useful for event searches or optimization
      * @param julDate - julian date
      * @return j2k position of satellite in meters
      */
-    public abstract double[] calculateMODPositionFromUT(double julDate);
+    public abstract double[] calculateTemePositionFromUT(double julDate);
 
     public abstract double getAltitude();
 
@@ -80,9 +80,9 @@ public abstract class AbstractSatellite implements Serializable
 
     public abstract double getLongitude();
 
-    public abstract double[][] getModPosLag();
+    public abstract double[][] getTemePosLag();
 
-    public abstract double[][] getModPosLead();
+    public abstract double[][] getTemePosLead();
 
     public abstract String getName();
 
@@ -98,7 +98,7 @@ public abstract class AbstractSatellite implements Serializable
 
     public abstract boolean getPlot2DFootPrint();
 
-    public abstract double[] getPosMOD();
+    public abstract double[] getPosTEME();
 
     public abstract Color getSatColor();
 
@@ -178,7 +178,7 @@ public abstract class AbstractSatellite implements Serializable
     
     public abstract WWModel3D_new getThreeDModel();
     
-    public abstract double[] getMODVelocity();
+    public abstract double[] getTEMEVelocity();
     
     public abstract double getThreeDModelSizeFactor();
     

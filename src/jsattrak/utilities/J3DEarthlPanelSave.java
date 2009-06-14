@@ -1,7 +1,7 @@
 /*
  * J3DEarthInternalPanelSave.java
  *=====================================================================
- * Copyright (C) 2008 Shawn E. Gano
+ * Copyright (C) 2008-9 Shawn E. Gano
  * 
  * This file is part of JSatTrak.
  * 
@@ -71,7 +71,12 @@ public class J3DEarthlPanelSave implements Serializable
     private String modelViewString; // to hold name of satellite to view when modelViewMode=true
     private double modelViewNearClip; // clipping pland for when in Model View mode
     private double modelViewFarClip ;
-    private boolean smoothViewChanges ; // for 3D view smoothing 
+    private boolean smoothViewChanges ; // for 3D view smoothing
+
+    // sun shading
+    private boolean sunShadingOn;
+    private int ambientLightLevel;
+    private boolean lensFlareEnabled;
     
     
     /** Creates a new instance of J2DEarthPanelSave */
@@ -113,7 +118,14 @@ public class J3DEarthlPanelSave implements Serializable
         
         // save title
        frameTitle = panel.getDialogTitle();
-  
+
+        // smooth
+        smoothViewChanges = panel.isSmoothViewChanges();
+
+        // sun shading
+        sunShadingOn = panel.isSunShadingOn();
+        ambientLightLevel = panel.getAmbientLightLevel();
+        lensFlareEnabled = panel.isLensFlareEnabled();
         
     } // J2DEarthPanelSave constructor
     
@@ -129,7 +141,13 @@ public class J3DEarthlPanelSave implements Serializable
         newPanel.setTerrainProfileEnabled(showTerrainProfiler);
         newPanel.setTerrainProfileSat(terrainProfileSat);
         newPanel.setTerrainProfileLongSpan(terrainProfileLongSpan);
-        
+
+        // smooth view
+        try
+        {
+            newPanel.setSmoothViewChanges(smoothViewChanges);
+        }catch(Exception e){System.out.println("Error loading smooth view changes");}
+
         
         // set FOV to WWJ model
         newPanel.getWwd().getView().setFieldOfView(Angle.fromDegrees(fovDeg));
@@ -143,19 +161,25 @@ public class J3DEarthlPanelSave implements Serializable
                 l.setEnabled( layerEnabledHT.get(l.getName())  );
             }
         }
-        
-        
+
+        // sun shading
+        try
+        {
+            newPanel.setSunShadingOn(sunShadingOn);
+            newPanel.setAmbientLightLevel(ambientLightLevel);
+            newPanel.setLensFlare(lensFlareEnabled);
+        } catch (Exception e)
+        {
+            System.out.println("Error loading sun shading options");
+        }
+
         // view mode options
        newPanel.setModelViewString(modelViewString); // to hold name of satellite to view when modelViewMode=true
        newPanel.setModelViewNearClip(modelViewNearClip); // clipping pland for when in Model View mode
        newPanel.setModelViewFarClip(modelViewFarClip);
-       newPanel.setModelViewMode(modelViewMode);  // set last! (in model view mode section)        
-        
-        // Stop iterators first
-//        ((OrbitView)newPanel.getWwd().getView()).stopStateIterators();
-//        ((OrbitView)newPanel.getWwd().getView()).stopMovement();
-//        ((OrbitView)newPanel.getWwd().getView()).stopMovementOnCenter();// ??
-        
+       newPanel.setModelViewMode(modelViewMode);  // set last! (in model view mode section)
+ 
+       
         // set panel options
 
         // restor view using xml state
@@ -180,7 +204,8 @@ public class J3DEarthlPanelSave implements Serializable
         {
             ((JDialog)iframe).setTitle(frameTitle);
         }
+
         
-    }
+    } // copy settings
     
 } //J3DEarthInternalPanelSave class

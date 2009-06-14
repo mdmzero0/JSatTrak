@@ -1,7 +1,7 @@
 /*
  * Static methods that aid in conversion between different coordinate systems
  * =====================================================================
- * Copyright (C) 2008 Shawn E. Gano
+ * Copyright (C) 2008-9 Shawn E. Gano
  * 
  * This file is part of JSatTrak.
  * 
@@ -33,6 +33,39 @@ import name.gano.astro.MathUtils;
  */
 public class CoordinateConversion
 {
+    // updated functions to convert between J2k <-> TEME
+
+    /**
+     * Coverts a vector in J2000.0 coordinates to TEME (true equator, mean equinox) of Date
+     * If you have more than one vector to transform you might want to do this manually to save calculating rotation matrix many times
+     * @param mjd modified julian date of the desired coordinate transformation
+     * @param vecJ2k
+     * @return teme vector
+     */
+    public static double[] J2000toTEME(double mjd, double[] vecJ2k)
+    {
+        //double mjd = julDate - AstroConst.JDminusMJD;
+        double ttt = (mjd - AstroConst.MJD_J2000) / 36525.0;
+        double[][] A = J2kCoordinateConversion.teme_j2k(J2kCoordinateConversion.Direction.from, ttt, 24, 2, 'a'); // 24 = order(about what STK uses) 2 = all terms, 'a' full nutation matrix
+        // rotate vector
+        return J2kCoordinateConversion.matvecmult( A, vecJ2k);
+    }
+
+    /**
+     * Coverts a vector in TEME (true equator, mean equinox) of Date coordinates to J2000.0
+     * @param mjd modified julian date of the desired coordinate transformation
+     * @param vecTEME
+     * @return J2000.0 vector
+     */
+    public static double[] TEMEtoJ2000(double mjd, double[] vecTEME)
+    {
+        //double mjd = julDate - AstroConst.JDminusMJD;
+        double ttt = (mjd - AstroConst.MJD_J2000) / 36525.0;
+        double[][] A = J2kCoordinateConversion.teme_j2k(J2kCoordinateConversion.Direction.to, ttt, 24, 2, 'a');
+        // rotate vector
+        return J2kCoordinateConversion.matvecmult( A, vecTEME);
+    }
+
     /**
      * General function to perform a equinox basis transformation for a vector in Earth equatorial coordinates (e.g., from 2000.0 to 1950.0)
      *
@@ -62,7 +95,7 @@ public class CoordinateConversion
     // specialty equinox conversion other->J2000 (can be from MOD or other)
     /**
      * Converts Equatorial Coordinates from any equinox to J2000.0 (such as Mean of Date to J2000.0, mjdCurrentEquinox = current date)
-     *
+     * NOTE: See J2kCoordinateConversion.java - for possibly better ways to do this
      * @param mjdCurrentEquinox current Modified Julian Date of equinox
      * @param currentPos current vector
      * @return J2000.0 equatorial position vector

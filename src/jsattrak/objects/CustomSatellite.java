@@ -1,6 +1,6 @@
 /*
  * =====================================================================
- * Copyright (C) 2008 Shawn E. Gano
+ * Copyright (C) 2009 Shawn E. Gano
  * 
  * This file is part of JSatTrak.
  * 
@@ -35,10 +35,10 @@ import jsattrak.utilities.TLE;
 import name.gano.astro.AstroConst;
 import name.gano.astro.GeoFunctions;
 import name.gano.astro.Kepler;
-import name.gano.astro.coordinates.CoordinateConversion;
 import name.gano.astro.time.Time;
 import name.gano.math.interpolation.LagrangeInterp;
 import name.gano.swingx.treetable.CustomTreeTableNode;
+import name.gano.astro.coordinates.J2kCoordinateConversion;
 import name.gano.worldwind.modelloader.WWModel3D_new;
 import net.java.joglutils.model.ModelFactory;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
@@ -70,9 +70,9 @@ public class CustomSatellite  extends AbstractSatellite
     // current J2000 position and velocity vectors
     private double[] j2kPos;// = new double[3];
     private double[] j2kVel;// = new double[3];
-    // MOD Mean of Date (or actually mean of Epoch Date)
-    private double[] posMOD;// = new double[3];  // mean of date position for LLA calcs
-    private double[] velMOD = new double[3];
+    // true-equator, mean equinox TEME of date
+    private double[] posTEME;// = new double[3];  // true-equator, mean equinox TEME of date position for LLA calcs
+    private double[] velTEME = new double[3];
     
     // current lat,long,alt  [radians, radians, km/m ?]
     private double[] lla;// = new double[3];
@@ -92,8 +92,8 @@ public class CustomSatellite  extends AbstractSatellite
     
     double[][] latLongLead; // leading lat/long coordinates for ground track
     double[][] latLongLag; // laging lat/long coordinates for ground track
-    private double[][] modPosLead; // leading Mean of date position coordinates for ground track
-    private double[][] modPosLag; // laging Mean of date position coordinates for ground track
+    private double[][] temePosLead; // leading Mean of date position coordinates for ground track
+    private double[][] temePosLag; // laging Mean of date position coordinates for ground track
     private double[]   timeLead; // array for holding times associated with lead coordinates (Jul Date) - UTC?
     private double[]   timeLag; // array - times associated with lag coordinates (Jul Date)
     
@@ -176,6 +176,7 @@ public class CustomSatellite  extends AbstractSatellite
     // =================================================================
     
     // this function is basically given time update all current info and update lead/lag data if needed
+    @Override
     public void propogate2JulDate(double julDate)
     {
         // save date
@@ -294,8 +295,19 @@ public class CustomSatellite  extends AbstractSatellite
                 
                 
                 // convert to LLA -- time in days since J2000
-                posMOD = CoordinateConversion.EquatorialEquinoxFromJ2K( currentMJDtime , j2kPos);
-                velMOD = CoordinateConversion.EquatorialEquinoxFromJ2K( currentMJDtime , j2kVel);
+                //posMOD = CoordinateConversion.EquatorialEquinoxFromJ2K( currentMJDtime , j2kPos);
+                //velMOD = CoordinateConversion.EquatorialEquinoxFromJ2K( currentMJDtime , j2kVel);
+                // See SatelliteTleSGP$.java explination of MOD/TEME for calculating lat/long as TLE coordinate systems
+                // revised calculations:
+                double mjd = julDate-AstroConst.JDminusMJD;
+                double ttt = (mjd-AstroConst.MJD_J2000) /36525.0;
+                double[][] A = J2kCoordinateConversion.teme_j2k(J2kCoordinateConversion.Direction.from,ttt, 24, 2, 'a');
+                // rotate position and velocity
+                posTEME = J2kCoordinateConversion.matvecmult( A, j2kPos);
+                velTEME = J2kCoordinateConversion.matvecmult( A, j2kVel);
+
+                //System.out.println("Date: " + julDate +", MOD/TEME Pos: " + posMOD[0] + ", " + posMOD[1] + ", " + posMOD[2]);
+
                 
                 
                 // save old lat/long for ascending node check
@@ -306,7 +318,7 @@ public class CustomSatellite  extends AbstractSatellite
                 }
                 
                 // current LLA
-                lla = GeoFunctions.GeodeticLLA(posMOD, currentMJDtime);
+                lla = GeoFunctions.GeodeticLLA(posTEME, currentMJDtime);
 
                 // Check to see if the ascending node has been passed
                 if (showGroundTrack == true)
@@ -341,15 +353,15 @@ public class CustomSatellite  extends AbstractSatellite
                 {
                     // set current arrays to null;
                     j2kPos = null;
-                    posMOD = null;
+                    posTEME = null;
                     lla = null;
 
                     // clear ground track
                     groundTrackIni = false;
                     latLongLead = null; // save some space
                     latLongLag = null; // sace some space
-                    modPosLag = null;
-                    modPosLead = null;
+                    temePosLag = null;
+                    temePosLead = null;
                     timeLead = null;
                     timeLag = null;
                 }
@@ -386,7 +398,7 @@ public class CustomSatellite  extends AbstractSatellite
      * @param julDate - julian date
      * @return j2k position of satellite in meters
      */
-    public double[] calculateMODPositionFromUT(double julDate)
+    public double[] calculateTemePositionFromUT(double julDate)
     {      
         double[] j2kPosTemp = calculateJ2KPositionFromUT(julDate);
         double[] ptPos = new double[3];
@@ -394,7 +406,15 @@ public class CustomSatellite  extends AbstractSatellite
         if(j2kPosTemp != null)
         {
                 // convert to LLA -- time in days since J2000
-                ptPos = CoordinateConversion.EquatorialEquinoxFromJ2K( julDate - AstroConst.JDminusMJD , j2kPosTemp);
+                //ptPos = CoordinateConversion.EquatorialEquinoxFromJ2K( julDate - AstroConst.JDminusMJD , j2kPosTemp);
+                // See SatelliteTleSGP$.java explination of MOD/TEME for calculating lat/long as TLE coordinate systems
+                // revised calculations:
+                double mjd = julDate-AstroConst.JDminusMJD;
+                double ttt = (mjd-AstroConst.MJD_J2000) /36525.0;
+                double[][] A = J2kCoordinateConversion.teme_j2k(J2kCoordinateConversion.Direction.from,ttt, 24, 2, 'a');
+                // rotate position and velocity
+                ptPos = J2kCoordinateConversion.matvecmult( A, j2kPosTemp);
+
         } // if in time and ephemeris is generated
         
         return ptPos;
@@ -406,6 +426,7 @@ public class CustomSatellite  extends AbstractSatellite
      * @param julDate - julian date
      * @return j2k position of satellite in meters
      */
+    @Override
     public double[] calculateJ2KPositionFromUT(double julDate)
     {
         double[] ptPos = new double[3];
@@ -580,7 +601,7 @@ public class CustomSatellite  extends AbstractSatellite
         // points in the lead direction
         int ptsLead = (int)Math.ceil(grnTrkPointsPerPeriod*groundTrackLeadPeriodMultiplier);
         latLongLead = new double[ptsLead][3];        
-        modPosLead =  new double[ptsLead][3];
+        temePosLead =  new double[ptsLead][3];
         timeLead = new double[ptsLead];
                 
         for(int i=0;i<ptsLead;i++)
@@ -599,9 +620,9 @@ public class CustomSatellite  extends AbstractSatellite
                 latLongLead[i][1] = ptLlaXyz[1]; // save long
                 latLongLead[i][2] = ptLlaXyz[2]; // save altitude
 
-                modPosLead[i][0] = ptLlaXyz[3]; // x
-                modPosLead[i][1] = ptLlaXyz[4]; // y
-                modPosLead[i][2] = ptLlaXyz[5]; // z
+                temePosLead[i][0] = ptLlaXyz[3]; // x
+                temePosLead[i][1] = ptLlaXyz[4]; // y
+                temePosLead[i][2] = ptLlaXyz[5]; // z
             }
             else // give value of NaN - so it can be detected and not used
             {
@@ -609,9 +630,9 @@ public class CustomSatellite  extends AbstractSatellite
                 latLongLead[i][1] = Double.NaN; // save long
                 latLongLead[i][2] = Double.NaN; // save altitude
 
-                modPosLead[i][0] = Double.NaN; // x
-                modPosLead[i][1] = Double.NaN; // y
-                modPosLead[i][2] = Double.NaN; // z
+                temePosLead[i][0] = Double.NaN; // x
+                temePosLead[i][1] = Double.NaN; // y
+                temePosLead[i][2] = Double.NaN; // z
             }
             
             timeLead[i] = ptTime; // save time
@@ -621,7 +642,7 @@ public class CustomSatellite  extends AbstractSatellite
         // points in the lag direction
         int ptsLag = (int)Math.ceil(grnTrkPointsPerPeriod*groundTrackLagPeriodMultiplier);
         latLongLag = new double[ptsLag][3];
-        modPosLag = new double[ptsLag][3];
+        temePosLag = new double[ptsLag][3];
         timeLag = new double[ptsLag];
         
         for(int i=0;i<ptsLag;i++)
@@ -640,9 +661,9 @@ public class CustomSatellite  extends AbstractSatellite
                 latLongLag[i][1] = ptLlaXyz[1]; // save long
                 latLongLag[i][2] = ptLlaXyz[2]; // save alt
 
-                modPosLag[i][0] = ptLlaXyz[3]; // x
-                modPosLag[i][1] = ptLlaXyz[4]; // y
-                modPosLag[i][2] = ptLlaXyz[5]; // z
+                temePosLag[i][0] = ptLlaXyz[3]; // x
+                temePosLag[i][1] = ptLlaXyz[4]; // y
+                temePosLag[i][2] = ptLlaXyz[5]; // z
             }
             else // give value of NaN - so it can be detected and not used
             {
@@ -650,9 +671,9 @@ public class CustomSatellite  extends AbstractSatellite
                 latLongLag[i][1] = Double.NaN; // save long
                 latLongLag[i][2] = Double.NaN; // save alt
 
-                modPosLag[i][0] = Double.NaN; // x
-                modPosLag[i][1] = Double.NaN; // y
-                modPosLag[i][2] = Double.NaN; // z
+                temePosLag[i][0] = Double.NaN; // x
+                temePosLag[i][1] = Double.NaN; // y
+                temePosLag[i][2] = Double.NaN; // z
             }
             
             timeLag[i] = ptTime;
@@ -664,7 +685,7 @@ public class CustomSatellite  extends AbstractSatellite
     private double[] calculateLatLongAltXyz(double julDate)
     {
                 
-        double[] ptPos = calculateMODPositionFromUT(julDate);
+        double[] ptPos = calculateTemePositionFromUT(julDate);
   
         // get lat and long
         double[] ptLla = GeoFunctions.GeodeticLLA(ptPos,julDate-AstroConst.JDminusMJD);
@@ -676,6 +697,7 @@ public class CustomSatellite  extends AbstractSatellite
     
     
     // ==== empty functions to fulfill AbstractSatellite req ===========
+    @Override
     public void updateTleData(TLE newTLE){}
     
     //==================================================================
@@ -713,8 +735,8 @@ public class CustomSatellite  extends AbstractSatellite
             groundTrackIni = false; 
             latLongLead = new double[][] {{}}; // save some space
             latLongLag = new double[][] {{}}; // sace some space
-            modPosLag = new double[][] {{}};
-            modPosLead = new double[][] {{}};
+            temePosLag = new double[][] {{}};
+            temePosLead = new double[][] {{}};
             timeLead = new double[] {};
             timeLag = new double[] {};
         }
@@ -756,7 +778,7 @@ public class CustomSatellite  extends AbstractSatellite
     
     public double[] getLLA()
     {
-        return lla;
+        return lla.clone();
     }
     
     public double getCurrentJulDate()
@@ -766,12 +788,12 @@ public class CustomSatellite  extends AbstractSatellite
     
     public double[] getJ2000Position()
     {
-        return j2kPos;
+        return j2kPos.clone();
     }
     
     public double[] getJ2000Velocity()
     {
-        return j2kVel;
+        return j2kVel.clone();
     }
     
     public boolean getPlot2D()
@@ -828,12 +850,12 @@ public class CustomSatellite  extends AbstractSatellite
     
     public double[] getGroundTrackXyzLeadPt(int index)
     {
-        return new double[] {getModPosLead()[index][0],getModPosLead()[index][1],getModPosLead()[index][2]};
+        return new double[] {getTemePosLead()[index][0],getTemePosLead()[index][1],getTemePosLead()[index][2]};
     }
     
     public double[] getGroundTrackXyzLagPt(int index)
     {
-        return new double[] {getModPosLag()[index][0],getModPosLag()[index][1],getModPosLag()[index][2]};
+        return new double[] {getTemePosLag()[index][0],getTemePosLag()[index][1],getTemePosLag()[index][2]};
     }
         
     public String getName()
@@ -843,12 +865,12 @@ public class CustomSatellite  extends AbstractSatellite
     
     public double getTleEpochJD()
     {
-        return tleEpochJD;
+        return tleEpochJD; // returns -1 since there is no TLE
     }
     
     public double getTleAgeDays()
     {
-        return currentJulianDate - tleEpochJD;
+        return 0;//currentJulianDate - tleEpochJD; // SEG returns 0 since really there is not TLE!!
     }
 
     public int getNumPtsFootPrint()
@@ -926,9 +948,9 @@ public class CustomSatellite  extends AbstractSatellite
         this.plot2DFootPrint = plot2DFootPrint;
     }
 
-    public double[] getPosMOD()
+    public double[] getPosTEME()
     {
-        return posMOD;
+        return posTEME.clone();
     }
 
     public boolean isShow3DOrbitTrace()
@@ -991,16 +1013,16 @@ public class CustomSatellite  extends AbstractSatellite
         this.show3D = show3D;
     }
 
-    public // laging lat/long coordinates for ground track
-    double[][] getModPosLead()
+    // laging lat/long coordinates for ground track
+    public double[][] getTemePosLead()
     {
-        return modPosLead;
+        return temePosLead;
     }
 
-    public // leading Mean of date position coordinates for ground track
-    double[][] getModPosLag()
+    // leading Mean of date position coordinates for ground track
+    public double[][] getTemePosLag()
     {
-        return modPosLag;
+        return temePosLag;
     }
 
     public // laging Mean of date position coordinates for ground track
@@ -1194,9 +1216,9 @@ public class CustomSatellite  extends AbstractSatellite
         return threeDModel;
     }    
     
-    public  double[] getMODVelocity()
+    public  double[] getTEMEVelocity()
     {
-        return velMOD.clone();
+        return velTEME.clone();
     }
 
     public double getThreeDModelSizeFactor()

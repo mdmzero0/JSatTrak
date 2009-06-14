@@ -1,7 +1,7 @@
 /*
  * SatelliteProps.java
  *=====================================================================
- * Copyright (C) 2008 Shawn E. Gano
+ * Copyright (C) 2009 Shawn E. Gano
  * 
  * This file is part of JSatTrak.
  * 
@@ -33,9 +33,9 @@ import javax.swing.JOptionPane;
 import name.gano.astro.AstroConst;
 import name.gano.astro.GeoFunctions;
 import name.gano.astro.Kepler;
-import name.gano.astro.coordinates.CoordinateConversion;
 import name.gano.astro.propogators.sdp4.SDP4;
 import jsattrak.utilities.TLE;
+import name.gano.astro.coordinates.J2kCoordinateConversion;
 import name.gano.worldwind.modelloader.WWModel3D_new;
 import net.java.joglutils.model.ModelFactory;
 
@@ -58,9 +58,9 @@ public class SatelliteTleSGP4 extends AbstractSatellite
     // J2000 position and velocity vectors
     private double[] j2kPos = new double[3];
     private double[] j2kVel = new double[3];
-    // MOD Mean of Date (or actually mean of Epoch Date)
-    private double[] posMOD = new double[3];  // mean of date position for LLA calcs
-    private double[] velMOD = new double[3];
+    // true-equator, mean equinox TEME of date
+    private double[] posTEME = new double[3];  // true-equator, mean equinox TEME of date position for LLA calcs
+    private double[] velTEME = new double[3];
     
     // lat,long,alt  [radians, radians, km/m ?]
     private double[] lla = new double[3];
@@ -79,8 +79,8 @@ public class SatelliteTleSGP4 extends AbstractSatellite
     private double groundTrackLagPeriodMultiplier = 1.0;  // how far behind to draw ground track - in terms of periods
     double[][] latLongLead; // leading lat/long coordinates for ground track
     double[][] latLongLag; // laging lat/long coordinates for ground track
-    private double[][] modPosLead; // leading Mean of date position coordinates for ground track
-    private double[][] modPosLag; // laging Mean of date position coordinates for ground track
+    private double[][] temePosLead; // leading TEME position coordinates for ground track
+    private double[][] temePosLag; // laging TEME position coordinates for ground track
     private double[]   timeLead; // array for holding times associated with lead coordinates (Jul Date)
     private double[]   timeLag; // array - times associated with lag coordinates (Jul Date)
     boolean groundTrackIni = false; // if ground track has been initialized    
@@ -148,6 +148,7 @@ public class SatelliteTleSGP4 extends AbstractSatellite
         }
     }
     
+    @Override
     public void updateTleData(TLE newTLE)
     {
         this.tle = newTLE; // save new TLE
@@ -177,6 +178,7 @@ public class SatelliteTleSGP4 extends AbstractSatellite
         //System.out.println("Updated " + tle.getSatName() );
     }
     
+    @Override
     public void propogate2JulDate(double julDate)
     {
         // save date
@@ -201,12 +203,21 @@ public class SatelliteTleSGP4 extends AbstractSatellite
         // http://en.wikipedia.org/wiki/Earth_Centered_Inertial
         // http://ccar.colorado.edu/asen5050/projects/projects_2004/aphanuphong/p1.html  (bad coefficients? conversion between TEME and J2000 (though slightly off?))
         //  http://www.centerforspace.com/downloads/files/pubs/AIAA-2000-4025.pdf
-        // http://www.mpe-garching.mpg.de/gamma/instruments/swift/software/headas_psi/attitude/tasks/prefilter/tle.c
+        // http://celestrak.com/software/vallado-sw.asp  (good software)
 
-        // get position information back out - convert to J2000 (does TT time need to be used?)
-        j2kPos = CoordinateConversion.EquatorialEquinoxToJ2K(julDate-2400000.5, sdp4Prop.itsR);
-        j2kVel = CoordinateConversion.EquatorialEquinoxToJ2K(julDate-2400000.5, sdp4Prop.itsV);
+        double mjd = julDate-AstroConst.JDminusMJD;
+
+        // get position information back out - convert to J2000 (does TT time need to be used? - no)
+        //j2kPos = CoordinateConversion.EquatorialEquinoxToJ2K(mjd, sdp4Prop.itsR); //julDate-2400000.5
+        //j2kVel = CoordinateConversion.EquatorialEquinoxToJ2K(mjd, sdp4Prop.itsV);
         // based on new info about coordinate system, to get the J2K other conversions are needed!
+        // precession from rk5 -> mod
+        double ttt = (mjd-AstroConst.MJD_J2000) /36525.0;
+        double[][] A = J2kCoordinateConversion.teme_j2k(J2kCoordinateConversion.Direction.to,ttt, 24, 2, 'a');
+        // rotate position and velocity
+        j2kPos = J2kCoordinateConversion.matvecmult( A, sdp4Prop.itsR);
+        j2kVel = J2kCoordinateConversion.matvecmult( A, sdp4Prop.itsV);
+
 
         //System.out.println("Date: " + julDate +", Pos: " + sdp4Prop.itsR[0] + ", " + sdp4Prop.itsR[1] + ", " + sdp4Prop.itsR[2]);
 
@@ -217,18 +228,18 @@ public class SatelliteTleSGP4 extends AbstractSatellite
             j2kPos[i] = j2kPos[i]*1000000000.0;
             j2kVel[i] = j2kVel[i]*1000.0;
             // MOD
-             posMOD[i] = sdp4Prop.itsR[i]*1000000000.0;
-             velMOD[i] = sdp4Prop.itsV[i]*1000.0;
+             posTEME[i] = sdp4Prop.itsR[i]*1000000000.0;
+             velTEME[i] = sdp4Prop.itsV[i]*1000.0;
              
              // debug:
-             System.out.println("axis, J2k, MOD : " + i + ", " + j2kPos[i] + ", " + posMOD[i]);
+             //System.out.println("axis, J2k, MOD : " + i + ", " + j2kPos[i] + ", " + posMOD[i]);
         }
         
         // save old lat/long for ascending node check
         double[] oldLLA = lla.clone(); // copy old LLA
         
         // calculate Lat,Long,Alt - must use Mean of Date (MOD) Position
-        lla = GeoFunctions.GeodeticLLA(posMOD,julDate-AstroConst.JDminusMJD); // j2kPos
+        lla = GeoFunctions.GeodeticLLA(posTEME,julDate-AstroConst.JDminusMJD); // j2kPos
         
         // Check to see if the ascending node has been passed
         if(showGroundTrack==true)
@@ -324,7 +335,7 @@ public class SatelliteTleSGP4 extends AbstractSatellite
         // points in the lead direction
         int ptsLead = (int)Math.ceil(grnTrkPointsPerPeriod*groundTrackLeadPeriodMultiplier);
         latLongLead = new double[ptsLead][3];        
-        modPosLead =  new double[ptsLead][3];
+        temePosLead =  new double[ptsLead][3];
         timeLead = new double[ptsLead];
                 
         for(int i=0;i<ptsLead;i++)
@@ -338,9 +349,9 @@ public class SatelliteTleSGP4 extends AbstractSatellite
             latLongLead[i][1] = ptLlaXyz[1]; // save long
             latLongLead[i][2] = ptLlaXyz[2]; // save altitude
             
-            modPosLead[i][0] = ptLlaXyz[3]; // x
-            modPosLead[i][1] = ptLlaXyz[4]; // y
-            modPosLead[i][2] = ptLlaXyz[5]; // z
+            temePosLead[i][0] = ptLlaXyz[3]; // x
+            temePosLead[i][1] = ptLlaXyz[4]; // y
+            temePosLead[i][2] = ptLlaXyz[5]; // z
             
             timeLead[i] = ptTime; // save time
             
@@ -349,7 +360,7 @@ public class SatelliteTleSGP4 extends AbstractSatellite
         // points in the lag direction
         int ptsLag = (int)Math.ceil(grnTrkPointsPerPeriod*groundTrackLagPeriodMultiplier);
         latLongLag = new double[ptsLag][3];
-        modPosLag = new double[ptsLag][3];
+        temePosLag = new double[ptsLag][3];
         timeLag = new double[ptsLag];
         
         for(int i=0;i<ptsLag;i++)
@@ -362,16 +373,16 @@ public class SatelliteTleSGP4 extends AbstractSatellite
             latLongLag[i][1] = ptLlaXyz[1]; // save long
             latLongLag[i][2] = ptLlaXyz[2]; // save alt
             
-            modPosLag[i][0] = ptLlaXyz[3]; // x
-            modPosLag[i][1] = ptLlaXyz[4]; // y
-            modPosLag[i][2] = ptLlaXyz[5]; // z
+            temePosLag[i][0] = ptLlaXyz[3]; // x
+            temePosLag[i][1] = ptLlaXyz[4]; // y
+            temePosLag[i][2] = ptLlaXyz[5]; // z
             
             timeLag[i] = ptTime;
             
         } // for each lag point
     } // fillGroundTrack
     
-    // takes in JulDate
+    // takes in JulDate, returns lla and teme position
     private double[] calculateLatLongAltXyz(double ptTime)
     {
         sdp4Prop.GetPosVelJulDate(ptTime); // use sdp4 to prop to that time
@@ -382,7 +393,7 @@ public class SatelliteTleSGP4 extends AbstractSatellite
         // correct scaling factor of lenths
         for(int j=0;j<3;j++)
         {
-            ptPos[j] = sdp4Prop.itsR[j]*1000000000.0; // lat/long calcualted using MOD position
+            ptPos[j] = sdp4Prop.itsR[j]*1000000000.0; // lat/long calcualted using TEME of date position
         }
         
         // get lat and long
@@ -400,11 +411,19 @@ public class SatelliteTleSGP4 extends AbstractSatellite
      * @param julDate - julian date
      * @return j2k position of satellite in meters
      */
+    @Override
     public double[] calculateJ2KPositionFromUT(double julDate)
     {
         sdp4Prop.GetPosVelJulDate(julDate); // use sdp4 to prop to that time
-        
-        double[] j2kPosI = CoordinateConversion.EquatorialEquinoxToJ2K(julDate-2400000.5, sdp4Prop.itsR);
+
+        double mjd = julDate-AstroConst.JDminusMJD;
+
+        // get position information back out - convert to J2000
+        // precession from rk5 -> mod
+        double ttt = (mjd-AstroConst.MJD_J2000) /36525.0;
+        double[][] A = J2kCoordinateConversion.teme_j2k(J2kCoordinateConversion.Direction.to,ttt, 24, 2, 'a');
+        // rotate position
+        double[] j2kPosI = J2kCoordinateConversion.matvecmult( A, sdp4Prop.itsR);
         
           
         // correct scaling factor of lenths
@@ -418,11 +437,12 @@ public class SatelliteTleSGP4 extends AbstractSatellite
     } // calculatePositionFromUT
     
     /**
-     * Calculate MOD position of this sat at a given JulDateTime (doesn't save the time) - can be useful for event searches or optimization
+     * Calculate true-equator, mean equinox (TEME) of date position of this sat at a given JulDateTime (doesn't save the time) - can be useful for event searches or optimization
      * @param julDate - julian date
      * @return j2k position of satellite in meters
      */
-    public double[] calculateMODPositionFromUT(double julDate)
+    @Override
+    public double[] calculateTemePositionFromUT(double julDate)
     {
         sdp4Prop.GetPosVelJulDate(julDate); // use sdp4 to prop to that time
                  
@@ -488,7 +508,7 @@ public class SatelliteTleSGP4 extends AbstractSatellite
         // convert to J2000 coordinates
         //ptPos = CoordinateConversion.EquatorialEquinoxToJ2K(julDate-2400000.5, sdp4Prop.itsR);
         //SDP4TimeUtilities.Mean2J2000JulDate(1, julDate, sdp4Prop.itsR, ptPos )
-        // LLA is based on MOD positions so don't convert to J2K
+        // LLA is based on TEME positions so don't convert to J2K
                 
         // correct scaling factor of lenths
         for(int j=0;j<3;j++)
@@ -514,8 +534,8 @@ public class SatelliteTleSGP4 extends AbstractSatellite
             groundTrackIni = false; 
             latLongLead = new double[][] {{}}; // save some space
             latLongLag = new double[][] {{}}; // sace some space
-            modPosLag = new double[][] {{}};
-            modPosLead = new double[][] {{}};
+            temePosLag = new double[][] {{}};
+            temePosLead = new double[][] {{}};
             timeLead = new double[] {};
             timeLag = new double[] {};
         }
@@ -564,12 +584,12 @@ public class SatelliteTleSGP4 extends AbstractSatellite
     
     public double[] getJ2000Position()
     {
-        return j2kPos;
+        return j2kPos.clone();
     }
     
     public double[] getJ2000Velocity()
     {
-        return j2kVel;
+        return j2kVel.clone();
     }
     
     public boolean getPlot2D()
@@ -620,14 +640,13 @@ public class SatelliteTleSGP4 extends AbstractSatellite
     
     public double[] getGroundTrackXyzLeadPt(int index)
     {
-        return new double[] {getModPosLead()[index][0],getModPosLead()[index][1],getModPosLead()[index][2]};
+        return new double[] {getTemePosLead()[index][0],getTemePosLead()[index][1],getTemePosLead()[index][2]};
     }
     
     public double[] getGroundTrackXyzLagPt(int index)
     {
-        return new double[] {getModPosLag()[index][0],getModPosLag()[index][1],getModPosLag()[index][2]};
+        return new double[] {getTemePosLag()[index][0],getTemePosLag()[index][1],getTemePosLag()[index][2]};
     }
-    
     
     
     // returns satellite's current perdiod based on current pos/vel in Minutes
@@ -731,9 +750,9 @@ public class SatelliteTleSGP4 extends AbstractSatellite
         this.plot2DFootPrint = plot2DFootPrint;
     }
 
-    public double[] getPosMOD()
+    public double[] getPosTEME()
     {
-        return posMOD;
+        return posTEME.clone();
     }
 
     public boolean isShow3DOrbitTrace()
@@ -797,15 +816,15 @@ public class SatelliteTleSGP4 extends AbstractSatellite
     }
 
     public // laging lat/long coordinates for ground track
-    double[][] getModPosLead()
+    double[][] getTemePosLead()
     {
-        return modPosLead;
+        return temePosLead;
     }
 
     public // leading Mean of date position coordinates for ground track
-    double[][] getModPosLag()
+    double[][] getTemePosLag()
     {
-        return modPosLag;
+        return temePosLag;
     }
 
     public // laging Mean of date position coordinates for ground track
@@ -891,9 +910,9 @@ public class SatelliteTleSGP4 extends AbstractSatellite
         return threeDModel;
     }    
     
-    public  double[] getMODVelocity()
+    public  double[] getTEMEVelocity()
     {
-        return velMOD.clone();
+        return velTEME.clone();
     }
 
     public double getThreeDModelSizeFactor()

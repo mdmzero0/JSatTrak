@@ -24,7 +24,6 @@ package name.gano.astro.bodies;
 
 import name.gano.astro.AstroConst;
 import name.gano.astro.GeoFunctions;
-import name.gano.astro.Kepler;
 import name.gano.astro.MathUtils;
 import name.gano.astro.coordinates.CoordinateConversion;
 
@@ -38,7 +37,7 @@ public class Sun
     private double[] currentPosition; // current J2000 position of the Sun
     private double currentMJD; // current Modified Julian Date - UT
     //private double[] lla; // lat, lon, alt (in radians,radians,meters)
-    private double[] currentPositionMOD; // mean of date position
+    private double[] currentPositionTEME; // TEME of date position
     //private double[] lla; // lat and long
     private double[] darkCenterLLA; // center Lat/Long of darkness
     private double[] sunCenterLLA;
@@ -62,12 +61,15 @@ public class Sun
     {
         currentPosition = newJ2kPos;
         // convert to MOD, J2000-> MOD
-        double[][] prec =  CoordinateConversion.PrecMatrix_Equ(0.0, (currentMJD-AstroConst.MJD_J2000)/36525);
-        currentPositionMOD = MathUtils.mult(prec,currentPosition); // currentPosition
+        //double[][] prec =  CoordinateConversion.PrecMatrix_Equ(0.0, (currentMJD-AstroConst.MJD_J2000)/36525)
+        //currentPositionMOD = MathUtils.mult(prec,currentPosition); // currentPosition
+        // ERROR above in conversion - convert to TEME (not MOD)
+        currentPositionTEME = CoordinateConversion.J2000toTEME(currentMJD, currentPosition);
+        
         
         // LLA of sun center and darkness center
-        sunCenterLLA = GeoFunctions.GeodeticLLA( currentPositionMOD , currentMJD );
-        darkCenterLLA = GeoFunctions.GeodeticLLA( getOpositeSunPositionMOD() , currentMJD );
+        sunCenterLLA = GeoFunctions.GeodeticLLA( currentPositionTEME , currentMJD );
+        darkCenterLLA = GeoFunctions.GeodeticLLA( getOpositeSunPositionTEME() , currentMJD );
         
         //System.out.println("Sun LLA:" + sunCenterLLA[0]*180/Math.PI + ", " + sunCenterLLA[1]*180/Math.PI);
     }
@@ -166,22 +168,22 @@ public class Sun
     
 
     /**
-     * returns opposite position from the sun MOD 
-     * @return J2k position [m]
+     * returns opposite position from the sun TEME
+     * @return TEME of date position [m]
      */
-    public double[] getOpositeSunPositionMOD()
+    public double[] getOpositeSunPositionTEME()
     {
-        return new double[] {-currentPositionMOD[0],-currentPositionMOD[1],-currentPositionMOD[2]};
+        return new double[] {-currentPositionTEME[0],-currentPositionTEME[1],-currentPositionTEME[2]};
     }
 
     /**
      *  Return current sun position in Earth Equatorial coordinates with mean of date Equinox
      *  (ECI) 
-     * @return Mean of Date position [m]
+     * @return TEME of date position [m]
      */
-    public double[] getCurrentPositionMOD()
+    public double[] getCurrentPositionTEME()
     {
-        return currentPositionMOD;
+        return currentPositionTEME;
     }
     
     /**

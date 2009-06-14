@@ -297,10 +297,12 @@ public class ManeuverNode  extends CustomTreeTableNode
                     // get current j2k pos
                     double[] currentJ2kPos = new double[]{lastStateVector.state[1], lastStateVector.state[2], lastStateVector.state[3]};
                     // mod pos
-                    double[] modPos = CoordinateConversion.EquatorialEquinoxFromJ2K(lastStateVector.state[0] - AstroConst.JDminusMJD, currentJ2kPos);
+                    //double[] modPos = CoordinateConversion.EquatorialEquinoxFromJ2K(lastStateVector.state[0] - AstroConst.JDminusMJD, currentJ2kPos)
+                    // teme pos
+                    double[] temePos = CoordinateConversion.J2000toTEME(lastStateVector.state[0] - AstroConst.JDminusMJD, currentJ2kPos);
                     // lla  (submit time in UTC)
                     double deltaTT2UTC = Time.deltaT(lastStateVector.state[0] - AstroConst.JDminusMJD); // = TT - UTC
-                    double[] lla = GeoFunctions.GeodeticLLA(modPos, lastStateVector.state[0] - AstroConst.JDminusMJD - deltaTT2UTC); // tt-UTC = deltaTT2UTC
+                    double[] lla = GeoFunctions.GeodeticLLA(temePos, lastStateVector.state[0] - AstroConst.JDminusMJD - deltaTT2UTC); // tt-UTC = deltaTT2UTC
 
                     val = lla[0] * 180.0 / Math.PI;
                     break;
@@ -308,10 +310,12 @@ public class ManeuverNode  extends CustomTreeTableNode
                     // get current j2k pos
                     currentJ2kPos = new double[]{lastStateVector.state[1], lastStateVector.state[2], lastStateVector.state[3]};
                     // mod pos
-                    modPos = CoordinateConversion.EquatorialEquinoxFromJ2K(lastStateVector.state[0] - AstroConst.JDminusMJD, currentJ2kPos);
+                    //modPos = CoordinateConversion.EquatorialEquinoxFromJ2K(lastStateVector.state[0] - AstroConst.JDminusMJD, currentJ2kPos)
+                    // teme pos
+                    temePos = CoordinateConversion.J2000toTEME(lastStateVector.state[0] - AstroConst.JDminusMJD, currentJ2kPos);
                     // lla  (submit time in UTC)
                     deltaTT2UTC = Time.deltaT(lastStateVector.state[0] - AstroConst.JDminusMJD); // = TT - UTC
-                    lla = GeoFunctions.GeodeticLLA(modPos, lastStateVector.state[0] - AstroConst.JDminusMJD - deltaTT2UTC); // tt-UTC = deltaTT2UTC
+                    lla = GeoFunctions.GeodeticLLA(temePos, lastStateVector.state[0] - AstroConst.JDminusMJD - deltaTT2UTC); // tt-UTC = deltaTT2UTC
 
                     val = lla[1] * 180.0 / Math.PI;
                     break;
@@ -319,10 +323,12 @@ public class ManeuverNode  extends CustomTreeTableNode
                     // get current j2k pos
                     currentJ2kPos = new double[]{lastStateVector.state[1], lastStateVector.state[2], lastStateVector.state[3]};
                     // mod pos
-                    modPos = CoordinateConversion.EquatorialEquinoxFromJ2K(lastStateVector.state[0] - AstroConst.JDminusMJD, currentJ2kPos);
+                    //modPos = CoordinateConversion.EquatorialEquinoxFromJ2K(lastStateVector.state[0] - AstroConst.JDminusMJD, currentJ2kPos)
+                    // teme pos
+                    temePos = CoordinateConversion.J2000toTEME(lastStateVector.state[0] - AstroConst.JDminusMJD, currentJ2kPos);
                     // lla  (submit time in UTC)
                     deltaTT2UTC = Time.deltaT(lastStateVector.state[0] - AstroConst.JDminusMJD); // = TT - UTC
-                    lla = GeoFunctions.GeodeticLLA(modPos, lastStateVector.state[0] - AstroConst.JDminusMJD - deltaTT2UTC); // tt-UTC = deltaTT2UTC
+                    lla = GeoFunctions.GeodeticLLA(temePos, lastStateVector.state[0] - AstroConst.JDminusMJD - deltaTT2UTC); // tt-UTC = deltaTT2UTC
 
                     val = lla[2];
                     break;   

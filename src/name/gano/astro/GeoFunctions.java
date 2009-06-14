@@ -49,7 +49,7 @@ public class GeoFunctions
     // returned as Lat, Long, Alt
     // LLA = corrected for time (geographical coordinates)
     // for handling geodetic coordinates
-    // r = MOD positions, d = days since Y2K
+    // r = TEME positions, d = days since Y2K
     private static double[] calculateGeodeticLLA(double[] r, double d)
     {
         double R_equ= AstroConst.R_Earth; // Equator radius [m]
