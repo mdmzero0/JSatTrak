@@ -145,7 +145,7 @@ public class OrbitModelRenderable implements Renderable
             } // show orbit trace
             
             // plot position 
-            double[] xyz = sat.getPosTEME();
+            double[] xyz = sat.getTEMEPos();
             if(xyz != null)
             {
                 // 3D model is rendered Here
@@ -275,7 +275,7 @@ public class OrbitModelRenderable implements Renderable
                 // set roll pitch yaw (assume user wants LVLH, velcorty aligned)
 
                 // calculate TEME velocity and set rotation angles and axis
-                sat.getThreeDModel().setMainRotationAngleAxis(sat.getTEMEVelocity(), sat.getPosTEME());
+                sat.getThreeDModel().setMainRotationAngleAxis(sat.getTEMEVelocity(), sat.getTEMEPos());
 
                 // set velcoity for test plotting
                 sat.getThreeDModel().velUnitVec = MathUtils.UnitVector(sat.getTEMEVelocity());

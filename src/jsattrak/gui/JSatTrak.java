@@ -107,6 +107,7 @@
  *                                  - added name.gano.astro.coordinates.J2kCoordinateConversion for better coordinate transformations! (phase out old transformations)
  *                                  - now SGP4 prop matches STK very closely (~1m for ISS) and HPROP was compared as well and preformed just as well.
  *                                  - added smooth changes to the 3D view options
+ *                                  - coordinate system selection for sat info dialog (J2k, TEME, MOD, TOD)
  * 
  *                              Ideas for next versions: (no particular order)
  *                                  - Vectors tool (make them seperate objects) axis, grids, lines, arrows (data providers)
@@ -231,7 +232,7 @@ import name.gano.file.SaveImageFile;
  */
 public class JSatTrak extends javax.swing.JFrame implements InternalFrameListener, WindowListener, Serializable
 {
-    private String versionString = "Version 3.8.0alpha (14 June 2009)"; // Version of app
+    private String versionString = "Version 3.8.0alpha (15 June 2009)"; // Version of app
     
     // hastable to store all the statelites currently being processed
     private Hashtable<String,AbstractSatellite> satHash = new Hashtable<String,AbstractSatellite>();

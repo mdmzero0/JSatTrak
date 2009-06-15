@@ -443,7 +443,7 @@ public class WWModel3D_new implements Renderable
         // set roll pitch yaw (assume user wants LVLH, velcorty aligned)
 
         // calculate TEME velocity and set rotation angles and axis
-        setMainRotationAngleAxis(sat.getTEMEVelocity(), sat.getPosTEME());
+        setMainRotationAngleAxis(sat.getTEMEVelocity(), sat.getTEMEPos());
 
         // set velcoity for test plotting
         this.velUnitVec = MathUtils.UnitVector(sat.getTEMEVelocity());

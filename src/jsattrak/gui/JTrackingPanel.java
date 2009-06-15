@@ -166,9 +166,9 @@ public class JTrackingPanel extends javax.swing.JPanel
         
         // calculate AER
         //double[] aer = gs.calculate_AER( sat.getJ2000Position() ); // in J2k position - incorrect
-        if(sat.getPosTEME() != null && !nanDbl.equals(sat.getPosTEME()[0])) // check for NAN
+        if(sat.getTEMEPos() != null && !nanDbl.equals(sat.getTEMEPos()[0])) // check for NAN
         {
-            double[] aer = gs.calculate_AER(sat.getPosTEME());  // MOD
+            double[] aer = gs.calculate_AER(sat.getTEMEPos());  // MOD
 
             // add text AER and string
             aerTextArea.setText(timeAsString + "\n\n" + "Azimuth [deg]: " + aer[0] + "\nElevation [deg]: " + aer[1] + "\nRange [m]: " + aer[2]);

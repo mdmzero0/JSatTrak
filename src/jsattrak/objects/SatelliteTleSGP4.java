@@ -750,7 +750,7 @@ public class SatelliteTleSGP4 extends AbstractSatellite
         this.plot2DFootPrint = plot2DFootPrint;
     }
 
-    public double[] getPosTEME()
+    public double[] getTEMEPos()
     {
         return posTEME.clone();
     }

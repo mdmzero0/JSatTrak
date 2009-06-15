@@ -67,6 +67,76 @@ public class CoordinateConversion
     }
 
     /**
+     * Converts up to two J2000 vectors to MOD vectors (second vector set can be null)
+     * @param mjd modified julian date of the desired coordinate transformation
+     * @param j2kVec1 typically position
+     * @param modVec1
+     * @param j2kVec2 typically velocity
+     * @param modVec2
+     */
+    public static void j2000toMOD(double mjd, double[] j2kVec1, double[] modVec1, double[]j2kVec2, double[] modVec2)
+    {
+        double ttt = (mjd - AstroConst.MJD_J2000) / 36525.0;
+        double[][] A = J2kCoordinateConversion.mod_j2000(J2kCoordinateConversion.Direction.from, ttt);
+
+        // carfeful on pass by reference, must copy values back to orginal array not assign a new object to it
+        double[] temp;
+
+        // perform transformation (if vars not null)
+        if(j2kVec1 != null)
+        {
+            temp = J2kCoordinateConversion.matvecmult( A, j2kVec1);
+            modVec1[0] = temp[0];
+            modVec1[1] = temp[1];
+            modVec1[2] = temp[2];
+        }
+        if(j2kVec2 != null)
+        {
+            temp = J2kCoordinateConversion.matvecmult( A, j2kVec2);
+            modVec2[0] = temp[0];
+            modVec2[1] = temp[1];
+            modVec2[2] = temp[2];
+        }
+    } // j2000toMOD
+
+    /**
+     * Converts up to two J2000 vectors to TOD vectors (second vector set can be null)
+     * delta psi/eps correction to J2000 are set to 0, uses 40 terms of nutation
+     * @param mjd modified julian date of the desired coordinate transformation
+     * @param j2kVec1 typically position
+     * @param todVec1
+     * @param j2kVec2 typically velocity
+     * @param todVec2
+     */
+    public static void j2000toTOD(double mjd, double[] j2kVec1, double[] todVec1, double[]j2kVec2, double[] todVec2)
+    {
+        double ttt = (mjd - AstroConst.MJD_J2000) / 36525.0;
+        double ddpsi = 0.0;
+        double ddeps = 0.0;
+        int nutTerms = 40; // 4, 40, 106 popular values
+        double[][] A = J2kCoordinateConversion.tod_j2000(J2kCoordinateConversion.Direction.from, ttt, ddpsi,ddeps, nutTerms);
+
+        // carfeful on pass by reference, must copy values back to orginal array not assign a new object to it
+        double[] temp;
+
+        // perform transformation (if vars not null)
+        if(j2kVec1 != null)
+        {
+            temp = J2kCoordinateConversion.matvecmult( A, j2kVec1);
+            todVec1[0] = temp[0];
+            todVec1[1] = temp[1];
+            todVec1[2] = temp[2];
+        }
+        if(j2kVec2 != null)
+        {
+            temp = J2kCoordinateConversion.matvecmult( A, j2kVec2);
+            todVec2[0] = temp[0];
+            todVec2[1] = temp[1];
+            todVec2[2] = temp[2];
+        }
+    } // j2000toTOD
+
+    /**
      * General function to perform a equinox basis transformation for a vector in Earth equatorial coordinates (e.g., from 2000.0 to 1950.0)
      *
      * @param mjdCurrentEquinox Current Modified Julian Date Equinox

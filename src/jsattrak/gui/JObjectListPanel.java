@@ -224,7 +224,7 @@ public class JObjectListPanel extends javax.swing.JPanel
             JInternalFrame iframe = new JInternalFrame(windowName,true,true,true,true);
             
             iframe.setContentPane( newPanel ); // set contents pane
-            iframe.setSize(365,355+10); // set size
+            iframe.setSize(365,355+30); // set size
             
             iframe.setVisible(true);
             parentApp.addInternalFrame(iframe);

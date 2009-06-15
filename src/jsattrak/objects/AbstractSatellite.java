@@ -98,7 +98,7 @@ public abstract class AbstractSatellite implements Serializable
 
     public abstract boolean getPlot2DFootPrint();
 
-    public abstract double[] getPosTEME();
+    public abstract double[] getTEMEPos();
 
     public abstract Color getSatColor();
 
