@@ -8,11 +8,13 @@ package name.gano.astro.propogators.sgp4_cssi;
  */
 public class SGP4SatData
 {
-  public long   satnum;
+  public int   satnum; // long?  but all using usbroutines require an int
   public int    epochyr, epochtynumrev;
-  public int    error;
+  public int    error; // 0 = ok, 1= eccentricity (sgp4),   6 = satellite decay, 7 = tle data
   public char   operationmode;
   public char   init, method;
+
+  public SGP4unit.Gravconsttype gravconsttype; // gravity constants to use - SEG
 
   /* Near Earth */
   public int    isimp;
@@ -34,4 +36,12 @@ public class SGP4SatData
   public double a      , altp   , alta   , epochdays, jdsatepoch       , nddot , ndot  ,
                 bstar  , rcse   , inclo  , nodeo    , ecco             , argpo , mo    ,
                 no;
+
+  // Extra Data added by SEG - from TLE and a name variable (and save the lines for future use)
+  public String name="", line1="", line2="";
+  public boolean tleDataOk;
+  public String classification, intldesg;
+  public int nexp, ibexp, numb; // numb is the second number on line 1
+  public long elnum,revnum; // elnum = checsum of first line or el num?, revnum = rev no.
+
 }

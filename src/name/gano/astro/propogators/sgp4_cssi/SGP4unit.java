@@ -1614,13 +1614,13 @@ public static boolean sgp4init
        /* finally propogate to zero epoch to initialize all others. */
        // sgp4fix take out check to let satellites process until they are actually below earth surface
 //       if(satrec.error == 0)
-       sgp4(whichconst, satrec, 0.0, r, v);
+       boolean sgp4Error = sgp4(whichconst, satrec, 0.0, r, v);
 
        satrec.init = 'n';
 
 //#include "debug6.cpp"
        //sgp4fix return boolean. satrec.error contains any error codes
-       return true;
+       return sgp4Error;
 }  // end sgp4init
 
 /*-----------------------------------------------------------------------------
@@ -1709,10 +1709,17 @@ public static boolean sgp4init
 *    hoots, schumacher and glover 2004
 *    vallado, crawford, hujsak, kelso  2006
   ----------------------------------------------------------------------------*/
-
-public static boolean sgp4
+// public can see this one, it automatically uses the Gravconsttype saved at initialization
+public static boolean sgp4(SGP4SatData satrec,  double tsince,
+       double[] r,  double[] v)
+{
+    return sgp4(satrec.gravconsttype, satrec, tsince, r, v);
+}
+// internal version
+private static boolean sgp4
      (
-       Gravconsttype whichconst, SGP4SatData satrec,  double tsince,
+       Gravconsttype whichconst, 
+       SGP4SatData satrec,  double tsince,
        double[] r,  double[] v
      )
 {
