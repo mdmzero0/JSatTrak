@@ -191,11 +191,22 @@ public class SGP4io
         //ibex
         satrec.ibexp = (int)readFloatFromString(tleLine1.substring(59,61));
 
-        // num b.
-        satrec.numb = (int)readFloatFromString(tleLine1.substring(62,63));
+        // these last things are not essential so just try to read them, and give a warning - but no error
+        try
+        {
+            // num b.
+            satrec.numb = (int)readFloatFromString(tleLine1.substring(62, 63));
 
-        //  elnum // check sum
-        satrec.elnum = (long) readFloatFromString(tleLine1.substring(64));
+            //  elnum
+            satrec.elnum = (long)readFloatFromString(tleLine1.substring(64, 68));
+        }
+        catch(Exception e)
+        {
+            System.out.println("Warning: Error Reading numb or elnum from TLE line 1 sat#:" + satrec.satnum);
+        }
+
+        // checksum
+        //int checksum1 = (int) readFloatFromString(tleLine1.substring(68));
 
         // if no errors yet everything went ok
         return true;
@@ -236,9 +247,21 @@ public class SGP4io
 
         // no
         satrec.no = readFloatFromString(tleLine2.substring(52, 63));
-        
-        // revnum
-        satrec.revnum = (long)readFloatFromString(tleLine2.substring(63,69));
+
+        // try to read other data
+        try
+        {
+            // revnum
+            satrec.revnum = (long)readFloatFromString(tleLine2.substring(63,68));
+        }
+        catch(Exception e)
+        {
+            System.out.println("Warning: Error Reading revnum from TLE line 2 sat#:" + satrec.satnum);
+            satrec.revnum = -1;
+        }
+
+//        // checksum
+//        int checksum2 = (int) readFloatFromString(tleLine2.substring(68));
 
         return true;
     } // readLine1
@@ -415,5 +438,84 @@ private static MDHMS days2mdhms
         int minute = 0;;
         double sec = 0;
     }
+
+    /* -----------------------------------------------------------------------------
+*
+*                           procedure invjday
+*
+*  this procedure finds the year, month, day, hour, minute and second
+*  given the julian date. tu can be ut1, tdt, tdb, etc.
+*
+*  algorithm     : set up starting values
+*                  find leap year - use 1900 because 2000 is a leap year
+*                  find the elapsed days through the year in a loop
+*                  call routine to find each individual value
+*
+*  author        : david vallado                  719-573-2600    1 mar 2001
+*
+*  inputs          description                    range / units
+*    jd          - julian date                    days from 4713 bc
+*
+*  outputs       :
+*    year        - year                           1900 .. 2100
+*    mon         - month                          1 .. 12
+*    day         - day                            1 .. 28,29,30,31
+*    hr          - hour                           0 .. 23
+*    min         - minute                         0 .. 59
+*    sec         - second                         0.0 .. 59.999
+*
+*  locals        :
+*    days        - day of year plus fractional
+*                  portion of a day               days
+*    tu          - julian centuries from 0 h
+*                  jan 0, 1900
+*    temp        - temporary double values
+*    leapyrs     - number of leap years from 1900
+*
+*  coupling      :
+*    days2mdhms  - finds month, day, hour, minute and second given days and year
+*
+*  references    :
+*    vallado       2007, 208, alg 22, ex 3-13
+* --------------------------------------------------------------------------- */
+// outputs [year,mon,day,hr,minute,sec]
+public static double[] invjday( double jd)
+   {
+    // return vars
+    double year,mon,day,hr,minute,sec;
+
+     int leapyrs;
+     double    days, tu, temp;
+
+     /* --------------- find year and days of the year --------------- */
+     temp    = jd - 2415019.5;
+     tu      = temp / 365.25;
+     year    = 1900 + (int)Math.floor(tu);
+     leapyrs = (int)Math.floor((year - 1901) * 0.25);
+
+     // optional nudge by 8.64x10-7 sec to get even outputs
+     days    = temp - ((year - 1900) * 365.0 + leapyrs) + 0.00000000001;
+
+     /* ------------ check for case of beginning of a year ----------- */
+     if (days < 1.0)
+       {
+         year    = year - 1;
+         leapyrs = (int)Math.floor((year - 1901) * 0.25);
+         days    = temp - ((year - 1900) * 365.0 + leapyrs);
+       }
+
+     /* ----------------- find remaing data  ------------------------- */
+     //days2mdhms(year, days, mon, day, hr, minute, sec);
+     MDHMS mdhms = days2mdhms ( (int)year,days );
+       mon = mdhms.mon;
+       day = mdhms.day;
+       hr = mdhms.hr;
+       minute = mdhms.minute;
+       sec = mdhms.sec;
+
+     sec = sec - 0.00000086400; // ?
+
+     return new double[] {year,mon,day,hr,minute,sec};
+   }  // end invjday
 
 }

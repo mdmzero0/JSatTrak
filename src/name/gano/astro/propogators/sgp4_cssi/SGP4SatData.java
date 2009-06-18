@@ -42,6 +42,6 @@ public class SGP4SatData
   public boolean tleDataOk;
   public String classification, intldesg;
   public int nexp, ibexp, numb; // numb is the second number on line 1
-  public long elnum,revnum; // elnum = checsum of first line or el num?, revnum = rev no.
+  public long elnum,revnum; 
 
 }

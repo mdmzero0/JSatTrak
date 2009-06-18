@@ -63,7 +63,7 @@ public class SGP4unit
         wgs84
     }
 
-    /* -----------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
 *
 *                           procedure dpper
 *
@@ -129,9 +129,24 @@ public class SGP4unit
 *    hoots, schumacher and glover 2004
 *    vallado, crawford, hujsak, kelso  2006
   ----------------------------------------------------------------------------*/
-
-public static void dpper(SGP4SatData satrec )
+// outputs an array with values for, all outputs are also inputs
+// [ep,inclp,nodep,argpp,mp]
+public static double[] dpper
+     (
+       double e3,     double ee2,    double peo,     double pgho,   double pho,
+       double pinco,  double plo,    double se2,     double se3,    double sgh2,
+       double sgh3,   double sgh4,   double sh2,     double sh3,    double si2,
+       double si3,    double sl2,    double sl3,     double sl4,    double t,
+       double xgh2,   double xgh3,   double xgh4,    double xh2,    double xh3,
+       double xi2,    double xi3,    double xl2,     double xl3,    double xl4,
+       double zmol,   double zmos,   double inclo,
+       char init,
+       double ep, double inclp, double nodep,  double argpp, double mp,
+       char opsmode
+     )
 {
+    // return variables -- all also inputs
+    //double inclp,nodep,argpp,mp; // ep -- input and output
 
      /* --------------------- local variables ------------------------ */
      final double twopi = 2.0 * pi;
@@ -148,48 +163,48 @@ public static void dpper(SGP4SatData satrec )
      zel   = 0.05490;
 
      /* --------------- calculate time varying periodics ----------- */
-     zm    = satrec.zmos + zns * satrec.t;
+     zm    = zmos + zns * t;
      // be sure that the initial call has time set to zero
-     if (satrec.init == 'y')
-         zm = satrec.zmos;
+     if (init == 'y')
+         zm = zmos;
      zf    = zm + 2.0 * zes * Math.sin(zm);
      sinzf = Math.sin(zf);
      f2    =  0.5 * sinzf * sinzf - 0.25;
      f3    = -0.5 * sinzf * Math.cos(zf);
-     ses   = satrec.se2* f2 + satrec.se3 * f3;
-     sis   = satrec.si2 * f2 + satrec.si3 * f3;
-     sls   = satrec.sl2 * f2 + satrec.sl3 * f3 + satrec.sl4 * sinzf;
-     sghs  = satrec.sgh2 * f2 + satrec.sgh3 * f3 + satrec.sgh4 * sinzf;
-     shs   = satrec.sh2 * f2 + satrec.sh3 * f3;
-     zm    = satrec.zmol + znl * satrec.t;
-     if (satrec.init == 'y')
-         zm = satrec.zmol;
+     ses   = se2* f2 + se3 * f3;
+     sis   = si2 * f2 + si3 * f3;
+     sls   = sl2 * f2 + sl3 * f3 + sl4 * sinzf;
+     sghs  = sgh2 * f2 + sgh3 * f3 + sgh4 * sinzf;
+     shs   = sh2 * f2 + sh3 * f3;
+     zm    = zmol + znl * t;
+     if (init == 'y')
+         zm = zmol;
      zf    = zm + 2.0 * zel * Math.sin(zm);
      sinzf = Math.sin(zf);
      f2    =  0.5 * sinzf * sinzf - 0.25;
      f3    = -0.5 * sinzf * Math.cos(zf);
-     sel   = satrec.ee2 * f2 + satrec.e3 * f3;
-     sil   = satrec.xi2 * f2 + satrec.xi3 * f3;
-     sll   = satrec.xl2 * f2 + satrec.xl3 * f3 + satrec.xl4 * sinzf;
-     sghl  = satrec.xgh2 * f2 + satrec.xgh3 * f3 + satrec.xgh4 * sinzf;
-     shll  = satrec.xh2 * f2 + satrec.xh3 * f3;
+     sel   = ee2 * f2 + e3 * f3;
+     sil   = xi2 * f2 + xi3 * f3;
+     sll   = xl2 * f2 + xl3 * f3 + xl4 * sinzf;
+     sghl  = xgh2 * f2 + xgh3 * f3 + xgh4 * sinzf;
+     shll  = xh2 * f2 + xh3 * f3;
      pe    = ses + sel;
      pinc  = sis + sil;
      pl    = sls + sll;
      pgh   = sghs + sghl;
      ph    = shs + shll;
 
-     if (satrec.init == 'n')
+     if (init == 'n')
        {
-       pe    = pe - satrec.peo;
-       pinc  = pinc - satrec.pinco;
-       pl    = pl - satrec.plo;
-       pgh   = pgh - satrec.pgho;
-       ph    = ph - satrec.pho;
-       satrec.inclo = satrec.inclo + pinc; // inclp -> satrec.inclo (but this function had a inclo? something a little strange here)
-       satrec.ecco    = satrec.ecco + pe;  // ep -> satrec.ecco
-       sinip = Math.sin(satrec.inclo);
-       cosip = Math.cos(satrec.inclo);
+       pe    = pe - peo;
+       pinc  = pinc - pinco;
+       pl    = pl - plo;
+       pgh   = pgh - pgho;
+       ph    = ph - pho;
+       inclp = inclp + pinc;
+       ep    = ep + pe;
+       sinip = Math.sin(inclp);
+       cosip = Math.cos(inclp);
 
        /* ----------------- apply periodics directly ------------ */
        //  sgp4fix for lyddane choice
@@ -200,49 +215,50 @@ public static void dpper(SGP4SatData satrec )
        //  use next line for original strn3 approach and original inclination
        //  if (inclo >= 0.2)
        //  use next line for gsfc version and perturbed inclination
-       if (satrec.inclo >= 0.2)
+       if (inclp >= 0.2)
          {
            ph     = ph / sinip;
            pgh    = pgh - cosip * ph;
-           satrec.argpo  = satrec.argpo + pgh; //  argpp -> satrec.argpo
-           satrec.nodeo  = satrec.nodeo + ph; // nodep -> satrec.nodeo
-           satrec.mo     = satrec.mo + pl; // mp -> satrec.mo
+           argpp  = argpp + pgh;
+           nodep  = nodep + ph;
+           mp     = mp + pl;
          }
          else
          {
            /* ---- apply periodics with lyddane modification ---- */
-           sinop  = Math.sin(satrec.nodeo);
-           cosop  = Math.cos(satrec.nodeo);
+           sinop  = Math.sin(nodep);
+           cosop  = Math.cos(nodep);
            alfdp  = sinip * sinop;
            betdp  = sinip * cosop;
            dalf   =  ph * cosop + pinc * cosip * sinop;
            dbet   = -ph * sinop + pinc * cosip * cosop;
            alfdp  = alfdp + dalf;
            betdp  = betdp + dbet;
-           satrec.nodeo  = (satrec.nodeo % twopi);
+           nodep  = (nodep % twopi);
            //  sgp4fix for afspc written intrinsic functions
            // nodep used without a trigonometric function ahead
-           if ((satrec.nodeo < 0.0) && (satrec.operationmode == 'a')) // opsmore -> satrec.operationmode
-               satrec.nodeo = satrec.nodeo + twopi;
-           xls    = satrec.mo + satrec.argpo + cosip * satrec.nodeo;
-           dls    = pl + pgh - pinc * satrec.nodeo * sinip;
+           if ((nodep < 0.0) && (opsmode == 'a'))
+               nodep = nodep + twopi;
+           xls    = mp + argpp + cosip * nodep;
+           dls    = pl + pgh - pinc * nodep * sinip;
            xls    = xls + dls;
-           xnoh   = satrec.nodeo;
-           satrec.nodeo  = Math.atan2(alfdp, betdp);
+           xnoh   = nodep;
+           nodep  = Math.atan2(alfdp, betdp);
            //  sgp4fix for afspc written intrinsic functions
            // nodep used without a trigonometric function ahead
-           if ((satrec.nodeo < 0.0) && (satrec.operationmode == 'a'))
-               satrec.nodeo = satrec.nodeo + twopi;
-           if (Math.abs(xnoh - satrec.nodeo) > pi)
-             if (satrec.nodeo < xnoh)
-                satrec.nodeo = satrec.nodeo + twopi;
+           if ((nodep < 0.0) && (opsmode == 'a'))
+               nodep = nodep + twopi;
+           if (Math.abs(xnoh - nodep) > pi)
+             if (nodep < xnoh)
+                nodep = nodep + twopi;
                else
-                satrec.nodeo = satrec.nodeo - twopi;
-           satrec.mo    = satrec.mo + pl;
-           satrec.argpo = xls - satrec.mo - cosip * satrec.nodeo;
+                nodep = nodep - twopi;
+           mp    = mp + pl;
+           argpp = xls - mp - cosip * nodep;
          }
        }   // if init == 'n'
 
+     return new double[] {ep,inclp,nodep,argpp,mp};
 //#include "debug1.cpp"
 }  // end dpper
 
@@ -1573,7 +1589,25 @@ public static boolean sgp4init
              nm=ttemp2[37];
              z1=ttemp2[38]; z2=ttemp2[39]; z3=ttemp2[40]; z11=ttemp2[41]; z12=ttemp2[42]; z13=ttemp2[43]; z21=ttemp2[44]; z22=ttemp2[45]; z23=ttemp2[46]; z31=ttemp2[47]; z32=ttemp2[48]; z33=ttemp2[49];
 
-             dpper(satrec);
+             //dpper(satrec);
+             ttemp2 = dpper
+                 (
+                   satrec.e3, satrec.ee2, satrec.peo, satrec.pgho,
+                   satrec.pho, satrec.pinco, satrec.plo, satrec.se2,
+                   satrec.se3, satrec.sgh2, satrec.sgh3, satrec.sgh4,
+                   satrec.sh2, satrec.sh3, satrec.si2,  satrec.si3,
+                   satrec.sl2, satrec.sl3, satrec.sl4,  satrec.t,
+                   satrec.xgh2,satrec.xgh3,satrec.xgh4, satrec.xh2,
+                   satrec.xh3, satrec.xi2, satrec.xi3,  satrec.xl2,
+                   satrec.xl3, satrec.xl4, satrec.zmol, satrec.zmos, inclm, satrec.init,
+                   satrec.ecco, satrec.inclo, satrec.nodeo, satrec.argpo, satrec.mo,
+                   satrec.operationmode
+                 );
+             satrec.ecco = ttemp2[0];
+             satrec.inclo = ttemp2[1];
+             satrec.nodeo = ttemp2[2];
+             satrec.argpo = ttemp2[3];
+             satrec.mo = ttemp2[4];
 
              argpm  = 0.0;
              nodem  = 0.0;
@@ -1868,7 +1902,27 @@ private static boolean sgp4
      cosip  = cosim;
      if (satrec.method == 'd')
        {
-         dpper(satrec);
+         //dpper(satrec);
+         double[] ttemp = dpper
+             (
+               satrec.e3,   satrec.ee2,  satrec.peo,
+               satrec.pgho, satrec.pho,  satrec.pinco,
+               satrec.plo,  satrec.se2,  satrec.se3,
+               satrec.sgh2, satrec.sgh3, satrec.sgh4,
+               satrec.sh2,  satrec.sh3,  satrec.si2,
+               satrec.si3,  satrec.sl2,  satrec.sl3,
+               satrec.sl4,  satrec.t,    satrec.xgh2,
+               satrec.xgh3, satrec.xgh4, satrec.xh2,
+               satrec.xh3,  satrec.xi2,  satrec.xi3,
+               satrec.xl2,  satrec.xl3,  satrec.xl4,
+               satrec.zmol, satrec.zmos, satrec.inclo,
+               'n', ep, xincp, nodep, argpp, mp, satrec.operationmode
+             );
+         ep = ttemp[0];
+         xincp = ttemp[1];
+         nodep = ttemp[2];
+         argpp = ttemp[3];
+         mp = ttemp[4];
 
          if (xincp < 0.0)
            {
