@@ -182,12 +182,12 @@ public class SGP4io
         }
         else
         {
-            satrec.nddot = readFloatFromString(tleLine1.substring(44,50));
+            satrec.nddot = readFloatFromString(tleLine1.substring(44,50)) / 1.0E5;
             //nexp
             satrec.nexp = (int)readFloatFromString(tleLine1.substring(50,52));
         }
         //bstar
-        satrec.bstar = readFloatFromString(tleLine1.substring(53,59));
+        satrec.bstar = readFloatFromString(tleLine1.substring(53,59)) / 1.0E5;
         //ibex
         satrec.ibexp = (int)readFloatFromString(tleLine1.substring(59,61));
 
@@ -226,7 +226,7 @@ public class SGP4io
         satrec.nodeo = readFloatFromString(tleLine2.substring(17, 26));
 
         //satrec.ecco
-        satrec.ecco = readFloatFromString(tleLine2.substring(26,34));
+        satrec.ecco = readFloatFromString(tleLine2.substring(26,34)) / 1.0E7;
 
         // satrec.argpo
         satrec.argpo = readFloatFromString(tleLine2.substring(34,43));
