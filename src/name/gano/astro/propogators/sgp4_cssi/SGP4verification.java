@@ -17,7 +17,7 @@ import java.io.InputStreamReader;
 
 /**
  *
- * @author sgano
+ * @author Shawn E. Gano
  */
 public class SGP4verification
 {
@@ -35,11 +35,11 @@ public class SGP4verification
         // comparison file, cpp results
         String cppResultsFile = "tcppver.out";
 
-        // internal variables
+        // internal variables -------------------------
         double[] ro = new double[3];
         double[] vo = new double[3];
 
-        // get constants
+        // get constants -------------------------------
         double[] gtt = SGP4unit.getgravconst(gravconsttype);//, tumin, mu, radiusearthkm, xke, j2, j3, j4, j3oj2 );
         double tumin = gtt[0];
         double mu = gtt[1];
@@ -50,6 +50,7 @@ public class SGP4verification
         double j4 = gtt[6];
         double j3oj2 = gtt[7];
 
+         System.out.println("======  PROPOGATING VERIFICATION TLEs ====== ");
         // open the TLE file and propogate each TLE --------------------
         try
         {
@@ -157,6 +158,7 @@ public class SGP4verification
                             out.write( String.format(" %14.6f %8.6f %10.5f %10.5f %10.5f %10.5f %10.5f %5d%3d%3d %2d:%2d:%9.6f\n",
                                     a, ecc, incl * rad, node * rad, argp * rad, nu * rad,
                                     m * rad, year, mon, day, hr, min, sec));
+                            out.flush(); // make sure the write is caught up
 
                         } // if satrec.error == 0
 
@@ -166,14 +168,93 @@ public class SGP4verification
             }
             //Close the input stream
             in.close();
-            out.close();
+            outStream.close();
         }
         catch(Exception e)
         {//Catch exception if any
             System.err.println("Error: " + e.getMessage());
         }
         // -- end main prop loop -------------------------------------------
-        
+
+
+        System.out.println("======  RUNNNING COMPARISON ====== ");
+        // now compare ------------------------------------------------
+        try
+        {
+            // Open the results files
+            FileInputStream fstream = new FileInputStream(javaResults);
+            DataInputStream in = new DataInputStream(fstream);
+            BufferedReader javaResultsBR = new BufferedReader(new InputStreamReader(in));
+
+            FileInputStream fstream2 = new FileInputStream(cppResultsFile);
+            DataInputStream in2 = new DataInputStream(fstream2);
+            BufferedReader cppResultsBR = new BufferedReader(new InputStreamReader(in2));
+
+            String cppLine = javaResultsBR.readLine();
+            String javaLine = cppResultsBR.readLine();
+
+            int line = 1;
+            int lineMismatches = 0;
+            do
+            {
+                if( !cppLine.equals(javaLine))
+                {
+                    lineMismatches++;
+
+                    // line not equal
+                    System.out.print("Line " + line + " doesn't match:  ");
+
+                    // figure out how many chars are different
+                    int charMismatch = 0;
+                    System.out.print("pos=[");
+                    try
+                    {
+                        for (int i = 0; i < cppLine.length(); i++)
+                        {
+                            if (cppLine.charAt(i) != javaLine.charAt(i))
+                            {
+                                charMismatch++;
+                                System.out.print((i+1) + " ");
+                            }
+                        }
+
+                    } catch (Exception e)
+                    {
+                        System.out.print("(Error checking line details) ");
+                    }
+                    System.out.print("] ");
+
+                    //
+                    System.out.print(charMismatch + " of " +cppLine.length() +  " mismatched characters\n");
+                }
+
+                cppLine = javaResultsBR.readLine();
+                javaLine = cppResultsBR.readLine();
+                line++;
+            }while(cppLine != null && javaLine != null);
+
+            System.out.println("---------------------");
+
+            if(cppLine == null && javaLine == null)
+            {
+                System.out.println("** Files have the same number of lines **");
+            }
+            else
+            {
+                System.out.println("** Files have DIFFERENT number of lines **");
+            }
+            
+            System.out.println("Total lines that don't match: " + lineMismatches);
+            System.out.println("Total number of lines in shortest file: " + (line-1));
+
+            in.close();
+            in2.close();
+
+        }
+        catch(Exception e)
+        {
+            System.out.println("Error in comparing verification results:\n" + e.toString());
+        }
 
     }
 }
