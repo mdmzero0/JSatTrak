@@ -1,14 +1,16 @@
+// based off of the "typedef struct elsetrec" in the CSSI's sgp4unit.h file
 // conatins all the data needed for a SGP4 propogated satellite
 // holds all initialization info, etc.
 package name.gano.astro.propogators.sgp4_cssi;
 
 /**
- *
- * @author sgano
+ * 19 June 2009
+ * converted to Java by:
+ * @author Shawn E. Gano
  */
 public class SGP4SatData
 {
-  public int   satnum; // long?  but all using usbroutines require an int
+  public int   satnum; // changed to int SEG
   public int    epochyr, epochtynumrev;
   public int    error; // 0 = ok, 1= eccentricity (sgp4),   6 = satellite decay, 7 = tle data
   public char   operationmode;

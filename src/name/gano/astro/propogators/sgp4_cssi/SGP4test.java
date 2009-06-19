@@ -1,11 +1,9 @@
-
+// simple test of the SGP4 propagator
 package name.gano.astro.propogators.sgp4_cssi;
 
-import name.gano.astro.MathUtils;
-
 /**
- *
- * @author sgano
+ * 19 June 2009
+ * @author Shawn E. Gano
  */
 public class SGP4test
 {
@@ -20,11 +18,11 @@ public class SGP4test
         String line2 = "2 25544  51.6406 341.1646 0009228  98.8703 312.6668 15.73580432604904";
 
         // options
-        char opsmode = SGP4io.OPSMODE_IMPROVED; // OPSMODE_IMPROVED
+        char opsmode = SGP4utils.OPSMODE_IMPROVED; // OPSMODE_IMPROVED
         SGP4unit.Gravconsttype gravconsttype = SGP4unit.Gravconsttype.wgs72;
 
         // read in data and ini SGP4 data
-        boolean result1 = SGP4io.readTLEandIniSGP4(name, line1, line2, opsmode, gravconsttype, data);
+        boolean result1 = SGP4utils.readTLEandIniSGP4(name, line1, line2, opsmode, gravconsttype, data);
         if(!result1)
         {
             System.out.println("Error Reading / Ini Data, error code: " + data.error);
@@ -38,7 +36,7 @@ public class SGP4test
         double[] vel = new double[3];
 
         boolean result = SGP4unit.sgp4(data, minutesSinceEpoch, pos, vel);
-        if(!result1)
+        if(!result)
         {
             System.out.println("Error in Sat Prop");
             return;
@@ -50,11 +48,68 @@ public class SGP4test
 
         double[] stk8Results = new double[] {-2881017.428533447,-3207508.188455666,-5176685.907342243};
         double[] stk9Results = new double[] {-2881017.432281017,-3207508.189681858,-5176685.904856035};
-        //double[] cCodeResults = new double[] {}; //? Vallado's C Code comparison
-        double dX = MathUtils.norm( MathUtils.sub(MathUtils.scale(pos,1000.0), stk8Results) );
+        
+        double dX = norm( sub( scale(pos,1000.0), stk8Results) );
         System.out.println("Error from STk8 (m) : " + dX);
-        double dX2 = MathUtils.norm( MathUtils.sub(MathUtils.scale(pos,1000.0), stk9Results) );
+        double dX2 = norm( sub( scale(pos,1000.0), stk9Results) );
         System.out.println("Error from STk9 (m) : " + dX2);
 
     }
+
+     /**
+     * vector subtraction
+     *
+     * @param a vector of length 3
+     * @param b vector of length 3
+     * @return a-b
+     */
+	public static double[] sub(double[] a, double[] b)
+	{
+		double[] c = new double[3];
+		for(int i=0;i<3;i++)
+		{
+			c[i] = a[i] - b[i];
+		}
+
+		return c;
+	}
+
+    //	vector 2-norm
+    /**
+     * vector 2-norm
+     *
+     * @param a vector of length 3
+     * @return norm(a)
+     */
+	public static double norm(double[] a)
+	{
+		double c = 0.0;
+
+		for(int i=0;i<a.length;i++)
+		{
+			c += a[i]*a[i];
+		}
+
+		return Math.sqrt(c);
+	}
+
+    //	multiply a vector times a scalar
+    /**
+     * multiply a vector times a scalar
+     *
+     * @param a a vector of length 3
+     * @param b scalar
+     * @return a * b
+     */
+	public static double[] scale(double[] a, double b)
+	{
+		double[] c = new double[3];
+
+		for(int i=0;i<3;i++)
+		{
+			c[i] = a[i]*b;
+		}
+
+		return c;
+	}
 }

@@ -1,8 +1,9 @@
 // runs the Verification TLEs just like Vallado's C++ code does
-
-// 18 June 2009 Results: only one digit different in the entire file:
+//
+// 19 June 2009 Results: only one digit different in the entire file: ( for OPSMODE_IMPROVED, wgs72)
 //line 655 - only diff  x value of position:
 // all error codes and times of errors where also the same
+// value that was different (x pos line 655)
 //cpp  = -23575.69186056
 //java = -23575.69186057
 
@@ -24,8 +25,9 @@ public class SGP4verification
     public static void main(String[] args)
     {
         // settings
-        char opsmode = SGP4io.OPSMODE_IMPROVED; // OPSMODE_IMPROVED
+        char opsmode = SGP4utils.OPSMODE_IMPROVED; // OPSMODE_IMPROVED
         SGP4unit.Gravconsttype gravconsttype = SGP4unit.Gravconsttype.wgs72;
+        
         // tle verification file (with extra start, stop, timestep params on line 2)
         String verTLEfile = "sgp4-ver.tle";
 
@@ -87,7 +89,7 @@ public class SGP4verification
                     // convert the char string to sgp4 elements
                     // includes initialization of sgp4
                     SGP4SatData satrec = new SGP4SatData();
-                    SGP4io.readTLEandIniSGP4("", strLine1, strLine2, opsmode, gravconsttype, satrec);
+                    SGP4utils.readTLEandIniSGP4("", strLine1, strLine2, opsmode, gravconsttype, satrec);
 
                     out.write(satrec.satnum + " xx\n");
                     System.out.println(" "+ satrec.satnum);
@@ -132,7 +134,7 @@ public class SGP4verification
                                     tsince, ro[0], ro[1], ro[2], vo[0], vo[1], vo[2]));
 
                             double jd = satrec.jdsatepoch + tsince/1440.0;
-                            double[] ymd = SGP4io.invjday( jd ); //, year,mon,day,hr,min, sec );
+                            double[] ymd = SGP4utils.invjday( jd ); //, year,mon,day,hr,min, sec );
                             int year = (int) ymd[0];
                             int mon = (int) ymd[1];
                             int day = (int) ymd[2];
@@ -140,7 +142,7 @@ public class SGP4verification
                             int min = (int) ymd[4];
                             double sec = ymd[5];
 
-                            double[] coe = SGP4ext.rv2coe(ro, vo, mu); // , p, a, ecc, incl, node, argp, nu, m, arglat, truelon, lonper);
+                            double[] coe = SGP4utils.rv2coe(ro, vo, mu); // , p, a, ecc, incl, node, argp, nu, m, arglat, truelon, lonper);
                             double p = coe[0];
                             double a = coe[1];
                             double ecc = coe[2];
