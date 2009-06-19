@@ -48,10 +48,13 @@ public class SGP4test
         System.out.println("Epoch of TLE (JD): " + data.jdsatepoch);
         System.out.println(minutesSinceEpoch + ", " + pos[0]+ ", " + pos[1]+ ", " + pos[2]+ ", " + vel[0]+ ", " + vel[1]+ ", " + vel[2]);
 
-        double[] stkResults = new double[] {-2881017.428533447,-3207508.188455666,-5176685.907342243};
+        double[] stk8Results = new double[] {-2881017.428533447,-3207508.188455666,-5176685.907342243};
+        double[] stk9Results = new double[] {-2881017.432281017,-3207508.189681858,-5176685.904856035};
         //double[] cCodeResults = new double[] {}; //? Vallado's C Code comparison
-        double dX = MathUtils.norm( MathUtils.sub(MathUtils.scale(pos,1000.0), stkResults) );
-        System.out.println("Error from STk (m) : " + dX);
+        double dX = MathUtils.norm( MathUtils.sub(MathUtils.scale(pos,1000.0), stk8Results) );
+        System.out.println("Error from STk8 (m) : " + dX);
+        double dX2 = MathUtils.norm( MathUtils.sub(MathUtils.scale(pos,1000.0), stk9Results) );
+        System.out.println("Error from STk9 (m) : " + dX2);
 
     }
 }
