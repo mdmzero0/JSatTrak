@@ -6,6 +6,9 @@
 // value that was different (x pos line 655)
 //cpp  = -23575.69186056
 //java = -23575.69186057
+//
+// other combinations for the opsmode and gravity constants had similar results with very few
+// differences in the cpp vs java output files
 
 package name.gano.astro.propogators.sgp4_cssi;
 
