@@ -3,7 +3,7 @@ package name.gano.astro.propogators.sgp4_cssi;
 
 /**
  * 19 June 2009
- * @author Shawn E. Gano
+ * @author Shawn E. Gano, shawn@gano.name
  */
 public class SGP4test
 {

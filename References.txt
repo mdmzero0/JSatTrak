@@ -1,6 +1,6 @@
 References:
 ------------------------
-Horst Meyerdierks, Sputnik 2.1.1 - http://www.chiandh.me.uk/soft/  (SDP4)
+Horst Meyerdierks, Sputnik 2.1.1 - http://www.chiandh.me.uk/soft/  (SDP4) (not used any more, but this was a good package, GPL licensed)
 
 "Astronomy on the Personal Computer" by Oliver Montenbruck (Author), Thomas Pfleger (Author), R.M. West (Preface), S. Dunlop (Translator), Springer; 4th completely rev. ed. 2000. Corr. 3rd printing edition (July 21, 2005)
 

@@ -33,9 +33,11 @@ import javax.swing.JOptionPane;
 import name.gano.astro.AstroConst;
 import name.gano.astro.GeoFunctions;
 import name.gano.astro.Kepler;
-import name.gano.astro.propogators.sdp4.SDP4;
 import jsattrak.utilities.TLE;
 import name.gano.astro.coordinates.J2kCoordinateConversion;
+import name.gano.astro.propogators.sgp4_cssi.SGP4SatData;
+import name.gano.astro.propogators.sgp4_cssi.SGP4unit;
+import name.gano.astro.propogators.sgp4_cssi.SGP4utils;
 import name.gano.worldwind.modelloader.WWModel3D_new;
 import net.java.joglutils.model.ModelFactory;
 
@@ -47,7 +49,7 @@ import net.java.joglutils.model.ModelFactory;
 public class SatelliteTleSGP4 extends AbstractSatellite
 {
     private TLE tle;
-    private SDP4 sdp4Prop; // propogator
+    private SGP4SatData sgp4SatData; // sgp4 propogator data
     
     // current time - julian date
     double currentJulianDate = -1;
@@ -56,13 +58,13 @@ public class SatelliteTleSGP4 extends AbstractSatellite
     double tleEpochJD = -1; // no age
     
     // J2000 position and velocity vectors
-    private double[] j2kPos = new double[3];
-    private double[] j2kVel = new double[3];
+    private double[] j2kPos = new double[3]; // meters
+    private double[] j2kVel = new double[3]; // meters/sec
     // true-equator, mean equinox TEME of date
-    private double[] posTEME = new double[3];  // true-equator, mean equinox TEME of date position for LLA calcs
-    private double[] velTEME = new double[3];
+    private double[] posTEME = new double[3];  // true-equator, mean equinox TEME of date position for LLA calcs, meters
+    private double[] velTEME = new double[3]; // meters/sec
     
-    // lat,long,alt  [radians, radians, km/m ?]
+    // lat,long,alt  [radians, radians, m ]
     private double[] lla = new double[3];
     
     // plot options 
@@ -112,9 +114,8 @@ public class SatelliteTleSGP4 extends AbstractSatellite
         // create internal TLE object
         tle = new TLE(name,tleLine1,tleLine2);
         
-        // initialize sdp4 propogator
-        sdp4Prop = new SDP4();
-        sdp4Prop.Init();
+        // initialize sgp4 propogator data for the satellite
+        sgp4SatData = new SGP4SatData();
         
         // randomly pick color for satellite
         // === pick a random color
@@ -132,20 +133,23 @@ public class SatelliteTleSGP4 extends AbstractSatellite
         
         
         // try to load TLE into propogator
-        try
+
+        // options - hard coded
+        char opsmode = SGP4utils.OPSMODE_IMPROVED; // OPSMODE_IMPROVED
+        SGP4unit.Gravconsttype gravconsttype = SGP4unit.Gravconsttype.wgs72;
+
+        // load TLE data as strings and INI all SGP4 data
+        boolean loadSuccess = SGP4utils.readTLEandIniSGP4(name, tleLine1, tleLine2, opsmode, gravconsttype, sgp4SatData);
+
+        // if there is an error loading send an exception
+        if (!loadSuccess)
         {
-            sdp4Prop.NoradLoadTLE(name, tleLine1,tleLine2);  // call to load TLE from strings (internal)
-             
-            // calculate TLE age
-            tleEpochJD = sdp4Prop.itsEpochJD+2450000;
-            
+            throw new Exception("Error loading TLE error code:" + sgp4SatData.error);
         }
-        catch(Exception e)
-        {
-            //JOptionPane.showMessageDialog(null, "Error Reading TLE from Satellite: " + name);
-            //e.printStackTrace();
-            throw e;
-        }
+
+        // calculate TLE age
+        tleEpochJD = sgp4SatData.jdsatepoch;
+          
     }
     
     @Override
@@ -154,24 +158,25 @@ public class SatelliteTleSGP4 extends AbstractSatellite
         this.tle = newTLE; // save new TLE
         
         // new spg4 object
-        sdp4Prop = new SDP4();
-        sdp4Prop.Init();
+        sgp4SatData = new SGP4SatData();
         
         // read TLE
-        try
+        // options - hard coded
+        char opsmode = SGP4utils.OPSMODE_IMPROVED; // OPSMODE_IMPROVED
+        SGP4unit.Gravconsttype gravconsttype = SGP4unit.Gravconsttype.wgs72;
+
+        // load TLE data as strings and INI all SGP4 data
+        boolean loadSuccess = SGP4utils.readTLEandIniSGP4(tle.getSatName(), tle.getLine1(), tle.getLine2(), opsmode, gravconsttype, sgp4SatData);
+
+        // if there is an error loading send an exception
+        if (!loadSuccess)
         {
-            sdp4Prop.NoradLoadTLE(tle.getSatName(), tle.getLine1(),tle.getLine2());  // call to load TLE from strings (internal)
-             
-            // calculate TLE age
-            tleEpochJD = sdp4Prop.itsEpochJD+2450000;
-            
+            JOptionPane.showMessageDialog(null,"Error reading updated TLE, error code:" + sgp4SatData.error + "\n Satellite: "+ tle.getSatName());
         }
-        catch(Exception e)
-        {
-            JOptionPane.showMessageDialog(null, "Error Updating TLE data in current Satellite: " + tle.getSatName());
-            e.printStackTrace();
-        }
-        
+
+        // calculate TLE age
+        tleEpochJD = sgp4SatData.jdsatepoch;
+               
         // ground track needs to be redone with new data
         groundTrackIni = false;
         
@@ -183,9 +188,22 @@ public class SatelliteTleSGP4 extends AbstractSatellite
     {
         // save date
         this.currentJulianDate = julDate;
-        
-        // propogate satellite to given date
-        sdp4Prop.GetPosVelJulDate(julDate);  //okay using JulDate because function uses time diff between jultDate of ephemeris
+
+        // using JulDate because function uses time diff between jultDate of ephemeris, SGP4 uses UTC
+        // propogate satellite to given date - saves result in TEME to posTEME and velTEME in km, km/s
+        boolean propSuccess = SGP4unit.sgp4Prop2JD(sgp4SatData, julDate, posTEME, velTEME);
+        if(!propSuccess)
+        {
+            System.out.println("Error SGP4 Propagation failed for sat: " + sgp4SatData.name + ", JD: " + sgp4SatData.jdsatepoch + ", error code: "+ sgp4SatData.error);
+        }
+
+        // scale output to meters
+        for(int i=0;i<3;i++)
+        {
+            // TEME
+             posTEME[i] = posTEME[i]*1000.0;
+             velTEME[i] = velTEME[i]*1000.0;
+        }
         
         //print differene TT-UT
         //System.out.println("TT-UT [days]= " + SDP4TimeUtilities.DeltaT(julDate-2450000)*24.0*60*60);
@@ -215,26 +233,11 @@ public class SatelliteTleSGP4 extends AbstractSatellite
         double ttt = (mjd-AstroConst.MJD_J2000) /36525.0;
         double[][] A = J2kCoordinateConversion.teme_j2k(J2kCoordinateConversion.Direction.to,ttt, 24, 2, 'a');
         // rotate position and velocity
-        j2kPos = J2kCoordinateConversion.matvecmult( A, sdp4Prop.itsR);
-        j2kVel = J2kCoordinateConversion.matvecmult( A, sdp4Prop.itsV);
-
+        j2kPos = J2kCoordinateConversion.matvecmult( A, posTEME);
+        j2kVel = J2kCoordinateConversion.matvecmult( A, velTEME);
 
         //System.out.println("Date: " + julDate +", Pos: " + sdp4Prop.itsR[0] + ", " + sdp4Prop.itsR[1] + ", " + sdp4Prop.itsR[2]);
 
-        // correct scaling factor of lengths
-        for(int i=0;i<3;i++)
-        {
-            // J2000
-            j2kPos[i] = j2kPos[i]*1000000000.0;
-            j2kVel[i] = j2kVel[i]*1000.0;
-            // MOD
-             posTEME[i] = sdp4Prop.itsR[i]*1000000000.0;
-             velTEME[i] = sdp4Prop.itsV[i]*1000.0;
-             
-             // debug:
-             //System.out.println("axis, J2k, MOD : " + i + ", " + j2kPos[i] + ", " + posMOD[i]);
-        }
-        
         // save old lat/long for ascending node check
         double[] oldLLA = lla.clone(); // copy old LLA
         
@@ -385,16 +388,7 @@ public class SatelliteTleSGP4 extends AbstractSatellite
     // takes in JulDate, returns lla and teme position
     private double[] calculateLatLongAltXyz(double ptTime)
     {
-        sdp4Prop.GetPosVelJulDate(ptTime); // use sdp4 to prop to that time
-        
-        double[] ptPos = new double[3];
-        
-          
-        // correct scaling factor of lenths
-        for(int j=0;j<3;j++)
-        {
-            ptPos[j] = sdp4Prop.itsR[j]*1000000000.0; // lat/long calcualted using TEME of date position
-        }
+        double[] ptPos = calculateTemePositionFromUT(ptTime);
         
         // get lat and long
         double[] ptLla = GeoFunctions.GeodeticLLA(ptPos,ptTime-AstroConst.JDminusMJD);
@@ -414,7 +408,7 @@ public class SatelliteTleSGP4 extends AbstractSatellite
     @Override
     public double[] calculateJ2KPositionFromUT(double julDate)
     {
-        sdp4Prop.GetPosVelJulDate(julDate); // use sdp4 to prop to that time
+        double[] ptPos = calculateTemePositionFromUT(julDate);
 
         double mjd = julDate-AstroConst.JDminusMJD;
 
@@ -423,14 +417,7 @@ public class SatelliteTleSGP4 extends AbstractSatellite
         double ttt = (mjd-AstroConst.MJD_J2000) /36525.0;
         double[][] A = J2kCoordinateConversion.teme_j2k(J2kCoordinateConversion.Direction.to,ttt, 24, 2, 'a');
         // rotate position
-        double[] j2kPosI = J2kCoordinateConversion.matvecmult( A, sdp4Prop.itsR);
-        
-          
-        // correct scaling factor of lenths
-        for(int j=0;j<3;j++)
-        {
-            j2kPosI[j] = j2kPosI[j]*1000000000.0; // j2k position in meters
-        }
+        double[] j2kPosI = J2kCoordinateConversion.matvecmult( A, ptPos);
         
         return j2kPosI;
         
@@ -444,14 +431,22 @@ public class SatelliteTleSGP4 extends AbstractSatellite
     @Override
     public double[] calculateTemePositionFromUT(double julDate)
     {
-        sdp4Prop.GetPosVelJulDate(julDate); // use sdp4 to prop to that time
-                 
         double[] ptPos = new double[3];
-        
-        // correct scaling factor of lenths
-        for(int j=0;j<3;j++)
+        double[] ptVel = new double[3];
+
+        // using JulDate because function uses time diff between jultDate of ephemeris, SGP4 uses UTC
+        // propogate satellite to given date - saves result in TEME to posTEME and velTEME in km, km/s
+        boolean propSuccess = SGP4unit.sgp4Prop2JD(sgp4SatData, julDate, ptPos, ptVel);
+        if(!propSuccess)
         {
-            ptPos[j] = sdp4Prop.itsR[j]*1000000000.0; // j2k position in meters
+            System.out.println("Error (2) SGP4 Propagation failed for sat: " + sgp4SatData.name + ", JD: " + sgp4SatData.jdsatepoch + ", error code: "+ sgp4SatData.error);
+        }
+
+        // scale output to meters
+        for(int i=0;i<3;i++)
+        {
+            // TEME
+             ptPos[i] = ptPos[i]*1000.0;
         }
         
         return ptPos;
@@ -501,20 +496,7 @@ public class SatelliteTleSGP4 extends AbstractSatellite
     private double latitudeGivenJulianDate(double julDate)
     {
         // computer latiude of the spacecraft at a given date
-        sdp4Prop.GetPosVelJulDate(julDate); // use sdp4 to prop to that time
-        
-        double[] ptPos = new double[3];
-        
-        // convert to J2000 coordinates
-        //ptPos = CoordinateConversion.EquatorialEquinoxToJ2K(julDate-2400000.5, sdp4Prop.itsR);
-        //SDP4TimeUtilities.Mean2J2000JulDate(1, julDate, sdp4Prop.itsR, ptPos )
-        // LLA is based on TEME positions so don't convert to J2K
-                
-        // correct scaling factor of lenths
-        for(int j=0;j<3;j++)
-        {
-            ptPos[j] =sdp4Prop.itsR[j]*1000000000.0;
-        }
+        double[] ptPos = calculateTemePositionFromUT(julDate);
         
         // get lat and long
         double[] ptLla = GeoFunctions.GeodeticLLA(ptPos,julDate-AstroConst.JDminusMJD);
@@ -571,10 +553,10 @@ public class SatelliteTleSGP4 extends AbstractSatellite
         return lla;
     }
     
-    // TT or UTC?
+    // TT or UTC? = UTC
     public double getSatTleEpochJulDate()
     {
-        return (sdp4Prop.itsEpochJD + 2450000.0); // this is how the dates are defined in SDP4
+        return sgp4SatData.jdsatepoch;
     }
     
     public double getCurrentJulDate()

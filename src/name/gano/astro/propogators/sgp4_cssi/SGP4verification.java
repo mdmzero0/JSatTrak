@@ -21,7 +21,7 @@ import java.io.InputStreamReader;
 
 /**
  *
- * @author Shawn E. Gano
+ * @author Shawn E. Gano, shawn@gano.name
  */
 public class SGP4verification
 {

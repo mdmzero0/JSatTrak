@@ -389,7 +389,7 @@ public class CustomSatellite  extends AbstractSatellite
         }
         else
         {   
-            return 0; // this is how the dates are defined in SDP4
+            return 0; // means it hasn't been propagated yet
         }
     }
     

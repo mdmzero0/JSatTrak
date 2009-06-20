@@ -57,7 +57,7 @@ package name.gano.astro.propogators.sgp4_cssi;
 
 /**
  *
- * @author Shawn E. Gano
+ * @author Shawn E. Gano, shawn@gano.name
  */
 public class SGP4unit
 {
@@ -1878,6 +1878,23 @@ public class SGP4unit
         //sgp4fix return boolean. satrec.error contains any error codes
         return sgp4Error;
     }  // end sgp4init
+
+
+
+    /**
+     * Similar to sgp4(..) but time parameter is the Julian Date to the propagated to.
+     * This method was not orgiinally in the CSSI C++ version.
+     * @param satrec satellite SGP4 data object
+     * @param jd Julian Date
+     * @param r position vector [km] return array (needs to be of size 3)
+     * @param v velocity [km/sec] return array (needs to be of size 3)
+     * @return
+     */
+    public static boolean sgp4Prop2JD(SGP4SatData satrec, double jd, double[] r, double[] v)
+    {
+        double tminSinceEpoch = (jd - satrec.jdsatepoch)*24.0*60.0;
+        return sgp4(satrec, tminSinceEpoch,r, v);
+    }
 
     /*-----------------------------------------------------------------------------
      *

@@ -97,7 +97,7 @@
  *          3.7.6 24 Mar 2009 -- resize fix on 3D external window (in 3.7.5 they could only be made bigger) - set min size on globe panel (0,0) preferred size(50,50)
  *          3.7.7 2 April 2009 -- added Microsfot virtual earth layer/yahoo/open maps from WWJ Experimental code
  *          3.7.8 26 May 2009 - bug fix, close app by file->exit doesn't close process - fixed (bug found by Horst Meyerdierks - SGP4 author)
- *          3.8.0alpha 14 June 2009 - added sun shading effects in latest WWJ verion of the day. See posts:
+ *          4.0  20 June 2009 - added sun shading effects in latest WWJ verion of the day. See posts:
  *                                    http://forum.worldwindcentral.com/showthread.php?t=21021&highlight=sun+shading
  *                                    http://patmurris.blogspot.com/2009/04/sunlight-package-for-worldwind-java.html
  *                                  (VOTD - WWJ Broke COLOR OF 3D ORBIT TRACE - fixed - disabled 2D textures in OrbitModelRenderable and EFEFModelRenderable)
@@ -108,6 +108,9 @@
  *                                  - now SGP4 prop matches STK very closely (~1m for ISS) and HPROP was compared as well and preformed just as well.
  *                                  - added smooth changes to the 3D view options
  *                                  - coordinate system selection for sat info dialog (J2k, TEME, MOD, TOD)
+ *                                  - REPLACED SDP4 (GPL license, see references.txt) with my own coversion of CSSI's SGP4 propagator (name.gano.astro.propogators.sgp4_cssi) (ver: 3 Nov 2008) (same one used in STK 9.0)
+ *                                     Note: the above change of SGP4 props and other changes in this release make the saved files from older versions not compatible! Files should now be smaller! (why it gets promoted to v4)
+ *                                  - RELICENCED JSatTrak as LGPL!
  * 
  *                              Ideas for next versions: (no particular order)
  *                                  - Vectors tool (make them seperate objects) axis, grids, lines, arrows (data providers)
@@ -232,7 +235,7 @@ import name.gano.file.SaveImageFile;
  */
 public class JSatTrak extends javax.swing.JFrame implements InternalFrameListener, WindowListener, Serializable
 {
-    private String versionString = "Version 3.8.0alpha (15 June 2009)"; // Version of app
+    private String versionString = "Version 4.0 (20 June 2009)"; // Version of app
     
     // hastable to store all the statelites currently being processed
     private Hashtable<String,AbstractSatellite> satHash = new Hashtable<String,AbstractSatellite>();
