@@ -109,6 +109,8 @@ import name.gano.worldwind.WwjUtils;
 import name.gano.worldwind.layers.Earth.CoverageRenderableLayer;
 import name.gano.worldwind.layers.Earth.ECEFRenderableLayer;
 import name.gano.worldwind.layers.Earth.ECIRenderableLayer;
+import name.gano.worldwind.layers.Earth.EcefTimeDepRenderableLayer;
+import name.gano.worldwind.objects.SunTerminatorPolyLineTimeDep;
 import name.gano.worldwind.sunshader.CustomSunPositionProvider;
 import name.gano.worldwind.view.BasicModelView3;
 import name.gano.worldwind.view.BasicModelViewInputHandler3;
@@ -125,6 +127,7 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
     JDialog parent; // parent dialog
     ECIRenderableLayer eciLayer; // ECI layer for plotting in ECI coordinates
     ECEFRenderableLayer ecefLayer; // ECEF layer for plotting in ECEF coordinates
+    EcefTimeDepRenderableLayer timeDepLayer;
     OrbitModelRenderable orbitModel; // renderable object for plotting
     ECEFModelRenderable ecefModel;
     // terrain profile layer
@@ -305,6 +308,10 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         cel = new CoverageRenderableLayer(app.getCoverageAnalyzer());
         //cel.setEnabled(false); // off by default
         m.getLayers().add(cel); // add Layer
+
+        // add EcefTimeDepRenderableLayer layer
+        timeDepLayer = new EcefTimeDepRenderableLayer(currentMJD,app);
+        m.getLayers().add(timeDepLayer);
         
         // add ECI Layer -- FOR SOME REASON IF BEFORE EFEF and turned off ECEF Orbits don't show up!! Coverage effecting this too, strange
         eciLayer = new ECIRenderableLayer(currentMJD); // create ECI layer
@@ -833,7 +840,7 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         JDialog iframe = new JDialog(parent, windowName, false);
 
         iframe.setContentPane(newPanel); // set contents pane
-        iframe.setSize(220+40, 260+65+175); // set size w,h
+        iframe.setSize(220+40, 260+65+185); // set size w,h
         
         Point p = this.getLocationOnScreen();
         iframe.setLocation(p.x + 15, p.y + 55);
@@ -1321,6 +1328,9 @@ private void fullScreenButtonActionPerformed(java.awt.event.ActionEvent evt) {//
         
         // debug - reset view to follow sat
         //setViewCenter(15000000); // set this only if user has picked a satellite to follow!
+
+        // update layer that needs time updates
+        timeDepLayer.setCurrentMJD(mjd);
         
     } // set MJD
 
@@ -1544,5 +1554,10 @@ private void fullScreenButtonActionPerformed(java.awt.event.ActionEvent evt) {//
         // repaint!
         super.repaint();
     }
-    
+
+    public EcefTimeDepRenderableLayer getEcefTimeDepRenderableLayer()
+    {
+        return timeDepLayer;
+    } //getEcefTimeDepRenderableLayer
+
 }

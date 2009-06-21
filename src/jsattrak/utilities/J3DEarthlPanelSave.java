@@ -27,6 +27,7 @@ package jsattrak.utilities;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.layers.Layer;
 import gov.nasa.worldwind.view.OrbitView;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.io.Serializable;
@@ -77,6 +78,8 @@ public class J3DEarthlPanelSave implements Serializable
     private boolean sunShadingOn;
     private int ambientLightLevel;
     private boolean lensFlareEnabled;
+    private boolean showTermintorLine;
+    private Color terminatorColor;
     
     
     /** Creates a new instance of J2DEarthPanelSave */
@@ -126,6 +129,10 @@ public class J3DEarthlPanelSave implements Serializable
         sunShadingOn = panel.isSunShadingOn();
         ambientLightLevel = panel.getAmbientLightLevel();
         lensFlareEnabled = panel.isLensFlareEnabled();
+
+        // terminator
+        showTermintorLine = panel.getEcefTimeDepRenderableLayer().isShowTerminatorLine();
+        terminatorColor = panel.getEcefTimeDepRenderableLayer().getTerminator().getColor();
         
     } // J2DEarthPanelSave constructor
     
@@ -205,7 +212,10 @@ public class J3DEarthlPanelSave implements Serializable
             ((JDialog)iframe).setTitle(frameTitle);
         }
 
-        
+        // terminator
+        newPanel.getEcefTimeDepRenderableLayer().getTerminator().setColor(terminatorColor);
+        newPanel.getEcefTimeDepRenderableLayer().setShowTerminatorLine(showTermintorLine);
+       
     } // copy settings
     
 } //J3DEarthInternalPanelSave class

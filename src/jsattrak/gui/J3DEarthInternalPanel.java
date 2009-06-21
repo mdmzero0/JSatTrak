@@ -110,6 +110,7 @@ import name.gano.worldwind.WwjUtils;
 import name.gano.worldwind.layers.Earth.CoverageRenderableLayer;
 import name.gano.worldwind.layers.Earth.ECEFRenderableLayer;
 import name.gano.worldwind.layers.Earth.ECIRenderableLayer;
+import name.gano.worldwind.layers.Earth.EcefTimeDepRenderableLayer;
 import name.gano.worldwind.sunshader.CustomSunPositionProvider;
 import name.gano.worldwind.view.BasicModelView3;
 import name.gano.worldwind.view.BasicModelViewInputHandler3;
@@ -126,6 +127,7 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
     JInternalFrame parent; // parent dialog
     ECIRenderableLayer eciLayer; // ECI layer for plotting in ECI coordinates
     ECEFRenderableLayer ecefLayer; // ECEF layer for plotting in ECEF coordinates
+    EcefTimeDepRenderableLayer timeDepLayer;
     OrbitModelRenderable orbitModel; // renderable object for plotting
     ECEFModelRenderable ecefModel;
     // terrain profile layer
@@ -304,7 +306,11 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
         // Coverage Data Layer
         cel = new CoverageRenderableLayer(app.getCoverageAnalyzer());
         //cel.setEnabled(false); // off by default
-        m.getLayers().add(cel); // add Layer        
+        m.getLayers().add(cel); // add Layer
+
+        // add EcefTimeDepRenderableLayer layer
+        timeDepLayer = new EcefTimeDepRenderableLayer(currentMJD,app);
+        m.getLayers().add(timeDepLayer);
         
         // add ECI Layer
         eciLayer = new ECIRenderableLayer(currentMJD); // create ECI layer
@@ -851,7 +857,7 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
         JDialog iframe = new JDialog(app, windowName, false);
         
         iframe.setContentPane(newPanel); // set contents pane
-        iframe.setSize(220+40, 260+65+175); // set size w,h
+        iframe.setSize(220+40, 260+65+185); // set size w,h
         
         Point p = this.getLocationOnScreen();
         iframe.setLocation(p.x + 15, p.y + 55);
@@ -1331,6 +1337,9 @@ private void fullScreenButtonActionPerformed(java.awt.event.ActionEvent evt) {//
             {
             }
         } // terrain profil layer
+
+        // update layer that needs time updates
+        timeDepLayer.setCurrentMJD(mjd);
         
     } // set MJD
     
@@ -1528,4 +1537,10 @@ private void fullScreenButtonActionPerformed(java.awt.event.ActionEvent evt) {//
         // repaint!
         super.repaint();
     }
+
+    public EcefTimeDepRenderableLayer getEcefTimeDepRenderableLayer()
+    {
+        return timeDepLayer;
+    } //getEcefTimeDepRenderableLayer
+    
 }

@@ -111,6 +111,7 @@
  *                                  - REPLACED SDP4 (GPL license, see references.txt) with my own coversion of CSSI's SGP4 propagator (name.gano.astro.propogators.sgp4_cssi) (ver: 3 Nov 2008) (same one used in STK 9.0)
  *                                     Note: the above change of SGP4 props and other changes in this release make the saved files from older versions not compatible! Files should now be smaller! (why it gets promoted to v4)
  *                                  - RELICENCED JSatTrak as LGPL!
+ *                                  - FILE FORMAT: changes to use zip compression! files are now much smaller!
  * 
  *                              Ideas for next versions: (no particular order)
  *                                  - Vectors tool (make them seperate objects) axis, grids, lines, arrows (data providers)
@@ -179,20 +180,18 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.Serializable;
-import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 import java.util.Hashtable;
 import java.util.TimeZone;
 import java.util.Vector;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.JDesktopPane;
@@ -2982,10 +2981,23 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         {
             // Writing UTF-8 Encoded Data
             //BufferedWriter out = new BufferedWriter(new FileWriter(fileName));
-            Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName), "UTF8"));
+//            Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName), "UTF8"));
+//            XStream xstream = new XStream();
+//            out.write(xstream.toXML(new JstSaveClass(this)));
+//            out.close();
+
+            // SEG - added in version 4.0--- using zip format to save files, files are MUCH SMALLER!
+            // try writing to a zipped file
+            ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(fileName));
             XStream xstream = new XStream();
-            out.write(xstream.toXML(new JstSaveClass(this)));
-            out.close();
+
+            // Add ZIP entry to output stream.
+            zipOut.putNextEntry(new ZipEntry("JSatTrak.scenario"));
+
+            xstream.toXML(new JstSaveClass(this),zipOut);
+
+            zipOut.closeEntry();
+            zipOut.close();
             
             setStatusMessage("Saved Scenario: " + fileName);
 
@@ -3116,9 +3128,15 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
 //                
 //                f_in.close(); // close file
                 
+                 // before version 4.0 way
+//                 BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(getFileSaveAs()), "UTF8"));
+//
+//                XStream xstream = new XStream();
+//                Object obj = xstream.fromXML(in);
 
-                 BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(getFileSaveAs()), "UTF8"));
-
+                // v4.0 - use zip file to get data out of the file
+                ZipInputStream in = new ZipInputStream(new FileInputStream(getFileSaveAs()));
+                ZipEntry entry = in.getNextEntry();
                 XStream xstream = new XStream();
                 Object obj = xstream.fromXML(in);
 
@@ -3258,7 +3276,8 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
 
            
                     setStatusMessage("Opened file: " + file.getAbsolutePath());
-                    
+
+                    in.close(); //c lose file
                 }
                 else
                 {
@@ -3273,7 +3292,7 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
                 setStatusMessage("Error Opening File: " + e.toString());
             }
         } // file selected
-    	
+
     } // openFile
     
     // returns if a file was selected (true) or canceled (false)

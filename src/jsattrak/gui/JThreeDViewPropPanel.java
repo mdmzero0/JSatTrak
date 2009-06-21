@@ -26,6 +26,8 @@ package jsattrak.gui;
 
 import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.geom.Angle;
+import java.awt.Color;
+import javax.swing.JColorChooser;
 import javax.swing.JDialog;
 import jsattrak.objects.AbstractSatellite;
 import jsattrak.utilities.J3DEarthComponent;
@@ -108,6 +110,13 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
 
         ambientSlider.setValue( threeDPanel.getAmbientLightLevel() );
         flareCheckBox.setSelected( threeDPanel.isLensFlareEnabled() );
+
+        if(threeDPanel.getEcefTimeDepRenderableLayer().isShowTerminatorLine())
+        {
+            terminatorCheckBox.doClick();
+        }
+
+        terminatorColorLabel.setBackground(threeDPanel.getEcefTimeDepRenderableLayer().getTerminator().getColor());
         
     } // JThreeDViewPropPanel
     
@@ -142,9 +151,10 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
         jPanel3 = new javax.swing.JPanel();
         sunShadingCheckBox = new javax.swing.JCheckBox();
         flareCheckBox = new javax.swing.JCheckBox();
-        jCheckBox3 = new javax.swing.JCheckBox();
+        terminatorCheckBox = new javax.swing.JCheckBox();
         jLabel3 = new javax.swing.JLabel();
         ambientSlider = new javax.swing.JSlider();
+        terminatorColorLabel = new javax.swing.JLabel();
 
         buttonGroup1.add(earthViewRadioButton);
         buttonGroup1.add(modelViewRadioButton);
@@ -288,8 +298,7 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
 
         flareCheckBox.setText("Solar Flare / Sun");
 
-        jCheckBox3.setText("Terminator Line");
-        jCheckBox3.setEnabled(false);
+        terminatorCheckBox.setText("Terminator Line");
 
         jLabel3.setText("Ambient Light Level:");
 
@@ -297,6 +306,16 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
         ambientSlider.setMinorTickSpacing(5);
         ambientSlider.setPaintLabels(true);
         ambientSlider.setPaintTicks(true);
+
+        terminatorColorLabel.setBackground(new java.awt.Color(0, 0, 0));
+        terminatorColorLabel.setText("  ");
+        terminatorColorLabel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        terminatorColorLabel.setOpaque(true);
+        terminatorColorLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                terminatorColorLabelMouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -308,7 +327,6 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
                         .addContainerGap()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(sunShadingCheckBox)
-                            .addComponent(jCheckBox3)
                             .addGroup(jPanel3Layout.createSequentialGroup()
                                 .addGap(21, 21, 21)
                                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -316,12 +334,17 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
                                     .addComponent(flareCheckBox)))))
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGap(45, 45, 45)
-                        .addComponent(ambientSlider, javax.swing.GroupLayout.DEFAULT_SIZE, 148, Short.MAX_VALUE)))
-                .addContainerGap())
+                        .addComponent(ambientSlider, javax.swing.GroupLayout.DEFAULT_SIZE, 148, Short.MAX_VALUE))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(terminatorCheckBox)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(terminatorColorLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(52, 52, 52))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+            .addGroup(jPanel3Layout.createSequentialGroup()
                 .addComponent(sunShadingCheckBox)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(flareCheckBox)
@@ -329,9 +352,10 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(ambientSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jCheckBox3)
-                .addGap(178, 178, 178))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(terminatorCheckBox)
+                    .addComponent(terminatorColorLabel)))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -346,8 +370,8 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
                 .addComponent(cancelButton)
                 .addGap(3, 3, 3))
             .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -356,8 +380,8 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 35, Short.MAX_VALUE)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 50, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(applyButton)
                     .addComponent(okButton)
@@ -453,6 +477,21 @@ private void modelViewRadioButtonStateChanged(javax.swing.event.ChangeEvent evt)
     }
     
 }//GEN-LAST:event_modelViewRadioButtonStateChanged
+
+private void terminatorColorLabelMouseClicked(java.awt.event.MouseEvent evt)//GEN-FIRST:event_terminatorColorLabelMouseClicked
+{//GEN-HEADEREND:event_terminatorColorLabelMouseClicked
+    // color selector
+    Color newColor = JColorChooser.showDialog(
+                     this,
+                     "Choose Terminator Line Color",
+                     terminatorColorLabel.getBackground());
+
+    if(!newColor.equals(terminatorColorLabel.getBackground()))
+    {
+        terminatorColorLabel.setBackground(newColor);
+    }
+
+}//GEN-LAST:event_terminatorColorLabelMouseClicked
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -465,7 +504,6 @@ private void modelViewRadioButtonStateChanged(javax.swing.event.ChangeEvent evt)
     private javax.swing.JRadioButton eciRadioButton;
     private javax.swing.JCheckBox flareCheckBox;
     private javax.swing.JTextField fovTextField;
-    private javax.swing.JCheckBox jCheckBox3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -477,6 +515,8 @@ private void modelViewRadioButtonStateChanged(javax.swing.event.ChangeEvent evt)
     private javax.swing.JButton okButton;
     private javax.swing.JCheckBox smoothViewCheckBox;
     private javax.swing.JCheckBox sunShadingCheckBox;
+    private javax.swing.JCheckBox terminatorCheckBox;
+    private javax.swing.JLabel terminatorColorLabel;
     // End of variables declaration//GEN-END:variables
     
     
@@ -520,7 +560,11 @@ private void modelViewRadioButtonStateChanged(javax.swing.event.ChangeEvent evt)
         threeDPanel.setSunShadingOn( sunShadingCheckBox.isSelected() );
         threeDPanel.setLensFlare(flareCheckBox.isSelected());
         threeDPanel.setAmbientLightLevel( ambientSlider.getValue() ); // causes re-render always
-      
+
+        threeDPanel.getEcefTimeDepRenderableLayer().setShowTerminatorLine(terminatorCheckBox.isSelected());
+
+        threeDPanel.getEcefTimeDepRenderableLayer().getTerminator().setColor(terminatorColorLabel.getBackground());
+ 
         return updateMapData;
     } // saveSettings
 }

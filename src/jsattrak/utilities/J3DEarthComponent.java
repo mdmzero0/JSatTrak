@@ -26,6 +26,7 @@ import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.layers.LayerList;
 import java.awt.Point;
 import jsattrak.gui.JSatTrak;
+import name.gano.worldwind.layers.Earth.EcefTimeDepRenderableLayer;
 
 /**
  *
@@ -68,5 +69,6 @@ public interface  J3DEarthComponent
     public int getAmbientLightLevel();
     public boolean isLensFlareEnabled();
     public void setLensFlare(boolean enabled);
+    public EcefTimeDepRenderableLayer getEcefTimeDepRenderableLayer();
 
 }
