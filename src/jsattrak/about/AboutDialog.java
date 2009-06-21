@@ -1,21 +1,21 @@
 /**
  * 
  * =====================================================================
- * Copyright (C) 2008 Shawn E. Gano
- * 
+ * Copyright (C) 2009 Shawn E. Gano
+ *
  * This file is part of JSatTrak.
- * 
+ *
  * JSatTrak is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+ * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * JSatTrak is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
  * along with JSatTrak.  If not, see <http://www.gnu.org/licenses/>.
  * =====================================================================
  * 
@@ -31,6 +31,7 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.Timer;
 import javax.swing.JComponent;
@@ -125,19 +126,16 @@ public class AboutDialog extends JDialog implements FadeListener
         mainText2.setBounds(hozSpace+indent + insets.left, vertSpace + insets.top, size.width, size.height);
         mainText2.setForeground(Color.BLACK);
         form.add(mainText2);
-        vertSpace = vertSpace + vertDelta; 
+        vertSpace = vertSpace + vertDelta;
         
-//        JLabel mainText3 = new JLabel("Matt Crozier, matthew.d.crozer@lmco.com");
-//        size = mainText3.getPreferredSize();
-//        mainText3.setBounds(hozSpace+indent + insets.left, vertSpace + insets.top, size.width, size.height);
-//        form.add(mainText3);
-//        vertSpace = vertSpace + vertDelta; 
-//        
-//        JLabel mainText4 = new JLabel("Craig Coburn, craig.coburn@lmco.com");
-//        size = mainText4.getPreferredSize();
-//        mainText4.setBounds(hozSpace+indent + insets.left, vertSpace + insets.top, size.width, size.height);
-//        form.add(mainText4);
-//        vertSpace = vertSpace + vertDelta; 
+        JLabel glpLogo = new JLabel("");
+        // set icon
+        glpLogo.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/icons/lgplv3-88x31.png"))));
+        size = glpLogo.getPreferredSize();
+        glpLogo.setBounds(hozSpace + insets.left, 175 + insets.top, size.width, size.height);
+        form.add(glpLogo);
+        //vertSpace = vertSpace + vertDelta;
+
         
         
         // version label

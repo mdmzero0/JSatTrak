@@ -2,21 +2,21 @@
  * ======= JSatTrak's main GUI interface================================
  * JSatTrak.java  - Shawn E. Gano,  shawn@gano.name
  * =====================================================================
- * Copyright (C) 2007-9 Shawn E. Gano
- * 
+ * Copyright (C) 2007-2009 Shawn E. Gano
+ *
  * This file is part of JSatTrak.
- * 
+ *
  * JSatTrak is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+ * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * JSatTrak is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
  * along with JSatTrak.  If not, see <http://www.gnu.org/licenses/>.
  * =====================================================================
  * 
@@ -97,7 +97,7 @@
  *          3.7.6 24 Mar 2009 -- resize fix on 3D external window (in 3.7.5 they could only be made bigger) - set min size on globe panel (0,0) preferred size(50,50)
  *          3.7.7 2 April 2009 -- added Microsfot virtual earth layer/yahoo/open maps from WWJ Experimental code
  *          3.7.8 26 May 2009 - bug fix, close app by file->exit doesn't close process - fixed (bug found by Horst Meyerdierks - SGP4 author)
- *          4.0  20 June 2009 - added sun shading effects in latest WWJ verion of the day. See posts:
+ *          4.0  21 June 2009 - added sun shading effects in latest WWJ verion of the day. See posts:
  *                                    http://forum.worldwindcentral.com/showthread.php?t=21021&highlight=sun+shading
  *                                    http://patmurris.blogspot.com/2009/04/sunlight-package-for-worldwind-java.html
  *                                  (VOTD - WWJ Broke COLOR OF 3D ORBIT TRACE - fixed - disabled 2D textures in OrbitModelRenderable and EFEFModelRenderable)
@@ -234,7 +234,7 @@ import name.gano.file.SaveImageFile;
  */
 public class JSatTrak extends javax.swing.JFrame implements InternalFrameListener, WindowListener, Serializable
 {
-    private String versionString = "Version 4.0 (20 June 2009)"; // Version of app
+    private String versionString = "Version 4.0 (21 June 2009)"; // Version of app
     
     // hastable to store all the statelites currently being processed
     private Hashtable<String,AbstractSatellite> satHash = new Hashtable<String,AbstractSatellite>();
@@ -1345,7 +1345,9 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
 
     private void sysPropsMenuItemActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_sysPropsMenuItemActionPerformed
     {//GEN-HEADEREND:event_sysPropsMenuItemActionPerformed
-        new SystemPropertiesDialog(this,false).setVisible(true);
+        SystemPropertiesDialog spd = new SystemPropertiesDialog(this,false);
+        setLookandFeel(spd);
+        spd.setVisible(true);
     }//GEN-LAST:event_sysPropsMenuItemActionPerformed
 
     private void localTimeMenuItemActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_localTimeMenuItemActionPerformed
@@ -1552,6 +1554,8 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         // Show about menu
         AboutDialog ad = new AboutDialog(versionString, this, gov.nasa.worldwind.Version.getVersion());
         //System.out.println("V:" + gov.nasa.worldwind.Version.getVersion() );
+
+        setLookandFeel(ad);
         
         ad.setVisible(true);
     }//GEN-LAST:event_aboutMenuItemActionPerformed
@@ -2288,12 +2292,14 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
     {//GEN-HEADEREND:event_commandServerMenuItemActionPerformed
         // open a command server
         GuiServer guiServer = new GuiServer(beanShellInterp);
+        //setLookandFeel(guiServer);
         guiServer.setVisible(true);
     }//GEN-LAST:event_commandServerMenuItemActionPerformed
 
     private void commandClientMenuItemActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_commandClientMenuItemActionPerformed
     {//GEN-HEADEREND:event_commandClientMenuItemActionPerformed
         CommandClientGUI client = new CommandClientGUI();
+        //setLookandFeel(client);
         client.setVisible(true);   
     }//GEN-LAST:event_commandClientMenuItemActionPerformed
 
@@ -2326,6 +2332,7 @@ private void createMovieButtonActionPerformed(java.awt.event.ActionEvent evt) {/
 
     Point p = this.getLocationOnScreen();
     panel.setLocation(p.x + 15, p.y + 55);
+    setLookandFeel(panel);
     panel.setVisible(true);
 }//GEN-LAST:event_createMovieButtonActionPerformed
 
@@ -2339,6 +2346,7 @@ private void movieWholeAppMenuItemActionPerformed(java.awt.event.ActionEvent evt
 
     Point p = this.getLocationOnScreen();
     panel.setLocation(p.x + 15, p.y + 55);
+    setLookandFeel(panel);
     panel.setVisible(true);
 }//GEN-LAST:event_movieWholeAppMenuItemActionPerformed
 
@@ -2398,6 +2406,7 @@ private void toolbar3DWindowButtonActionPerformed(java.awt.event.ActionEvent evt
 private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lookFeelMenuItemActionPerformed
      LookAndFeelJDialog diag = new LookAndFeelJDialog(this, true);
      diag.setLocationRelativeTo(mainDesktopPane);
+     setLookandFeel(diag);
      diag.setVisible(true);
 }//GEN-LAST:event_lookFeelMenuItemActionPerformed
     
@@ -3826,5 +3835,35 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
     {
         return sun;
     }
+
+    private void setLookandFeel(JDialog iframe)
+    {
+        // set icon
+        iframe.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/icons/logo/JSatTrakLogo_16.png")));
+        ////// SEG 23 March 2009 ///////////////////////////////
+        // Check look and feel to see if this JDialog should have a deocrated window
+        boolean canBeDecoratedByLAF = UIManager.getLookAndFeel().getSupportsWindowDecorations();
+        if(canBeDecoratedByLAF != iframe.isUndecorated())
+        {
+            //boolean wasVisible = iframe.isVisible();
+            //iframe.setVisible(false);
+            iframe.dispose();
+            if(!canBeDecoratedByLAF) //|| wasOriginallyDecoratedByOS
+            {
+                // see the java docs under the method
+                // JFrame.setDefaultLookAndFeelDecorated(boolean
+                // value) for description of these 2 lines:
+                iframe.setUndecorated(false);
+                iframe.getRootPane().setWindowDecorationStyle(JRootPane.NONE);
+
+            }
+            else
+            {
+                iframe.setUndecorated(true);
+                iframe.getRootPane().setWindowDecorationStyle(JRootPane.FRAME);
+            }
+        }
+        ///////////////////////////////// window decoration check
+    } // setLookandFeel
 
 }
