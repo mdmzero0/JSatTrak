@@ -1,0 +1,208 @@
+/* radial grid that changes when you zoom in and out
+ * =====================================================================
+ * Copyright (C) 2009 Shawn E. Gano
+ *
+ * This file is part of JSatTrak.
+ *
+ * JSatTrak is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * JSatTrak is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with JSatTrak.  If not, see <http://www.gnu.org/licenses/>.
+ * =====================================================================
+ */
+package name.gano.worldwind.geom;
+
+import gov.nasa.worldwind.geom.Position;
+import gov.nasa.worldwind.render.DrawContext;
+import gov.nasa.worldwind.render.Renderable;
+import gov.nasa.worldwind.view.OrbitView;
+import java.awt.Color;
+import javax.media.opengl.GL;
+import name.gano.astro.AstroConst;
+
+/**
+ *
+ * @author sgano
+ */
+public class ECIRadialGrid implements Renderable
+{
+    private boolean showGrid = true;
+    private Color color = new Color(0,128,0);
+//    private Color minorColor = new Color(0,64,0); -- no make it have some percentage of alpha
+    private boolean drawAxis = true;
+
+    // drawing parameters
+    private int numMajorSectionsDrawn = 30; // major segments draw
+    private int numMinorSectionsDrawn = 30; // can be less than numMajorSectionsDrawn since it is off in the distance
+    private int circleSegments = 48; // number of segments for each circle drawn
+    private int numRadialSegments = 24; // number of radial lines out of earth drawn
+    // blending parameter
+    private double blendExponent = 2.0;// needs to be greater than 1, the larger the faster the minor rings disappear
+    // axis length
+    private float axisLength = 10000000f;
+    
+
+    public void render(DrawContext dc)
+    {
+        javax.media.opengl.GL gl = dc.getGL();
+        gl.glPushAttrib(javax.media.opengl.GL.GL_TEXTURE_BIT | javax.media.opengl.GL.GL_ENABLE_BIT | javax.media.opengl.GL.GL_CURRENT_BIT);
+
+        // Added so that the colors wouldn't depend on sun shading
+        gl.glDisable(GL.GL_TEXTURE_2D);
+
+        gl.glEnable(GL.GL_BLEND);
+        gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+        
+        //calcs for determining grid sizes
+        Position eyePos = ((OrbitView)dc.getView()).getCurrentEyePosition(); // all views used are based on orbitview so far
+        double distEarthCenter = eyePos.elevation + AstroConst.R_Earth_mean;
+        //System.out.println("ele:" + distEarthCenter);
+
+        int minPowerRings = (int) Math.floor( Math.log10(distEarthCenter) );
+        int maxPowerRings = minPowerRings+1;
+
+        double percent = (Math.pow(10, maxPowerRings) - distEarthCenter) / Math.pow(10, maxPowerRings);
+        System.out.println("percent:" + percent);
+
+//        majorUnitSpacing =
+
+        // draw axis
+        if(drawAxis)
+        {
+            gl.glLineWidth(4f);
+            gl.glBegin(GL.GL_LINES); //GL_LINE_STRIP
+            gl.glColor3d(1.0, 0.0, 0.0); // COLOR
+            gl.glVertex3f(0f, 0f, 0f);
+            gl.glVertex3f(axisLength, 0f, 0f);  //x
+
+            gl.glColor3d(0.0, 1.0, 0.0); // COLOR
+            gl.glVertex3f(0f, 0f, 0f);
+            gl.glVertex3f(0f, axisLength, 0f);  // z
+
+            gl.glColor3d(0.0, 0.0, 1.0); // COLOR
+            gl.glVertex3f(0f, 0f, 0f);
+            gl.glVertex3f(0f, 0f, axisLength);  // y
+
+            gl.glEnd();
+        }
+
+        // set line width
+        gl.glLineWidth(1f);
+
+        // draw radial lines
+
+        float length = (float)Math.pow(10, minPowerRings)*numMajorSectionsDrawn;
+        
+
+        gl.glColor4ub((byte) getColor().getRed(), (byte) getColor().getGreen(), (byte) getColor().getBlue(), (byte) getColor().getAlpha());
+        gl.glBegin(GL.GL_LINES); //GL_LINE_STRIP
+        for(int i=0;i<numRadialSegments;i++)
+        {
+            double angle = i*(2.0*Math.PI/(numRadialSegments));
+            float z = 0.0f;
+            float x = (float)(length*Math.sin(angle));
+            float y = (float)(length*Math.cos(angle));
+
+            gl.glVertex3f(  0f,  0f, 0f );
+            gl.glVertex3f(  x,  z, y );  //x
+
+        }
+        gl.glEnd();
+
+        // radial circles
+       
+        //float radRadius = 6378137.0f * 1.2f;
+        float radRadius = (float)(Math.pow(10, minPowerRings));
+        float deltaR = radRadius;
+
+        // Draw major sections!
+        for(int j = 0; j < numMajorSectionsDrawn; j++)
+        {
+            gl.glBegin(GL.GL_LINE_STRIP); //GL_LINE_STRIP
+            for(int i = 0; i < circleSegments+1; i++) // +1 loops back to orginal point
+            {
+                double angle = i * (2.0 * Math.PI / (circleSegments));
+                float z = 0.0f;
+                float x = (float)(radRadius * Math.sin(angle));
+                float y = (float)(radRadius * Math.cos(angle));
+
+                //gl.glVertex3f(  0f,  0f, 0f );
+                gl.glVertex3f(x, z, y);  //x
+
+            }
+            gl.glEnd();
+            radRadius += deltaR;
+        }
+
+        // draw all the minor rings
+        radRadius = (float)(Math.pow(10, minPowerRings)/10.0);
+        deltaR = radRadius;
+
+        int alpha = (int)Math.round(255*Math.pow(percent,blendExponent)); // blending, works great!  1.5 is not bad either
+        gl.glColor4ub((byte) getColor().getRed(), (byte) getColor().getGreen(), (byte) getColor().getBlue(), (byte) (alpha));
+
+        for(int j = 0; j < numMinorSectionsDrawn; j++)
+        {
+            for(int k = 1; k < 10; k++)
+            {
+                gl.glBegin(GL.GL_LINE_STRIP); //GL_LINE_STRIP
+                for(int i = 0; i < circleSegments + 1; i++) // +1 loops back to orginal point
+                {
+                    double angle = i * (2.0 * Math.PI / (circleSegments));
+                    float z = 0.0f;
+                    float x = (float)(radRadius * Math.sin(angle));
+                    float y = (float)(radRadius * Math.cos(angle));
+
+                    //gl.glVertex3f(  0f,  0f, 0f );
+                    gl.glVertex3f(x, z, y);  //x
+
+                } // i
+                gl.glEnd();
+                radRadius += deltaR;
+            } // k
+            radRadius += deltaR; // skip the major line
+        } // j
+
+        gl.glPopAttrib();
+    }
+
+    /**
+     * @return the showGrid
+     */
+    public boolean isShowGrid()
+    {
+        return showGrid;
+    }
+
+    /**
+     * @param showGrid the showGrid to set
+     */
+    public void setShowGrid(boolean showGrid)
+    {
+        this.showGrid = showGrid;
+    }
+
+    /**
+     * @return the color
+     */
+    public Color getColor()
+    {
+        return color;
+    }
+
+    /**
+     * @param color the color to set
+     */
+    public void setColor(Color color)
+    {
+        this.color = color;
+    }
+}

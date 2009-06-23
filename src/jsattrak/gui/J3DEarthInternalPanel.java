@@ -112,6 +112,7 @@ import name.gano.worldwind.layers.Earth.ECEFRenderableLayer;
 import name.gano.worldwind.layers.Earth.ECIRenderableLayer;
 import name.gano.worldwind.layers.Earth.EcefTimeDepRenderableLayer;
 import name.gano.worldwind.sunshader.CustomSunPositionProvider;
+import name.gano.worldwind.view.AutoClipBasicOrbitView;
 import name.gano.worldwind.view.BasicModelView3;
 import name.gano.worldwind.view.BasicModelViewInputHandler3;
 
@@ -1110,7 +1111,7 @@ private void fullScreenButtonActionPerformed(java.awt.event.ActionEvent evt) {//
     {
         if(modelViewMode == false)
         { // Earth View mode
-            BasicOrbitView bov = new BasicOrbitView();
+            AutoClipBasicOrbitView bov = new AutoClipBasicOrbitView();
             wwd.setView(bov);
             
             // remove the rest of the old input handler  (does this need a remove of hover listener? - maybe it is now completely removed?)

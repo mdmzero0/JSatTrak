@@ -112,7 +112,11 @@
  *                                     Note: the above change of SGP4 props and other changes in this release make the saved files from older versions not compatible! Files should now be smaller! (why it gets promoted to v4)
  *                                  - RELICENCED JSatTrak as LGPL!
  *                                  - FILE FORMAT: changes to use zip compression! files are now much smaller!
- * 
+ *          4.1 started 23 June  - added AutoClipBasicOrbit view for dynamic clipping plane calculations
+ *                               - ECI grid
+ *
+ *
+ *
  *                              Ideas for next versions: (no particular order)
  *                                  - Vectors tool (make them seperate objects) axis, grids, lines, arrows (data providers)
  *                                  - DATA out! - Reports and graphs and exporting of data out of program
@@ -234,7 +238,7 @@ import name.gano.file.SaveImageFile;
  */
 public class JSatTrak extends javax.swing.JFrame implements InternalFrameListener, WindowListener, Serializable
 {
-    private String versionString = "Version 4.0 (21 June 2009)"; // Version of app
+    private String versionString = "Version 4.1alpha (23 June 2009)"; // Version of app
     
     // hastable to store all the statelites currently being processed
     private Hashtable<String,AbstractSatellite> satHash = new Hashtable<String,AbstractSatellite>();
@@ -324,7 +328,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
      private CoverageAnalyzer coverageAnalyzer;
      
      // near/far clipping plane distances for 3d windows (can effect render speed and if full orbit is shown)
-     private double farClippingPlaneDist = 200000000d; // good out to geo, but slow for LEO
+     private double farClippingPlaneDist = -1;//200000000d; // good out to geo, but slow for LEO, using AutoClipping plane view I made works better
      private double nearClippingPlaneDist = -1; // -1 value Means auto adjusting
     
      // WorldWindGLCanvas so all 3D windows can share resources like 3D models

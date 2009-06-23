@@ -53,7 +53,7 @@ public class SGP4verification
         SGP4unit.Gravconsttype gravconsttype = SGP4unit.Gravconsttype.wgs72;
         
         // tle verification file (with extra start, stop, timestep params on line 2)
-        String verTLEfile = "sgp4-ver.tle";
+        String verTLEfile = "sgp4-ver.tle"; // sgp4-ver.tle shawn_ver.tle
 
         // output results to this file
         String javaResults = "java_sgp4_ver.out";

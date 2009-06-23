@@ -106,12 +106,13 @@ import jsattrak.utilities.OrbitModelRenderable;
 import name.gano.file.SaveImageFile;
 import name.gano.swingx.fullscreen.ToggleFullscreen;
 import name.gano.worldwind.WwjUtils;
+import name.gano.worldwind.geom.ECIRadialGrid;
 import name.gano.worldwind.layers.Earth.CoverageRenderableLayer;
 import name.gano.worldwind.layers.Earth.ECEFRenderableLayer;
 import name.gano.worldwind.layers.Earth.ECIRenderableLayer;
 import name.gano.worldwind.layers.Earth.EcefTimeDepRenderableLayer;
-import name.gano.worldwind.objects.SunTerminatorPolyLineTimeDep;
 import name.gano.worldwind.sunshader.CustomSunPositionProvider;
+import name.gano.worldwind.view.AutoClipBasicOrbitView;
 import name.gano.worldwind.view.BasicModelView3;
 import name.gano.worldwind.view.BasicModelViewInputHandler3;
 
@@ -319,12 +320,15 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         eciLayer.addRenderable(orbitModel); // add renderable object
         eciLayer.setCurrentMJD(currentMJD); // update time again after adding renderable
         m.getLayers().add(eciLayer); // add ECI Layer
-        
+        eciLayer.addRenderable(new ECIRadialGrid()); // TESTING!!!!
+
         // add ECEF Layer
         ecefLayer = new ECEFRenderableLayer(); // create ECEF layer
         ecefModel = new ECEFModelRenderable(satHash, gsHash, wwd.getModel().getGlobe());
         ecefLayer.addRenderable(ecefModel); // add renderable object
         m.getLayers().add(ecefLayer); // add ECI Layer
+        //ecefLayer.addRenderable(new ECIRadialGrid()); // TESTING!!!!
+        setupView(); // TESTING MOVE SOMEWHERE AT END
         
         // add terrain profile layer
         terrainProfileLayer = new TerrainProfileLayer();
@@ -1095,7 +1099,7 @@ private void fullScreenButtonActionPerformed(java.awt.event.ActionEvent evt) {//
     {
         if(modelViewMode == false)
         { // Earth View mode
-            BasicOrbitView bov = new BasicOrbitView();
+            AutoClipBasicOrbitView bov = new AutoClipBasicOrbitView();
             wwd.setView(bov);
             
             // remove the rest of the old input handler  (does this need a remove of hover listener? - maybe it is now completely removed?)
