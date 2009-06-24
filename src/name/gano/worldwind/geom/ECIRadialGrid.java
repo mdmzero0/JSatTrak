@@ -41,7 +41,7 @@ public class ECIRadialGrid implements Renderable
 
     // drawing parameters
     private int numMajorSectionsDrawn = 30; // major segments draw
-    private int numMinorSectionsDrawn = 30; // can be less than numMajorSectionsDrawn since it is off in the distance
+    private int numMinorSectionsDrawn = numMajorSectionsDrawn; // can be less than numMajorSectionsDrawn since it is off in the distance
     private int circleSegments = 48; // number of segments for each circle drawn
     private int numRadialSegments = 24; // number of radial lines out of earth drawn
     // blending parameter
