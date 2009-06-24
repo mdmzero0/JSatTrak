@@ -844,7 +844,7 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         JDialog iframe = new JDialog(parent, windowName, false);
 
         iframe.setContentPane(newPanel); // set contents pane
-        iframe.setSize(220+40, 260+65+185); // set size w,h
+        iframe.setSize(220+330, 260+65+185); // set size w,h
         
         Point p = this.getLocationOnScreen();
         iframe.setLocation(p.x + 15, p.y + 55);

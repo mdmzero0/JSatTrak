@@ -36,8 +36,7 @@ public class ECIRadialGrid implements Renderable
 {
     private boolean showGrid = true;
     private Color color = new Color(0,128,0);
-//    private Color minorColor = new Color(0,64,0); -- no make it have some percentage of alpha
-    private boolean drawAxis = true;
+    private boolean drawAxis = false;
 
     // drawing parameters
     private int numMajorSectionsDrawn = 30; // major segments draw
@@ -45,7 +44,7 @@ public class ECIRadialGrid implements Renderable
     private int circleSegments = 48; // number of segments for each circle drawn
     private int numRadialSegments = 24; // number of radial lines out of earth drawn
     // blending parameter
-    private double blendExponent = 2.0;// needs to be greater than 1, the larger the faster the minor rings disappear
+    private double blendExponent = 2;// needs to be greater than 0, the larger the faster the minor rings disappear
     // axis length
     private float axisLength = 10000000f;
     
@@ -204,5 +203,122 @@ public class ECIRadialGrid implements Renderable
     public void setColor(Color color)
     {
         this.color = color;
+    }
+
+    /**
+     * @return the drawAxis
+     */
+    public boolean isDrawAxis()
+    {
+        return drawAxis;
+    }
+
+    /**
+     * @param drawAxis the drawAxis to set
+     */
+    public void setDrawAxis(boolean drawAxis)
+    {
+        this.drawAxis = drawAxis;
+    }
+
+    /**
+     * @return the numMajorSectionsDrawn
+     */
+    public int getNumMajorSectionsDrawn()
+    {
+        return numMajorSectionsDrawn;
+    }
+
+    /**
+     * @param numMajorSectionsDrawn the numMajorSectionsDrawn to set
+     */
+    public void setNumMajorSectionsDrawn(int numMajorSectionsDrawn)
+    {
+        this.numMajorSectionsDrawn = numMajorSectionsDrawn;
+    }
+
+    /**
+     * @return the numMinorSectionsDrawn
+     */
+    public int getNumMinorSectionsDrawn()
+    {
+        return numMinorSectionsDrawn;
+    }
+
+    /**
+     * @param numMinorSectionsDrawn the numMinorSectionsDrawn to set
+     */
+    public void setNumMinorSectionsDrawn(int numMinorSectionsDrawn)
+    {
+        this.numMinorSectionsDrawn = numMinorSectionsDrawn;
+    }
+
+    /**
+     * @return the circleSegments
+     */
+    public int getCircleSegments()
+    {
+        return circleSegments;
+    }
+
+    /**
+     * @param circleSegments the circleSegments to set
+     */
+    public void setCircleSegments(int circleSegments)
+    {
+        this.circleSegments = circleSegments;
+    }
+
+    /**
+     * @return the numRadialSegments
+     */
+    public int getNumRadialSegments()
+    {
+        return numRadialSegments;
+    }
+
+    /**
+     * @param numRadialSegments the numRadialSegments to set
+     */
+    public void setNumRadialSegments(int numRadialSegments)
+    {
+        this.numRadialSegments = numRadialSegments;
+    }
+
+    /**
+     * @return the blendExponent
+     */
+    public double getBlendExponent()
+    {
+        return blendExponent;
+    }
+
+    /**
+     * value needs to be > 1, else it is set to 1.0
+     * @param blendExponent the blendExponent to set
+     */
+    public void setBlendExponent(double blendExponent)
+    {
+        if(blendExponent < 0.0)
+        {
+            blendExponent = 0.0;
+        }
+        this.blendExponent = blendExponent;
+    }
+
+    /**
+     * @return the axisLength
+     */
+    public float getAxisLength()
+    {
+        return axisLength;
+    }
+
+    /**
+     * @param axisLength the axisLength to set
+     */
+    public void setAxisLength(float axisLength)
+    {
+        this.axisLength = axisLength;
     }
 }
