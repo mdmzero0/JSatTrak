@@ -85,10 +85,6 @@ public class JstSaveClass implements Serializable
     // wwj offline mode
     private boolean wwjOfflineMode;
     
-    // clipping planes
-    private double farClippingPlaneDist; // good out to geo, but slow for LEO
-    private double nearClippingPlaneDist;
-    
     // coverage data
     private CoverageAnalyzer ca;
     
@@ -156,9 +152,6 @@ public class JstSaveClass implements Serializable
             threeDExtWindowSaveVec.add( new J3DEarthlPanelSave(pan, p.x, p.y, pan.getParentDialog().getSize() )  );
         }
         
-        // clipping plane
-        farClippingPlaneDist = app.getFarClippingPlaneDist();
-        nearClippingPlaneDist = app.getNearClippingPlaneDist();
         
         // coverage anaylzer
         ca = app.getCoverageAnalyzer();
@@ -366,16 +359,6 @@ public class JstSaveClass implements Serializable
 
     public void setWwjOfflineMode(boolean wwjOfflineMode) {
         this.wwjOfflineMode = wwjOfflineMode;
-    }
-
-    public double getFarClippingPlaneDist()
-    {
-        return farClippingPlaneDist;
-    }
-
-    public double getNearClippingPlaneDist()
-    {
-        return nearClippingPlaneDist;
     }
 
     public CoverageAnalyzer getCa()

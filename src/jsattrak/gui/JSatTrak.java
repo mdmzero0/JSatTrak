@@ -327,10 +327,6 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
      // coverage anaylzer tool (default null, until tool opened)
      private CoverageAnalyzer coverageAnalyzer;
      
-     // near/far clipping plane distances for 3d windows (can effect render speed and if full orbit is shown)
-     private double farClippingPlaneDist = -1;//200000000d; // good out to geo, but slow for LEO, using AutoClipping plane view I made works better
-     private double nearClippingPlaneDist = -1; // -1 value Means auto adjusting
-    
      // WorldWindGLCanvas so all 3D windows can share resources like 3D models
      private WorldWindowGLCanvas wwd; // intially null - only created when needed
      
@@ -1424,11 +1420,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         // other default settings
         realTimeAnimationRefreshRateMs = 1000; // refresh rate for real time animation
         nonRealTimeAnimationRefreshRateMs = 50;
-        
-        // reset other options 
-        farClippingPlaneDist = 200000000d; // good out to geo, but slow for LEO
-        nearClippingPlaneDist = -1; // auto
-        
+    
     }//GEN-LAST:event_newMenuItemActionPerformed
 
     private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_exitMenuItemActionPerformed
@@ -3250,12 +3242,7 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
                     // PUT BEFORE 3D windows so they load correctly though data in them might be funny?
                     // update GUI -- this is messing up the 3D views.. they need some time to render
                     forceRepainting(true); // force repaint and regeneration of data
-                    
-                    // clipping plane distances
-                    this.farClippingPlaneDist = openClass.getFarClippingPlaneDist();
-                    this.nearClippingPlaneDist = openClass.getNearClippingPlaneDist();
-                    
-                    
+                                      
                     // create all needed 3D windows:
                      
                     // create all 3D external windows needed
@@ -3626,43 +3613,45 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         }
     }
 
-    public double getFarClippingPlaneDist()
-    {
-        return farClippingPlaneDist;
-    }
+//    // moved to 3D views
+//    public double getFarClippingPlaneDist()
+//    {
+//        return farClippingPlaneDist;
+//    }
+//
+//    public void setFarClippingPlaneDist(double farClippingPlaneDist)
+//    {
+//        this.farClippingPlaneDist = farClippingPlaneDist;
+//        // now set all 3d windows:
+//        for(J3DEarthInternalPanel panel : threeDInternalWindowVec)
+//        {
+//            panel.setFarClipDistance(farClippingPlaneDist);
+//        }
+//        for(J3DEarthPanel panel : threeDWindowVec)
+//        {
+//            panel.setFarClipDistance(farClippingPlaneDist);
+//        }
+//    }
 
-    public void setFarClippingPlaneDist(double farClippingPlaneDist)
-    {
-        this.farClippingPlaneDist = farClippingPlaneDist;
-        // now set all 3d windows:
-        for(J3DEarthInternalPanel panel : threeDInternalWindowVec)
-        {
-            panel.setFarClipDistance(farClippingPlaneDist);
-        }
-        for(J3DEarthPanel panel : threeDWindowVec)
-        {
-            panel.setFarClipDistance(farClippingPlaneDist);
-        }
-    }
-
-    public double getNearClippingPlaneDist()
-    {
-        return nearClippingPlaneDist;
-    }
-
-    public void setNearClippingPlaneDist(double nearClippingPlaneDist)
-    {
-        this.nearClippingPlaneDist = nearClippingPlaneDist;
-        // now set all 3d windows:
-        for(J3DEarthInternalPanel panel : threeDInternalWindowVec)
-        {
-            panel.setNearClipDistance(nearClippingPlaneDist);
-        }
-        for(J3DEarthPanel panel : threeDWindowVec)
-        {
-            panel.setNearClipDistance(nearClippingPlaneDist);
-        }
-    }
+// moved to the indivulde 3d views
+//    public double getNearClippingPlaneDist()
+//    {
+//        return nearClippingPlaneDist;
+//    }
+//
+//    public void setNearClippingPlaneDist(double nearClippingPlaneDist)
+//    {
+//        this.nearClippingPlaneDist = nearClippingPlaneDist;
+//        // now set all 3d windows:
+//        for(J3DEarthInternalPanel panel : threeDInternalWindowVec)
+//        {
+//            panel.setNearClipDistance(nearClippingPlaneDist);
+//        }
+//        for(J3DEarthPanel panel : threeDWindowVec)
+//        {
+//            panel.setNearClipDistance(nearClippingPlaneDist);
+//        }
+//    }
 
     public CoverageAnalyzer getCoverageAnalyzer()
     {

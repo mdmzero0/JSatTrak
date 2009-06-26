@@ -1,5 +1,5 @@
 /*
- * J3DEarthInternalPanelSave.java
+ * J3DEarthPanelSave.java
  *=====================================================================
  * Copyright (C) 2008-9 Shawn E. Gano
  * 
@@ -43,36 +43,31 @@ public class J3DEarthlPanelSave implements Serializable
 {
     private int xPos; // location of window
     private int yPos;
-    
     private int width;
     private int height;
-    
     // panel options
     private boolean viewModeECI; // view mode - ECI (true) or ECEF (false)
     private double fovDeg; // field of view  in degrees
     // terrain profiler
-    private boolean showTerrainProfiler; 
+    private boolean showTerrainProfiler;
     private String terrainProfileSat;
     private double terrainProfileLongSpan;
-    
-    
     // 3D view point
     String viewStateInXml;
-   
-   // title of frame
-   String frameTitle = "";
-   
-    
+    // title of frame
+    String frameTitle = "";
     // layer list and if they are visible
-    Hashtable<String,Boolean> layerEnabledHT;
-    
+    Hashtable<String, Boolean> layerEnabledHT;
     // web map services
     // view mode options
     private boolean modelViewMode; // default false
     private String modelViewString; // to hold name of satellite to view when modelViewMode=true
     private double modelViewNearClip; // clipping pland for when in Model View mode
-    private double modelViewFarClip ;
-    private boolean smoothViewChanges ; // for 3D view smoothing
+    private double modelViewFarClip;
+    private boolean smoothViewChanges; // for 3D view smoothing
+    // orbit clipping plans
+    private double farClippingPlaneDistOrbit;
+    private double nearClippingPlaneDistOrbit;
 
     // sun shading
     private boolean sunShadingOn;
@@ -80,47 +75,53 @@ public class J3DEarthlPanelSave implements Serializable
     private boolean lensFlareEnabled;
     private boolean showTermintorLine;
     private Color terminatorColor;
-    
+
+    // ECI raidal grid
+    private boolean showEciRadialGrid;
+    private Color eciRadialGridColor;
+
     
     /** Creates a new instance of J2DEarthPanelSave */
     public J3DEarthlPanelSave(J3DEarthComponent panel, int x, int y, Dimension d)
     {
         xPos = x;
         yPos = y;
-        
+
         width = d.width;
         height = d.height;
-        
+
         //panel options
         viewModeECI = panel.isViewModeECI();
         fovDeg = panel.getWwd().getView().getFieldOfView().getDegrees();
-        
+
         showTerrainProfiler = panel.getTerrainProfileEnabled();
         terrainProfileSat = panel.getTerrainProfileSat();
         terrainProfileLongSpan = panel.getTerrainProfileLongSpan();
-        
+
         // gets a hashtable with all the layers names and if they are enabled - but no other properties
         // this won't allow opening of user added layers unfortunaly but not sure how to do that.
         // saving LayerList doesn't work.
-        layerEnabledHT = new Hashtable<String,Boolean>();
+        layerEnabledHT = new Hashtable<String, Boolean>();
         for(Layer l : panel.getLayerList())
         {
             layerEnabledHT.put(l.getName(), l.isEnabled());
         }
-        
+
         // 3D view camera location and 
         // UPDATE using v0.5
-          viewStateInXml = ((OrbitView) panel.getWwd().getView()).getRestorableState();
+        viewStateInXml = ((OrbitView)panel.getWwd().getView()).getRestorableState();
 
-         // save view type (model) options
+        // save view type (model) options
         modelViewMode = panel.isModelViewMode(); // default false
         modelViewString = panel.getModelViewString(); // to hold name of satellite to view when modelViewMode=true
         modelViewNearClip = panel.getModelViewNearClip(); // clipping pland for when in Model View mode
         modelViewFarClip = panel.getModelViewFarClip();
-        //smoothViewChanges = panel.get ; // for 3D view smoothing 
-        
+        //orbit view clipping planes
+        farClippingPlaneDistOrbit = panel.getOrbitFarClipDistance();
+        nearClippingPlaneDistOrbit = panel.getOrbitNearClipDistance();
+
         // save title
-       frameTitle = panel.getDialogTitle();
+        frameTitle = panel.getDialogTitle();
 
         // smooth
         smoothViewChanges = panel.isSmoothViewChanges();
@@ -133,6 +134,10 @@ public class J3DEarthlPanelSave implements Serializable
         // terminator
         showTermintorLine = panel.getEcefTimeDepRenderableLayer().isShowTerminatorLine();
         terminatorColor = panel.getEcefTimeDepRenderableLayer().getTerminator().getColor();
+
+        // grid
+        showEciRadialGrid = panel.getEciRadialGrid().isShowGrid();
+        eciRadialGridColor = panel.getEciRadialGrid().getColor();
         
     } // J2DEarthPanelSave constructor
     
@@ -140,9 +145,9 @@ public class J3DEarthlPanelSave implements Serializable
     public void copySettings2PanelAndFrame(J3DEarthComponent newPanel, Container iframe)
     {
         // set size and location
-        iframe.setSize(width,height);
-        iframe.setLocation(xPos,yPos);
-        
+        iframe.setSize(width, height);
+        iframe.setLocation(xPos, yPos);
+
         // set propties and options - like FOV and terrain
         newPanel.setViewModeECI(viewModeECI);
         newPanel.setTerrainProfileEnabled(showTerrainProfiler);
@@ -153,19 +158,23 @@ public class J3DEarthlPanelSave implements Serializable
         try
         {
             newPanel.setSmoothViewChanges(smoothViewChanges);
-        }catch(Exception e){System.out.println("Error loading smooth view changes");}
+        }
+        catch(Exception e)
+        {
+            System.out.println("Error loading smooth view changes");
+        }
 
-        
+
         // set FOV to WWJ model
         newPanel.getWwd().getView().setFieldOfView(Angle.fromDegrees(fovDeg));
-        
-        
+
+
         // set layer list enabled/disabled (using current layers in the object)
         for(Layer l : newPanel.getLayerList())
         {
-            if( layerEnabledHT.containsKey(l.getName()) ) // if the saved has contains the name of this layer then set its properties
+            if(layerEnabledHT.containsKey(l.getName())) // if the saved has contains the name of this layer then set its properties
             {
-                l.setEnabled( layerEnabledHT.get(l.getName())  );
+                l.setEnabled(layerEnabledHT.get(l.getName()));
             }
         }
 
@@ -175,18 +184,28 @@ public class J3DEarthlPanelSave implements Serializable
             newPanel.setSunShadingOn(sunShadingOn);
             newPanel.setAmbientLightLevel(ambientLightLevel);
             newPanel.setLensFlare(lensFlareEnabled);
-        } catch (Exception e)
+        }
+        catch(Exception e)
         {
             System.out.println("Error loading sun shading options");
         }
 
         // view mode options
-       newPanel.setModelViewString(modelViewString); // to hold name of satellite to view when modelViewMode=true
-       newPanel.setModelViewNearClip(modelViewNearClip); // clipping pland for when in Model View mode
-       newPanel.setModelViewFarClip(modelViewFarClip);
-       newPanel.setModelViewMode(modelViewMode);  // set last! (in model view mode section)
- 
-       
+        newPanel.setModelViewString(modelViewString); // to hold name of satellite to view when modelViewMode=true
+        newPanel.setModelViewNearClip(modelViewNearClip); // clipping pland for when in Model View mode
+        newPanel.setModelViewFarClip(modelViewFarClip);
+        newPanel.setModelViewMode(modelViewMode);  // set last! (in model view mode section)
+        try
+        {
+            //orbit view clipping planes
+            newPanel.setOrbitFarClipDistance(farClippingPlaneDistOrbit);
+            newPanel.setOrbitNearClipDistance(nearClippingPlaneDistOrbit);
+        }
+        catch(Exception e)
+        {
+            System.out.println("Error loading Orbit Clipping Planes");
+        }
+
         // set panel options
 
         // restor view using xml state
@@ -198,12 +217,12 @@ public class J3DEarthlPanelSave implements Serializable
         {
             System.out.println("Error loading 3D view State: " + e.toString());
         }
-        
-   
+
+
         newPanel.getWwd().redraw();
-        
+
         // set TITLE
-        if( iframe instanceof JInternalFrame) // internal
+        if(iframe instanceof JInternalFrame) // internal
         {
             ((JInternalFrame)iframe).setTitle(frameTitle);
         }
@@ -215,7 +234,18 @@ public class J3DEarthlPanelSave implements Serializable
         // terminator
         newPanel.getEcefTimeDepRenderableLayer().getTerminator().setColor(terminatorColor);
         newPanel.getEcefTimeDepRenderableLayer().setShowTerminatorLine(showTermintorLine);
-       
+
+        // grid
+        try
+        {
+            newPanel.getEciRadialGrid().setShowGrid(showEciRadialGrid);
+            newPanel.getEciRadialGrid().setColor(eciRadialGridColor);
+        }
+        catch(Exception e)
+        {
+            System.out.println("Error loading ECI Grid options");
+        }
+
     } // copy settings
     
 } //J3DEarthInternalPanelSave class

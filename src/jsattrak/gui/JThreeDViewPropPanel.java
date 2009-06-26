@@ -117,7 +117,22 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
         }
 
         terminatorColorLabel.setBackground(threeDPanel.getEcefTimeDepRenderableLayer().getTerminator().getColor());
-        
+
+        // Grid
+        if(threeDPanel.getEciRadialGrid().isShowGrid())
+        {
+            eciGridCheckBox.doClick();
+        }
+
+        gridColorLabel.setBackground( threeDPanel.getEciRadialGrid().getColor() );
+
+        // Clipping planes
+        orbitNearTextField.setText(threeDPanel.getOrbitNearClipDistance()+"");
+        orbitFarTextField.setText(threeDPanel.getOrbitFarClipDistance()+"");
+        modelNearTextField.setText(threeDPanel.getModelViewNearClip()+"");
+        modelFarTextField.setText(threeDPanel.getModelViewFarClip()+"");
+
+
     } // JThreeDViewPropPanel
     
     public void setParentDialog(JDialog iframe)
@@ -156,20 +171,20 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
         ambientSlider = new javax.swing.JSlider();
         terminatorColorLabel = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
-        jCheckBox1 = new javax.swing.JCheckBox();
-        jLabel4 = new javax.swing.JLabel();
+        eciGridCheckBox = new javax.swing.JCheckBox();
+        gridColorLabel = new javax.swing.JLabel();
         jPanel5 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        orbitNearTextField = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
+        orbitFarTextField = new javax.swing.JTextField();
         jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
-        jTextField3 = new javax.swing.JTextField();
-        jTextField4 = new javax.swing.JTextField();
+        modelFarTextField = new javax.swing.JTextField();
+        modelNearTextField = new javax.swing.JTextField();
 
         buttonGroup1.add(earthViewRadioButton);
         buttonGroup1.add(modelViewRadioButton);
@@ -375,11 +390,16 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
 
         jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("Grids"));
 
-        jCheckBox1.setText("ECI Grid");
+        eciGridCheckBox.setText("ECI Grid");
 
-        jLabel4.setBackground(new java.awt.Color(0, 128, 0));
-        jLabel4.setText("  ");
-        jLabel4.setOpaque(true);
+        gridColorLabel.setBackground(new java.awt.Color(0, 128, 0));
+        gridColorLabel.setText("  ");
+        gridColorLabel.setOpaque(true);
+        gridColorLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                gridColorLabelMouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -387,16 +407,16 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jCheckBox1)
+                .addComponent(eciGridCheckBox)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(94, Short.MAX_VALUE))
+                .addComponent(gridColorLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(100, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                .addComponent(jCheckBox1)
-                .addComponent(jLabel4))
+                .addComponent(eciGridCheckBox)
+                .addComponent(gridColorLabel))
         );
 
         jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder("Clipping Planes"));
@@ -432,11 +452,11 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
                                     .addGroup(jPanel5Layout.createSequentialGroup()
                                         .addComponent(jLabel8)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(jTextField2, javax.swing.GroupLayout.DEFAULT_SIZE, 147, Short.MAX_VALUE))
+                                        .addComponent(orbitFarTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 147, Short.MAX_VALUE))
                                     .addGroup(jPanel5Layout.createSequentialGroup()
                                         .addComponent(jLabel7)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE))))
+                                        .addComponent(orbitNearTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE))))
                             .addComponent(jLabel9)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
                         .addGap(20, 20, 20)
@@ -444,11 +464,11 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
                             .addGroup(jPanel5Layout.createSequentialGroup()
                                 .addComponent(jLabel11)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jTextField3, javax.swing.GroupLayout.DEFAULT_SIZE, 147, Short.MAX_VALUE))
+                                .addComponent(modelFarTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 147, Short.MAX_VALUE))
                             .addGroup(jPanel5Layout.createSequentialGroup()
                                 .addComponent(jLabel10)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jTextField4, javax.swing.GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE)))))
+                                .addComponent(modelNearTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE)))))
                 .addContainerGap())
         );
         jPanel5Layout.setVerticalGroup(
@@ -460,21 +480,21 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(orbitNearTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel8)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(orbitFarTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel9)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel10)
-                    .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(modelNearTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel11)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(modelFarTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -489,12 +509,8 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
                     .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(6, 6, 6)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(6, 6, 6)
-                        .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                    .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(applyButton)
@@ -629,6 +645,20 @@ private void terminatorColorLabelMouseClicked(java.awt.event.MouseEvent evt)//GE
     }
 
 }//GEN-LAST:event_terminatorColorLabelMouseClicked
+
+private void gridColorLabelMouseClicked(java.awt.event.MouseEvent evt)//GEN-FIRST:event_gridColorLabelMouseClicked
+{//GEN-HEADEREND:event_gridColorLabelMouseClicked
+    // color selector
+    Color newColor = JColorChooser.showDialog(
+                     this,
+                     "Choose ECI Grid Line Color",
+                     gridColorLabel.getBackground());
+
+    if(!newColor.equals(gridColorLabel.getBackground()))
+    {
+        gridColorLabel.setBackground(newColor);
+    }
+}//GEN-LAST:event_gridColorLabelMouseClicked
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -638,16 +668,16 @@ private void terminatorColorLabelMouseClicked(java.awt.event.MouseEvent evt)//GE
     private javax.swing.JButton cancelButton;
     private javax.swing.JRadioButton earthViewRadioButton;
     private javax.swing.JRadioButton ecefRadioButton;
+    private javax.swing.JCheckBox eciGridCheckBox;
     private javax.swing.JRadioButton eciRadioButton;
     private javax.swing.JCheckBox flareCheckBox;
     private javax.swing.JTextField fovTextField;
-    private javax.swing.JCheckBox jCheckBox1;
+    private javax.swing.JLabel gridColorLabel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
@@ -658,13 +688,13 @@ private void terminatorColorLabelMouseClicked(java.awt.event.MouseEvent evt)//GE
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
     private javax.swing.JComboBox modeViewComboBox;
+    private javax.swing.JTextField modelFarTextField;
+    private javax.swing.JTextField modelNearTextField;
     private javax.swing.JRadioButton modelViewRadioButton;
     private javax.swing.JButton okButton;
+    private javax.swing.JTextField orbitFarTextField;
+    private javax.swing.JTextField orbitNearTextField;
     private javax.swing.JCheckBox smoothViewCheckBox;
     private javax.swing.JCheckBox sunShadingCheckBox;
     private javax.swing.JCheckBox terminatorCheckBox;
@@ -716,7 +746,26 @@ private void terminatorColorLabelMouseClicked(java.awt.event.MouseEvent evt)//GE
         threeDPanel.getEcefTimeDepRenderableLayer().setShowTerminatorLine(terminatorCheckBox.isSelected());
 
         threeDPanel.getEcefTimeDepRenderableLayer().getTerminator().setColor(terminatorColorLabel.getBackground());
- 
+
+        // grid
+        threeDPanel.getEciRadialGrid().setShowGrid(eciGridCheckBox.isSelected());
+        threeDPanel.getEciRadialGrid().setColor( gridColorLabel.getBackground() );
+
+
+        // Clipping planes
+        try
+        {
+            threeDPanel.setOrbitNearClipDistance(Double.parseDouble(orbitNearTextField.getText().trim()));
+            threeDPanel.setOrbitFarClipDistance(Double.parseDouble(orbitFarTextField.getText().trim()));
+            threeDPanel.setModelViewNearClip(Double.parseDouble(modelNearTextField.getText().trim()));
+            threeDPanel.setModelViewFarClip(Double.parseDouble(modelFarTextField.getText().trim()));
+        }
+        catch(Exception e)
+        {
+            System.out.println("Error in reading user input clipping values: " + e.toString());
+        }
+
+
         return updateMapData;
     } // saveSettings
 }

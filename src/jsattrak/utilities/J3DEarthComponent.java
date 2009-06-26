@@ -26,6 +26,7 @@ import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.layers.LayerList;
 import java.awt.Point;
 import jsattrak.gui.JSatTrak;
+import name.gano.worldwind.geom.ECIRadialGrid;
 import name.gano.worldwind.layers.Earth.EcefTimeDepRenderableLayer;
 
 /**
@@ -49,8 +50,10 @@ public interface  J3DEarthComponent
     public int getWwdHeight();
     public Point getWwdLocationOnScreen();
     public LayerList getLayerList();
-    public void setFarClipDistance(double clipDist);
-    public void setNearClipDistance(double clipDist);
+    public void setOrbitFarClipDistance(double clipDist);
+    public void setOrbitNearClipDistance(double clipDist);
+    public double getOrbitFarClipDistance();
+    public double getOrbitNearClipDistance();
     public boolean isModelViewMode();
     public void setModelViewMode(boolean modelViewMode);
     public String getModelViewString();
@@ -70,5 +73,7 @@ public interface  J3DEarthComponent
     public boolean isLensFlareEnabled();
     public void setLensFlare(boolean enabled);
     public EcefTimeDepRenderableLayer getEcefTimeDepRenderableLayer();
+    // grid
+    public ECIRadialGrid getEciRadialGrid();
 
 }

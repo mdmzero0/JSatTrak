@@ -107,6 +107,7 @@ import jsattrak.utilities.OrbitModelRenderable;
 import name.gano.file.SaveImageFile;
 import name.gano.swingx.fullscreen.ToggleFullscreen;
 import name.gano.worldwind.WwjUtils;
+import name.gano.worldwind.geom.ECIRadialGrid;
 import name.gano.worldwind.layers.Earth.CoverageRenderableLayer;
 import name.gano.worldwind.layers.Earth.ECEFRenderableLayer;
 import name.gano.worldwind.layers.Earth.ECIRenderableLayer;
@@ -165,6 +166,9 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
     private double modelViewNearClip = 10000; // clipping pland for when in Model View mode
     private double modelViewFarClip = 5.0E7;
     private boolean smoothViewChanges = true; // for 3D view smoothing (only is set after model/earth view has been changed -needs to be fixed)
+    // near/far clipping plane distances for 3d windows (can effect render speed and if full orbit is shown)
+    private double farClippingPlaneDistOrbit = -1;//200000000d; // good out to geo, but slow for LEO, using AutoClipping plane view I made works better
+    private double nearClippingPlaneDistOrbit = -1; // -1 value Means auto adjusting
 
     ViewControlsLayer viewControlsLayer;
 
@@ -174,6 +178,9 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
     private AtmosphereLayer atmosphereLayer;
     private SunPositionProvider spp;
     private boolean sunShadingOn = false; // controls if sun shading is used
+
+     // ECI grid
+    private ECIRadialGrid eciRadialGrid = new ECIRadialGrid();
     
     /** Creates new form J3DEarthPanel
      * @param parent
@@ -319,6 +326,7 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
         eciLayer.addRenderable(orbitModel); // add renderable object
         eciLayer.setCurrentMJD(currentMJD); // update time again after adding renderable
         m.getLayers().add(eciLayer); // add ECI Layer
+        eciLayer.addRenderable(eciRadialGrid); // add grid (optional if it is on or not)
         
         // add ECEF Layer
         ecefLayer = new ECEFRenderableLayer(); // create ECEF layer
@@ -391,13 +399,11 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
         });
 
         setSunShadingOn(true); // enable sun shading by default
-    // END Sun Shading -------------
-        
+        // END Sun Shading -------------
+
         // correct clipping plane -- so entire orbits are shown - maybe make variable?
-        //wwd.getView().setFarClipDistance(10000000000d);
-        wwd.getView().setFarClipDistance(app.getFarClippingPlaneDist()); // 200000000d good out to geo, but slower than not setting it
-        wwd.getView().setNearClipDistance(app.getNearClippingPlaneDist()); // -1 for auto adjust
-             
+        setupView(); // setup needed viewing specs and use of AutoClipBasicOrbitView
+  
     } // constructor
 
     // Update worldwind wun shading
@@ -1123,8 +1129,8 @@ private void fullScreenButtonActionPerformed(java.awt.event.ActionEvent evt) {//
             awth.setSmoothViewChanges(smoothViewChanges); // FALSE MAKES THE VIEW FAST!! -- MIGHT WANT TO MAKE IT GUI Chooseable
                         
             // IF EARTH VIEW -- RESET CLIPPING PLANES BACK TO NORMAL SETTINGS!!!
-            wwd.getView().setNearClipDistance(app.getNearClippingPlaneDist());
-            wwd.getView().setFarClipDistance(app.getFarClippingPlaneDist());
+            wwd.getView().setNearClipDistance(this.nearClippingPlaneDistOrbit);
+            wwd.getView().setFarClipDistance(this.farClippingPlaneDistOrbit);
             
             // change class for inputHandler
             Configuration.setValue(AVKey.INPUT_HANDLER_CLASS_NAME, 
@@ -1221,6 +1227,14 @@ private void fullScreenButtonActionPerformed(java.awt.event.ActionEvent evt) {//
 
         this.smoothViewChanges = smoothViewChanges;
         setupView();
+    }
+
+    /**
+     * @return the eciRadialGrid
+     */
+    public ECIRadialGrid getEciRadialGrid()
+    {
+        return eciRadialGrid;
     }
     //    public void setWwd(WorldWindowGLCanvas wwd)
     //    {
@@ -1512,14 +1526,32 @@ private void fullScreenButtonActionPerformed(java.awt.event.ActionEvent evt) {//
         return wwd.getModel().getLayers();
     }
     
-    public void setFarClipDistance(double clipDist)
+    public void setOrbitFarClipDistance(double clipDist)
     {
-        wwd.getView().setFarClipDistance(clipDist);
+        farClippingPlaneDistOrbit = clipDist;
+        if(!this.isModelViewMode())
+        {
+            wwd.getView().setFarClipDistance(farClippingPlaneDistOrbit);
+        }
     }
-    
-    public void setNearClipDistance(double clipDist)
+
+    public double getOrbitFarClipDistance()
     {
-        wwd.getView().setNearClipDistance(clipDist);
+        return farClippingPlaneDistOrbit;
+    }
+
+    public void setOrbitNearClipDistance(double clipDist)
+    {
+        nearClippingPlaneDistOrbit = clipDist;
+        if(!this.isModelViewMode())
+        {
+            wwd.getView().setNearClipDistance(nearClippingPlaneDistOrbit);
+        }
+    }
+
+    public double getOrbitNearClipDistance()
+    {
+        return nearClippingPlaneDistOrbit;
     }
     
     public void updateCoverageLayerObject(CoverageAnalyzer ca)

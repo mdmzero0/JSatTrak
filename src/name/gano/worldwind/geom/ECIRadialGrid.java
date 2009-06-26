@@ -34,7 +34,7 @@ import name.gano.astro.AstroConst;
  */
 public class ECIRadialGrid implements Renderable
 {
-    private boolean showGrid = true;
+    private boolean showGrid = false;
     private Color color = new Color(0,128,0);
     private boolean drawAxis = false;
 
@@ -51,6 +51,11 @@ public class ECIRadialGrid implements Renderable
 
     public void render(DrawContext dc)
     {
+        if(!showGrid)
+        {
+            return;
+        }
+
         javax.media.opengl.GL gl = dc.getGL();
         gl.glPushAttrib(javax.media.opengl.GL.GL_TEXTURE_BIT | javax.media.opengl.GL.GL_ENABLE_BIT | javax.media.opengl.GL.GL_CURRENT_BIT);
 
@@ -69,7 +74,7 @@ public class ECIRadialGrid implements Renderable
         int maxPowerRings = minPowerRings+1;
 
         double percent = (Math.pow(10, maxPowerRings) - distEarthCenter) / Math.pow(10, maxPowerRings);
-        System.out.println("percent:" + percent);
+        //System.out.println("percent:" + percent);
 
 //        majorUnitSpacing =
 
