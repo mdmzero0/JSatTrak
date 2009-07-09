@@ -24,12 +24,14 @@
 // holds all initialization info, etc.
 package name.gano.astro.propogators.sgp4_cssi;
 
+import java.io.Serializable;
+
 /**
  * 19 June 2009
  * converted to Java by:
  * @author Shawn E. Gano, shawn@gano.name
  */
-public class SGP4SatData
+public class SGP4SatData implements Serializable
 {
   public int   satnum; // changed to int SEG
   public int    epochyr, epochtynumrev;
