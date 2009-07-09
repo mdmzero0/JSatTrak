@@ -113,7 +113,8 @@
  *                                  - RELICENCED JSatTrak as LGPL!
  *                                  - FILE FORMAT: changes to use zip compression! files are now much smaller!
  *          4.1 started 23 June  - added AutoClipBasicOrbit view for dynamic clipping plane calculations
- *                               - ECI grid
+ *                               - ECI grid, and gui options for grid and clipping planes (moved from sim properties to each 3D window)
+ *                               - fixed bug (that surfaced in v4.0) for using the autorun in the coverage tool - needed to make SGP4SatData.java serializable (9 July 2009)
  *
  *
  *
@@ -238,7 +239,7 @@ import name.gano.file.SaveImageFile;
  */
 public class JSatTrak extends javax.swing.JFrame implements InternalFrameListener, WindowListener, Serializable
 {
-    private String versionString = "Version 4.1alpha (23 June 2009)"; // Version of app
+    private String versionString = "Version 4.1  (9 July 2009)"; // Version of app
     
     // hastable to store all the statelites currently being processed
     private Hashtable<String,AbstractSatellite> satHash = new Hashtable<String,AbstractSatellite>();
