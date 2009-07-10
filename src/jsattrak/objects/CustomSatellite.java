@@ -150,7 +150,7 @@ public class CustomSatellite  extends AbstractSatellite
         rootNode.setIcon( new ImageIcon(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/icons/custom/sat_icon.png")) ) );
         missionTableModel.setRoot(rootNode);
         
-               // must add Initial conditions
+        // must add Initial conditions
         new InitialConditionsNode(rootNode, scenarioEpochDate);
         
         // by default also add a propogator node
@@ -778,6 +778,11 @@ public class CustomSatellite  extends AbstractSatellite
     
     public double[] getLLA()
     {
+        if(lla == null)
+        {
+            return null;
+        }
+
         return lla.clone();
     }
     
@@ -788,11 +793,19 @@ public class CustomSatellite  extends AbstractSatellite
     
     public double[] getJ2000Position()
     {
+        if(j2kPos == null)
+        {
+            return null;
+        }
         return j2kPos.clone();
     }
     
     public double[] getJ2000Velocity()
     {
+        if(j2kVel == null)
+        {
+            return null;
+        }
         return j2kVel.clone();
     }
     
@@ -950,6 +963,11 @@ public class CustomSatellite  extends AbstractSatellite
 
     public double[] getTEMEPos()
     {
+        if(posTEME == null)
+        {
+            return null;
+        }
+        
         return posTEME.clone();
     }
 
@@ -1218,6 +1236,10 @@ public class CustomSatellite  extends AbstractSatellite
     
     public  double[] getTEMEVelocity()
     {
+        if(velTEME == null)
+        {
+            return null;
+        }
         return velTEME.clone();
     }
 

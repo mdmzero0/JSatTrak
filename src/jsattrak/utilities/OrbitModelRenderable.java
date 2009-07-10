@@ -270,19 +270,22 @@ public class OrbitModelRenderable implements Renderable
             {
                 if(sat.getThreeDModel() != null)
                 {
-                sat.getThreeDModel().setPosition(new Position(Angle.fromRadians(sat.getLatitude()),
-                        Angle.fromRadians(sat.getLongitude()),
-                        sat.getAltitude()));
-                // set roll pitch yaw (assume user wants LVLH, velcorty aligned)
+                    sat.getThreeDModel().setPosition(new Position(Angle.fromRadians(sat.getLatitude()),
+                            Angle.fromRadians(sat.getLongitude()),
+                            sat.getAltitude()));
+                    // set roll pitch yaw (assume user wants LVLH, velcorty aligned)
 
-                // calculate TEME velocity and set rotation angles and axis
-                sat.getThreeDModel().setMainRotationAngleAxis(sat.getTEMEVelocity(), sat.getTEMEPos());
+                    // calculate TEME velocity and set rotation angles and axis
+                    if(sat.getTEMEPos() != null)
+                    {
+                        sat.getThreeDModel().setMainRotationAngleAxis(sat.getTEMEVelocity(), sat.getTEMEPos());
 
-                // set velcoity for test plotting
-                sat.getThreeDModel().velUnitVec = MathUtils.UnitVector(sat.getTEMEVelocity());
-                
-                // Set ECI angle
-                sat.getThreeDModel().setEciRotAngleDeg(eciRotDeg);
+                        // set velcoity for test plotting
+                        sat.getThreeDModel().velUnitVec = MathUtils.UnitVector(sat.getTEMEVelocity());
+                    }
+
+                    // Set ECI angle
+                    sat.getThreeDModel().setEciRotAngleDeg(eciRotDeg);
                 }
 
             } // 3D model           

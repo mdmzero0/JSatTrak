@@ -29,7 +29,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import jsattrak.customsat.GoalParameter;
-import jsattrak.customsat.InputVariable;
 import name.gano.swingx.treetable.CustomTreeTableNode;
 
 /**
