@@ -117,6 +117,10 @@
  *                               - fixed bug (that surfaced in v4.0) for using the autorun in the coverage tool - needed to make SGP4SatData.java serializable (9 July 2009)
  *                               - Added read ephemeris from file to Custom Satellite Builder (also ability to delete "ini conditions" and add ini conditions nodes (always to top)) (10 Junly 2009)
  *                               - fixed bug where null values were no cloned properly in CustomSatellite - creating exceptions in OrbitModelRenderable/ECI rendering layer
+ *          4.2   - in progress  TODO - fixes and ideas from: Christopher Suski
+ *                                      - in the 3D window the sun shading terminator line doesn't wrap around the earth properly when the camera is set to follow an object rather than the earth
+ *                                      - a viewport from the ground station to the sat
+ *                                      - if you can make room on the Ground station browser button should probably be one the object list window
  *
  *
  *                              Ideas for next versions: (no particular order)
