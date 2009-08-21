@@ -117,6 +117,8 @@
  *                               - fixed bug (that surfaced in v4.0) for using the autorun in the coverage tool - needed to make SGP4SatData.java serializable (9 July 2009)
  *                               - Added read ephemeris from file to Custom Satellite Builder (also ability to delete "ini conditions" and add ini conditions nodes (always to top)) (10 Junly 2009)
  *                               - fixed bug where null values were no cloned properly in CustomSatellite - creating exceptions in OrbitModelRenderable/ECI rendering layer
+ *          4.1.1 21 Aug 2009    -  Added the current look and feel to the save file / and open file
+ *
  *          4.2   - in progress  TODO - fixes and ideas from: Christopher Suski
  *                                      - in the 3D window the sun shading terminator line doesn't wrap around the earth properly when the camera is set to follow an object rather than the earth
  *                                      - a viewport from the ground station to the sat
@@ -244,7 +246,7 @@ import name.gano.file.SaveImageFile;
  */
 public class JSatTrak extends javax.swing.JFrame implements InternalFrameListener, WindowListener, Serializable
 {
-    private String versionString = "Version 4.1  (10 July 2009)"; // Version of app
+    private String versionString = "Version 4.1.1  (21 August 2009)"; // Version of app
     
     // hastable to store all the statelites currently being processed
     private Hashtable<String,AbstractSatellite> satHash = new Hashtable<String,AbstractSatellite>();
@@ -3278,6 +3280,24 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
                     catch(Exception e)
                     {
                         System.out.println("Saved File didn't have any information on app size or location.");
+                    }
+
+                    // New 21 August 2009  -- saved look and feel - apply
+                    try
+                    {
+                        String laf = openClass.getLookFeelString();
+                        if(laf != null)
+                        {
+                            LafChanger.changeLaf(this, laf);
+                        }
+                        else
+                        {
+                            System.out.println("Saved File didn't have any look and feel data.");
+                        }
+                    }
+                    catch(Exception e)
+                    {
+                        System.out.println("Saved File didn't have any or has invalid look and feel data.");
                     }
 
            

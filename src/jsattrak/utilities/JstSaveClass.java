@@ -36,6 +36,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
+import javax.swing.UIManager;
 import jsattrak.coverage.CoverageAnalyzer;
 import jsattrak.gui.J3DEarthInternalPanel;
 import jsattrak.gui.J3DEarthPanel;
@@ -87,7 +88,9 @@ public class JstSaveClass implements Serializable
     
     // coverage data
     private CoverageAnalyzer ca;
-    
+
+    // string for the look and feel used
+    private String lookFeelString = "";
             
     /** Creates a new instance of JstSaveClass */
     public JstSaveClass(JSatTrak app)
@@ -160,7 +163,11 @@ public class JstSaveClass implements Serializable
         screenLoc = app.getLocationOnScreen();
         appWidth = app.getWidth();
         appHeight = app.getHeight();
-        
+
+        // save look and feel
+        //LookAndFeel lf = UIManager.getLookAndFeel();
+        lookFeelString = UIManager.getLookAndFeel().getClass().toString().substring(6); // remove the 'class ' at begining of string
+
     } // JstSaveClass  constructor
 
     public Hashtable<String, AbstractSatellite> getSatHash()
@@ -393,6 +400,14 @@ public class JstSaveClass implements Serializable
     public int getAppHeight()
     {
         return appHeight;
+    }
+
+    /**
+     * @return the lookFeelString
+     */
+    public String getLookFeelString()
+    {
+        return lookFeelString;
     }
     
 } // JstSaveClass
