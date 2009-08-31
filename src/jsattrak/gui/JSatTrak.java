@@ -118,6 +118,7 @@
  *                               - Added read ephemeris from file to Custom Satellite Builder (also ability to delete "ini conditions" and add ini conditions nodes (always to top)) (10 Junly 2009)
  *                               - fixed bug where null values were no cloned properly in CustomSatellite - creating exceptions in OrbitModelRenderable/ECI rendering layer
  *          4.1.1 21 Aug 2009    -  Added the current look and feel to the save file / and open file
+ *                               - 31 Aug - fixed addSeconds in Time to avoid max integer problems
  *
  *          4.2   - in progress  TODO - fixes and ideas from: Christopher Suski
  *                                      - in the 3D window the sun shading terminator line doesn't wrap around the earth properly when the camera is set to follow an object rather than the earth
