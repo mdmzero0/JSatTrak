@@ -119,6 +119,7 @@
  *                               - fixed bug where null values were no cloned properly in CustomSatellite - creating exceptions in OrbitModelRenderable/ECI rendering layer
  *          4.1.1 21 Aug 2009    -  Added the current look and feel to the save file / and open file
  *                               - 31 Aug - fixed addSeconds in Time to avoid max integer problems
+ *          4.1.2 26 Sep 2009    - special apache license version released for NASA / GSFC called ILIADS (Integrated Lunar Information Architecture for Decision Support)
  *
  *          4.2   - in progress  TODO - fixes and ideas from: Christopher Suski
  *                                      - in the 3D window the sun shading terminator line doesn't wrap around the earth properly when the camera is set to follow an object rather than the earth
@@ -247,7 +248,7 @@ import name.gano.file.SaveImageFile;
  */
 public class JSatTrak extends javax.swing.JFrame implements InternalFrameListener, WindowListener, Serializable
 {
-    private String versionString = "Version 4.1.1  (21 August 2009)"; // Version of app
+    private String versionString = "Version 4.1.2  (26 September 2009)"; // Version of app
     
     // hastable to store all the statelites currently being processed
     private Hashtable<String,AbstractSatellite> satHash = new Hashtable<String,AbstractSatellite>();
