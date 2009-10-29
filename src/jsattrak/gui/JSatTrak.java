@@ -125,7 +125,15 @@
  *                                      - in the 3D window the sun shading terminator line doesn't wrap around the earth properly when the camera is set to follow an object rather than the earth
  *                                      - a viewport from the ground station to the sat
  *                                      - if you can make room on the Ground station browser button should probably be one the object list window
- *
+ *                                      Master Sargent:
+ *                                      - add launch vechile
+ *                                      - add missile
+ *                                      - Radar "fence" for ground stations
+ *                                      Jason Liu:
+ *                                      - FIX:  handle case when SGP4 Propogator fails with an error code!!!!  use this TLE past Sept 14 2009 as an example to test with -- logg error in console
+ *                                          H-2B R/B
+                                            1 35818U 09048B   09257.12951375  .35140387  12869-4  28262-3 0   201
+                                            2 35818 051.5903 210.3110 0015017 310.1142 050.3875 16.51204315   549
  *
  *                              Ideas for next versions: (no particular order)
  *                                  - Vectors tool (make them seperate objects) axis, grids, lines, arrows (data providers)
