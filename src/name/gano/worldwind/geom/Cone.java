@@ -121,10 +121,17 @@ public class Cone implements Renderable
         
     }
 
-    public void setLatitudeReadians(double latRad)
+    // corrected spelling SEG 30 Mar 2010
+    public void setLatitudeRadians(double latRad)
     {
         this.myPointLat = Angle.fromRadiansLatitude(latRad);
         this.topCenter = myGlobe.computePointFromPosition(myPointLat, myPointLon, 0.0);
+    }
+
+    // old typo - for backwards compatibility (thanks csuski - from the forum)
+    public void setLatitudeReadians(double latRad)
+    {
+        setLatitudeRadians(latRad);
     }
 
 
