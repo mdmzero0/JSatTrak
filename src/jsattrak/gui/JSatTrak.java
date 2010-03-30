@@ -2,7 +2,7 @@
  * ======= JSatTrak's main GUI interface================================
  * JSatTrak.java  - Shawn E. Gano,  shawn@gano.name
  * =====================================================================
- * Copyright (C) 2007-2009 Shawn E. Gano
+ * Copyright (C) 2007-2010 Shawn E. Gano
  *
  * This file is part of JSatTrak.
  *
@@ -120,6 +120,9 @@
  *          4.1.1 21 Aug 2009    -  Added the current look and feel to the save file / and open file
  *                               - 31 Aug - fixed addSeconds in Time to avoid max integer problems
  *          4.1.2 26 Sep 2009    - special apache license version released for NASA / GSFC called ILIADS (Integrated Lunar Information Architecture for Decision Support)
+ *          4.1.3 30 Mar 2010    - now can use startup.bsh script if found in root directory on startup (run locally) to config the opening scenario (for Pat M. of WWJ)
+ *       
+ *               Need to update to latest WWJ build - new view architecture
  *
  *          4.2   - in progress  TODO - fixes and ideas from: Christopher Suski
  *                                      - in the 3D window the sun shading terminator line doesn't wrap around the earth properly when the camera is set to follow an object rather than the earth
@@ -256,7 +259,7 @@ import name.gano.file.SaveImageFile;
  */
 public class JSatTrak extends javax.swing.JFrame implements InternalFrameListener, WindowListener, Serializable
 {
-    private String versionString = "Version 4.1.2  (26 September 2009)"; // Version of app
+    private String versionString = "Version 4.1.3  (30 March 2010)"; // Version of app
     
     // hastable to store all the statelites currently being processed
     private Hashtable<String,AbstractSatellite> satHash = new Hashtable<String,AbstractSatellite>();
@@ -466,21 +469,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
 
         //this.setVisible(true); // only needed to debug if there is a problem below this point in constructor
         
-        // Default sats in list: -- load if TLE data is local
-        try
-        {
-            TLEDownloader tleDownloader = new TLEDownloader();
-            if((new File(tleDownloader.getLocalPath()).exists()) && (new File(tleDownloader.getTleFilePath(0)).exists()))
-            {
-                addSat2ListByName("ISS (ZARYA)             ");
-                satHash.get("ISS (ZARYA)             ").setThreeDModelPath("isscomplete/iss_complete.3ds");// set default 3d model
-
-            }
-        }
-        catch(Exception e)
-        {
-            System.err.println("Error loading Local Default TLE Data");
-        }
+        
                 
         
         // TEST NOT WORKING!!!!!
@@ -562,6 +551,32 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         catch(Exception e)
         {
             System.out.println("Error saving main object to bean shell:" + e.toString());
+        }
+
+
+        // Default sats in list: -- load if TLE data is local
+        try
+        {
+            TLEDownloader tleDownloader = new TLEDownloader();
+            if((new File(tleDownloader.getLocalPath()).exists()) && (new File(tleDownloader.getTleFilePath(0)).exists()))
+            {
+                // check for a startup script file and run it if it exists
+                if( (new File("startup.bsh")).exists())
+                {
+                    // run startup script
+                    runScript("startup.bsh");
+                }
+                else // default scene - ISS
+                {
+                    // default startup scene
+                    addSat2ListByName("ISS (ZARYA)             ");
+                    satHash.get("ISS (ZARYA)             ").setThreeDModelPath("isscomplete/iss_complete.3ds");// set default 3d model
+                }
+            }
+        }
+        catch(Exception e)
+        {
+            System.err.println("Error loading Local Default TLE Data");
         }
         
                 
@@ -1736,9 +1751,19 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
 
     private void playButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_playButtonActionPerformed
     {//GEN-HEADEREND:event_playButtonActionPerformed
+        //currentPlayDirection = 1; // forwards
+        //runAnimation(); // perform animation
+        playScenario();
+    }//GEN-LAST:event_playButtonActionPerformed
+
+    /**
+     * play the scenario forward in time.
+     */
+    public void playScenario()
+    {
         currentPlayDirection = 1; // forwards
         runAnimation(); // perform animation
-    }//GEN-LAST:event_playButtonActionPerformed
+    } // playScenario
 
     private void runAnimation()
     {
@@ -1950,7 +1975,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
     }
 
     // private JInternalFrame createNew3dWindow()
-    private JDialog createNew3dWindow()
+    public JDialog createNew3dWindow()
     {
         threeDWindowCount++;
         String windowName = "3D Earth Window - " + threeDWindowCount;
@@ -3635,19 +3660,43 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
     protected void runPluginAction(ActionEvent e) 
     {
         String fileName = ((JMenuItem)e.getSource()).getText();
-        System.out.println("Running Plugin: " + fileName);
-        
+        // new way
+        runScript("plugins/" + fileName + ".bsh");
+
+//        // old way
+//        System.out.println("Running Plugin: " + fileName);
+//
+//        // runnning bash script
+//        try
+//        {
+//            beanShellInterp.source("plugins/" + fileName + ".bsh");
+//        }
+//        catch(Exception ee)
+//        {
+//            System.out.println("Error running plugin script: " + ee.toString());
+//            JOptionPane.showMessageDialog(this, "Error running plugin script: \n" + ee.toString(), "Pluging Error", JOptionPane.ERROR_MESSAGE);
+//        }
+    } // runPluginAction
+
+    /**
+     *
+     * @param scriptFilePath full or relative path to the script file to be executed
+     */
+    public void runScript(String scriptFilePath)
+    {
+        System.out.println("Running Plugin: " + scriptFilePath);
+
         // runnning bash script
         try
         {
-            beanShellInterp.source("plugins/" + fileName + ".bsh");
+            beanShellInterp.source( scriptFilePath );
         }
         catch(Exception ee)
         {
-            System.out.println("Error running plugin script: " + ee.toString());
-            JOptionPane.showMessageDialog(this, "Error running plugin script: \n" + ee.toString(), "Pluging Error", JOptionPane.ERROR_MESSAGE);
+            System.out.println("Error running plugin script (" + scriptFilePath + "): " + ee.toString());
+            JOptionPane.showMessageDialog(this, "Error running plugin script (" + scriptFilePath + "): \n" + ee.toString(), "Pluging Error", JOptionPane.ERROR_MESSAGE);
         }
-    }
+    } // runScript
 
 //    // moved to 3D views
 //    public double getFarClippingPlaneDist()

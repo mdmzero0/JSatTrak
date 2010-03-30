@@ -46,7 +46,7 @@ public class JThreeDViewPropPanel extends javax.swing.JPanel
     JSatTrak app; // used to force repaints
     
     J3DEarthComponent threeDPanel; // parent Panel
-    WorldWindow wwd; // wwj object
+    public WorldWindow wwd; // wwj object
     
     /** Creates new form JThreeDViewPropPanel */
     public JThreeDViewPropPanel()
