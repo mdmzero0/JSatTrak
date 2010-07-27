@@ -112,7 +112,10 @@ public class StkEphemerisReader
 
                 while((line = input.readLine()) != null && !ephemerisBegin)
                 {
-                    if(line.startsWith("EphemerisTimePosVel"))
+				
+					line = line.trim(); //removes white space from beginning of line
+                    
+					if(line.startsWith("EphemerisTimePosVel"))
                     {
                         ephemerisBegin = true;
                         break; // need to break out of loop without reading another line in the while statement
