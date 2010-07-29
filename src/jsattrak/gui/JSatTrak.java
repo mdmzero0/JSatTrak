@@ -1896,7 +1896,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         
     }//GEN-LAST:event_new2DWindowMenuItemActionPerformed
 
-    private JInternalFrame createNew2dWindow()
+    public JInternalFrame createNew2dWindow()
     {
         
         // create 2D Earth Panel:
