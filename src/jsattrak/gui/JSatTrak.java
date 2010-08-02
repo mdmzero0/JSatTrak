@@ -3196,177 +3196,25 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
                  * and zip files to open scenarios.  
                  */
 
+                Object obj = null;
+                BufferedReader in = null;
+                ZipInputStream inb = null;
                 try
                 {
-                 BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(getFileSaveAs()), "UTF8"));
+                 in = new BufferedReader(new InputStreamReader(new FileInputStream(getFileSaveAs()), "UTF8"));
                  XStream xstream = new XStream(new DomDriver());
-                 Object obj = xstream.fromXML(in);
-                 if (obj instanceof JstSaveClass) // it better be
-                {
-
-                    // Cast object to a Vector
-                    JstSaveClass openClass = (JstSaveClass) obj;
-
-                    // load satHash carefully
-                    satHash.clear();
-                    Hashtable<String,AbstractSatellite> tempHash = openClass.getSatHash();
-                    for(String key : tempHash.keySet() )
-                    {
-                        satHash.put(key, tempHash.get(key)); // copy manually
-                        satHash.get(key).setUse3dModel( satHash.get(key).isUse3dModel() ); // auto-loads 3D models if they are used
-                    }
-
-                    // populate ground station hash
-                    gsHash.clear();
-                    Hashtable<String, GroundStation> tempHash2 = openClass.getGsHash();
-                    for (String key : tempHash2.keySet())
-                    {
-                        gsHash.put(key, tempHash2.get(key)); // copy manually
-                    }
-
-                    // update sat List
-                    objListPanel.refreshObjectList();
-
-
-
-                    // load other data
-                    this.currentJulianDate = openClass.getCurrentJulianDate();
-                    this.realTimeAnimationRefreshRateMs = openClass.getRealTimeAnimationRefreshRateMs();
-                    this.nonRealTimeAnimationRefreshRateMs = openClass.getNonRealTimeAnimationRefreshRateMs();
-                    this.currentTimeStepSpeedIndex = openClass.getCurrentTimeStepSpeedIndex();
-                    this.setLocalTimeModeSelected( openClass.isLocalTimeZoneSelected() );
-                    this.setRealTimeMode(openClass.isRealTimeMode() );
-
-                    this.epochTimeEqualsCurrentTime = openClass.isEpochTimeEqualsCurrentTime();
-                    if(!epochTimeEqualsCurrentTime)
-                    {
-                        this.scenarioEpochDate = openClass.getScenarioEpochDate();
-                    }
-
-                    // update parameters based on these new parameters
-                    updateTimeStepsDataGUI();
-                    setRealTimeAnimationRefreshRateMs(realTimeAnimationRefreshRateMs); // will reset all internal values correctly for refresh
-
-                    // location of Object list
-                    satListInternalFrame.setBounds(openClass.getSatListX(),openClass.getSatListY(),openClass.getSatListWidth(),openClass.getSatListHeight());
-                    satListInternalFrame.setSelected(true);
-
-                    // wwj offline mode
-                    this.wwjOfflineMode = openClass.isWwjOfflineMode();
-                    // set ofline mode
-                    try{
-                        gov.nasa.worldwind.WorldWind.getNetworkStatus().setOfflineMode(wwjOfflineMode);
-                    }catch(Exception ee){}
-
-                    // coverage analyzer
-                    this.coverageAnalyzer = openClass.getCa();
-                    if(coverageAnalyzer != null)
-                    {
-                        timeDependentObjects.add(coverageAnalyzer); // add object to time updates
-                    }
-
-                    // create all the needed 2D windows:
-                    for( J2DEarthPanelSave j2dp : openClass.getTwoDWindowSaveVec() )
-                    {
-                        JInternalFrame iframe = createNew2dWindow(); // create new window
-                        J2DEarthPanel newPanel = twoDWindowVec.lastElement(); // get window just created
-
-                        j2dp.copySettings2PanelAndFrame(newPanel, iframe); // copy settings to this window
-                    }
-
-                    // create all the needed sat prop windows:
-                    for( SatPropertyPanelSave propPan : openClass.getSatPropWindowSaveVec() )
-                    {
-                        // addInternalFrame(JInternalFrame iframe)
-                        AbstractSatellite prop = satHash.get(propPan.getName());
-
-                        // create property Panel:
-                        SatPropertyPanel newPanel = new SatPropertyPanel(prop);
-
-                        String windowName = prop.getName().trim(); // set name - trim excess spaces
-
-                        // create new internal frame window
-                        JInternalFrame iframe = new JInternalFrame(windowName,true,true,true,true);
-
-                        iframe.setContentPane( newPanel ); // set contents pane
-                        iframe.setSize(propPan.getWidth(),propPan.getHeight()); // set size
-
-                        iframe.setVisible(true);
-                        addInternalFrame(iframe, propPan.getXPos(), propPan.getYPos() );
-                    }
-
-                    // PUT BEFORE 3D windows so they load correctly though data in them might be funny?
-                    // update GUI -- this is messing up the 3D views.. they need some time to render
-                    forceRepainting(true); // force repaint and regeneration of data
-
-                    // create all needed 3D windows:
-
-                    // create all 3D external windows needed
-                    for( J3DEarthlPanelSave j3dp : openClass.getThreeDExtWindowSaveVec() )
-                    {
-                        Container iframe = createNew3dWindow();
-                        J3DEarthPanel newPanel = threeDWindowVec.lastElement(); // get window just created
-
-                        j3dp.copySettings2PanelAndFrame(newPanel,iframe); // copy settings to this window
-                    }
-                    // create all 3D internal windows needed
-                    for( J3DEarthlPanelSave j3dp : openClass.getThreeDWindowSaveVec() )
-                    {
-                        JInternalFrame iframe = createNew3DInternalWindow(); // create new window
-                        J3DEarthInternalPanel newPanel = threeDInternalWindowVec.lastElement(); // get window just created
-
-                        j3dp.copySettings2PanelAndFrame(newPanel, iframe); // copy settings to this window
-                    }
-
-                    // New 20 March 2009  -- app size and onscreen location
-                    try
-                    {
-                        this.setLocation(openClass.getScreenLoc());
-                        this.setSize(openClass.getAppWidth(),openClass.getAppHeight());
-                        this.repaint();
-                    }
-                    catch(Exception e)
-                    {
-                        System.out.println("Saved File didn't have any information on app size or location.");
-                    }
-
-                    // New 21 August 2009  -- saved look and feel - apply
-                    try
-                    {
-                        String laf = openClass.getLookFeelString();
-                        if(laf != null)
-                        {
-                            LafChanger.changeLaf(this, laf);
-                        }
-                        else
-                        {
-                            System.out.println("Saved File didn't have any look and feel data.");
-                        }
-                    }
-                    catch(Exception e)
-                    {
-                        System.out.println("Saved File didn't have any or has invalid look and feel data.");
-                    }
-
-
-                    setStatusMessage("Opened file: " + file.getAbsolutePath());
-
-                    in.close(); //c lose file
-                }
-                else
-                {
-                    JOptionPane.showMessageDialog(this, "Error Opening File: Incorrect file format, may be corrupt or an old version", "OPEN ERROR", JOptionPane.ERROR_MESSAGE);
-                    setStatusMessage("Error Opening File: Incorrect file format");
-                }
+                 obj = xstream.fromXML(in);
                 }
                 catch (Exception eee)
                 {
                 // v4.0 - use zip file to get data out of the file
-                ZipInputStream in = new ZipInputStream(new FileInputStream(getFileSaveAs()));
-                ZipEntry entry = in.getNextEntry();
+                inb = new ZipInputStream(new FileInputStream(getFileSaveAs()));
+                ZipEntry entry = inb.getNextEntry();
                 XStream xstream = new XStream();
-                Object obj = xstream.fromXML(in);
-
+                obj = xstream.fromXML(inb);
+                }
+                finally
+                {
                 if (obj instanceof JstSaveClass) // it better be
                 {
                     
@@ -3518,6 +3366,7 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
                     setStatusMessage("Opened file: " + file.getAbsolutePath());
 
                     in.close(); //c lose file
+                    inb.close();
                 }
                 else
                 {
