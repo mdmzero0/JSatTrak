@@ -1,4 +1,4 @@
-/* 
+            /* 
  * ======= JSatTrak's main GUI interface================================
  * JSatTrak.java  - Shawn E. Gano,  shawn@gano.name
  * =====================================================================
@@ -192,6 +192,7 @@ import com.jgoodies.looks.plastic.theme.ExperienceBlue;
 import jsattrak.objects.GroundStation;
 import jsattrak.about.AboutDialog;
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
 import commandclient.CommandClientGUI;
 import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
 import java.awt.Container;
@@ -205,10 +206,16 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Serializable;
+import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 import java.util.Hashtable;
@@ -252,6 +259,7 @@ import name.gano.astro.time.Time;
 import jsattrak.utilities.TLEDownloader;
 import name.gano.file.FileTypeFilter;
 import name.gano.file.SaveImageFile;
+import javatester.UserInput;
 
 /**
  *
@@ -261,10 +269,10 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
 {
     private String versionString = "Version 4.1.3  (30 March 2010)"; // Version of app
     
-    // hastable to store all the statelites currently being processed
+    // hashtable to store all the statelites currently being processed
     private Hashtable<String,AbstractSatellite> satHash = new Hashtable<String,AbstractSatellite>();
     
-    // hastable to store all the Ground Stations
+    // hashtable to store all the Ground Stations
     private Hashtable<String,GroundStation> gsHash = new Hashtable<String,GroundStation>();
     
     // Vector to store all the 2D windows -- so they can all be updated
@@ -464,7 +472,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         // update gui with timestep
         updateTimeStepsDataGUI(); 
         
-        // auto select local timezon button 
+        // auto select local timezone button
         localTimeZoneCheckBox.doClick();
 
         //this.setVisible(true); // only needed to debug if there is a problem below this point in constructor
@@ -506,7 +514,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
            busyIcons[i] = new javax.swing.ImageIcon(getClass().getResource("/icons/busyicons/busy-icon"+i+".png")); 
         }
         
-        // create timer for anumation, animation_rate is the first value
+        // create timer for animation, animation_rate is the first value
         busyIconTimer = new Timer(30, new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 busyIconIndex = (busyIconIndex + 1) % busyIcons.length;
@@ -518,7 +526,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         setStatusMessage("Welcome to JSatTrak " + versionString + ", by Shawn E. Gano");
         
         
-        // save root app to Bean Shell interperator
+        // save root app to Bean Shell interpreter
         try
         {
                         
@@ -614,7 +622,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         this.setSize(this.getSize().width+sizeJump, this.getSize().height+sizeJump);
         this.setSize(this.getSize().width-sizeJump, this.getSize().height-sizeJump);
         
-        // DEBUG - testing earht lights
+        // DEBUG - testing earth lights
         //this.twoDWindowVec.get(0).setShowEarthLightsMask(true);
         
         // for some reason nimbus has to be reapplied to work correctly
@@ -1543,7 +1551,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
     private void twoDwindowPropMenuItemActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_twoDwindowPropMenuItemActionPerformed
     {//GEN-HEADEREND:event_twoDwindowPropMenuItemActionPerformed
        
-        // create a new internal window by passing in infor of current panel
+        // create a new internal window by passing in in front of current panel
         open2dWindowOptions();
         
     }//GEN-LAST:event_twoDwindowPropMenuItemActionPerformed
@@ -1838,7 +1846,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
                 if(sat.getShowGroundTrack() && (sat.getPeriod() <= (timeDiffDays*24.0*60.0) ) )
                 {
                     sat.setGroundTrackIni2False();
-                    //System.out.println(sat.getName() +" - Groundtrack Iniated");
+                    //System.out.println(sat.getName() +" - Groundtrack Initiated");
                 }
             }
         }
@@ -2749,7 +2757,7 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
                 }
             }
             
-        } // propgate each sat
+        } // propagate each sat
         
         forceRepainting(true); // fore repaint with update to all data
                 
@@ -3027,8 +3035,13 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         // Write to disk with FileOutputStream
         try
         {
+            /*
+             * Edited on 6/22/2010 to allow JSatTrak to save scenarios in xml file format rather then compresssed files.
+             * To generate xml file formats, uncomment lines 3043-3046, and comment out lines 3050-3059.  In order to save
+             * files in the newer compressed format, simply do the opposite commenting.
+             */
             // Writing UTF-8 Encoded Data
-            //BufferedWriter out = new BufferedWriter(new FileWriter(fileName));
+//            BufferedWriter out = new BufferedWriter(new FileWriter(fileName));
 //            Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName), "UTF8"));
 //            XStream xstream = new XStream();
 //            out.write(xstream.toXML(new JstSaveClass(this)));
@@ -3163,31 +3176,43 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
             fileSaveAs = file.getAbsolutePath();
             
             // Open and load file into scenario
+
             try
             {
-//                // Read from disk using FileInputStream
-//                FileInputStream f_in = new FileInputStream(fileSaveAs);
-//                
-//                // Read object using ObjectInputStream
-//                ObjectInputStream obj_in = new JSX.ObjectReader(f_in);// new ObjectInputStream(f_in);  // JSX
-//                
-//                // Read an object
+                // Read from disk using FileInputStream
+ //               FileInputStream f_in = new FileInputStream(fileSaveAs);
+                
+                // Read object using ObjectInputStream
+ //               ObjectInputStream obj_in = new JSX.ObjectReader(f_in);// new ObjectInputStream(f_in);  // JSX
+                
+                // Read an object
 //                Object obj = obj_in.readObject();
-//                
+                
 //                f_in.close(); // close file
                 
                  // before version 4.0 way
-//                 BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(getFileSaveAs()), "UTF8"));
-//
-//                XStream xstream = new XStream();
-//                Object obj = xstream.fromXML(in);
+                /*
+                 * Edited on 8/2/2010 in order to return xml file functionality to JSatTrak- reads both xml files
+                 * and zip files to open scenarios.  
+                 */
 
+                Object obj = null;
+                try
+                {
+                 BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(getFileSaveAs()), "UTF8"));
+                 XStream xstream = new XStream(new DomDriver());
+                 obj = xstream.fromXML(in);
+                }
+                catch (Exception eee)
+                {
                 // v4.0 - use zip file to get data out of the file
                 ZipInputStream in = new ZipInputStream(new FileInputStream(getFileSaveAs()));
                 ZipEntry entry = in.getNextEntry();
                 XStream xstream = new XStream();
-                Object obj = xstream.fromXML(in);
-
+                obj = xstream.fromXML(in);
+                }
+                finally
+                {
                 if (obj instanceof JstSaveClass) // it better be
                 {
                     
@@ -3345,6 +3370,7 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
                     JOptionPane.showMessageDialog(this, "Error Opening File: Incorrect file format, may be corrupt or an old version", "OPEN ERROR", JOptionPane.ERROR_MESSAGE);
                     setStatusMessage("Error Opening File: Incorrect file format");
                 }
+            }
             }
             catch(Exception e)
             {
