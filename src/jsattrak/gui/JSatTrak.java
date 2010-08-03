@@ -262,6 +262,7 @@ import jsattrak.utilities.TLEDownloader;
 import name.gano.file.FileTypeFilter;
 import name.gano.file.SaveImageFile;
 import javatester.UserInput;
+import java.lang.String;
 
 /**
  *
@@ -3145,14 +3146,18 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         
     } //closeScenario
 
+    //Reads characters off a file into hexadecimal
     private String printHexFile(String filename, int count) throws FileNotFoundException, IOException{
         FileInputStream in = new FileInputStream(filename);
         int read;
         String str = "";
+        String tmp = "";
 
         for(int j=0; j<count; j++){
             read = in.read();
-            str = str + Integer.toHexString(read);
+            tmp = Integer.toHexString(read);
+            str = tmp.length() > 1 ? str+tmp : str+"0"+tmp; //reads in first (count) characters with a leading zero if necessary
+            //str = str + str.format("%02i",Integer.toHexString(read));  THIS LINE NEEDS WORK to replace previous two lines
         }
 
         return str;
@@ -3202,7 +3207,7 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
                 
                 // Read an object
 //                Object obj = obj_in.readObject();
-                
+
 //                f_in.close(); // close file
                 
                  // before version 4.0 way
@@ -3212,22 +3217,23 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
                  */
 
                 Object obj = null;
-                String str = printHexFile(getFileSaveAs(),4);
-                if (str.equals("504b34"))
+                String str = printHexFile(getFileSaveAs(),4); //reads beginning of zip file for header (first four characters)
+                if (str.equals("504b0304")) //zip local file header
                 {
-                // v4.0 - use zip file to get data out of the file
-                ZipInputStream in = new ZipInputStream(new FileInputStream(getFileSaveAs()));
-                ZipEntry entry = in.getNextEntry();
-                XStream xstream = new XStream();
-                obj = xstream.fromXML(in);
-                in.close();
+                    // v4.0 - use zip file to get data out of the file
+                    ZipInputStream in = new ZipInputStream(new FileInputStream(getFileSaveAs()));
+                    ZipEntry entry = in.getNextEntry();
+                    XStream xstream = new XStream();
+                    obj = xstream.fromXML(in);
+                    in.close();
                 }
                 else
                 {
-                BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(getFileSaveAs()), "UTF8"));
-                XStream xstream = new XStream(new DomDriver());
-                obj = xstream.fromXML(in);
-                in.close();
+                    //assume the file is in the old XML format
+                    BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(getFileSaveAs()), "UTF8"));
+                    XStream xstream = new XStream(new DomDriver());
+                    obj = xstream.fromXML(in);
+                    in.close();
                 }
                 if (obj instanceof JstSaveClass) // it better be
                 {
