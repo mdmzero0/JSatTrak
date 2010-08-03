@@ -189,6 +189,8 @@ import bsh.util.JConsole;
 import bsh.util.NameCompletionTable;
 import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 import com.jgoodies.looks.plastic.theme.ExperienceBlue;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import jsattrak.objects.GroundStation;
 import jsattrak.about.AboutDialog;
 import com.thoughtworks.xstream.XStream;
@@ -3142,6 +3144,19 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         return true;
         
     } //closeScenario
+
+    private String printHexFile(String filename, int count) throws FileNotFoundException, IOException{
+        FileInputStream in = new FileInputStream(filename);
+        int read;
+        String str = "";
+
+        for(int j=0; j<count; j++){
+            read = in.read();
+            str = str + Integer.toHexString(read);
+        }
+
+        return str;
+    }
     
     // open file populate scenario
     public void openFile()
@@ -3197,24 +3212,23 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
                  */
 
                 Object obj = null;
-                BufferedReader in = null;
-                ZipInputStream inb = null;
-                try
-                {
-                 in = new BufferedReader(new InputStreamReader(new FileInputStream(getFileSaveAs()), "UTF8"));
-                 XStream xstream = new XStream(new DomDriver());
-                 obj = xstream.fromXML(in);
-                }
-                catch (Exception eee)
+                String str = printHexFile(getFileSaveAs(),4);
+                if (str.equals("504b34"))
                 {
                 // v4.0 - use zip file to get data out of the file
-                inb = new ZipInputStream(new FileInputStream(getFileSaveAs()));
-                ZipEntry entry = inb.getNextEntry();
+                ZipInputStream in = new ZipInputStream(new FileInputStream(getFileSaveAs()));
+                ZipEntry entry = in.getNextEntry();
                 XStream xstream = new XStream();
-                obj = xstream.fromXML(inb);
+                obj = xstream.fromXML(in);
+                in.close();
                 }
-                finally
+                else
                 {
+                BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(getFileSaveAs()), "UTF8"));
+                XStream xstream = new XStream(new DomDriver());
+                obj = xstream.fromXML(in);
+                in.close();
+                }
                 if (obj instanceof JstSaveClass) // it better be
                 {
                     
@@ -3365,8 +3379,7 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
            
                     setStatusMessage("Opened file: " + file.getAbsolutePath());
 
-                    in.close(); //c lose file
-                    inb.close();
+                    //in.close(); //c lose file
                 }
                 else
                 {
@@ -3374,7 +3387,7 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
                     setStatusMessage("Error Opening File: Incorrect file format");
                 }
             }
-            }
+            
             catch(Exception e)
             {
                 e.printStackTrace();
