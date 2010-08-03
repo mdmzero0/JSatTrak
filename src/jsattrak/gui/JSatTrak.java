@@ -3155,9 +3155,8 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
 
         for(int j=0; j<count; j++){
             read = in.read();
-            tmp = Integer.toHexString(read);
-            str = tmp.length() > 1 ? str+tmp : str+"0"+tmp; //reads in first (count) characters with a leading zero if necessary
-            //str = str + str.format("%02i",Integer.toHexString(read));  THIS LINE NEEDS WORK to replace previous two lines
+            //reads in first (count) characters with a leading zero if necessary
+            str = str + str.format("%02x",read); 
         }
 
         return str;
