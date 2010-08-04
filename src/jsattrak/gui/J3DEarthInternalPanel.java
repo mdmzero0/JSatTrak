@@ -312,7 +312,7 @@ public class J3DEarthInternalPanel extends javax.swing.JPanel implements J3DEart
         WwjUtils.insertBeforePlacenames(getWwd(), topo);
         
         // Coverage Data Layer
-        cel = new CoverageRenderableLayer(app.getCoverageAnalyzer());
+//        cel = new CoverageRenderableLayer(app.getCoverageAnalyzer());
         //cel.setEnabled(false); // off by default
         m.getLayers().add(cel); // add Layer
 

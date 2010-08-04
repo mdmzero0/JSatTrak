@@ -109,11 +109,11 @@ public class JstSaveClass implements Serializable
         localTimeZoneSelected = app.isLoalTimeModeSelected();
         
         // save data for sat list location
-        int whxy[] = app.getSatListWHXY();
-        satListWidth = whxy[0];
-        satListHeight = whxy[1];
-        satListX = whxy[2];
-        satListY = whxy[3];
+//        int whxy[] = app.getSatListWHXY();
+//        satListWidth = whxy[0];
+//        satListHeight = whxy[1];
+//        satListX = whxy[2];
+//        satListY = whxy[3];
         
         // save scenario epoch data
         epochTimeEqualsCurrentTime = app.isEpochTimeEqualsCurrentTime();
@@ -157,7 +157,7 @@ public class JstSaveClass implements Serializable
         
         
         // coverage anaylzer
-        ca = app.getCoverageAnalyzer();
+//        ca = app.getCoverageAnalyzer();
 
         // screen location and size of entire app  -- NEW 20 March 2009
         screenLoc = app.getLocationOnScreen();
@@ -360,11 +360,13 @@ public class JstSaveClass implements Serializable
         this.scenarioEpochDate = scenarioEpochDate;
     }
 
-    public boolean isWwjOfflineMode() {
+    public boolean isWwjOfflineMode()
+    {
         return wwjOfflineMode;
     }
 
-    public void setWwjOfflineMode(boolean wwjOfflineMode) {
+    public void setWwjOfflineMode(boolean wwjOfflineMode)
+    {
         this.wwjOfflineMode = wwjOfflineMode;
     }
 

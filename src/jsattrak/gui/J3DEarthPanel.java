@@ -318,9 +318,9 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         WwjUtils.insertBeforePlacenames(getWwd(), topo);
         
         // Coverage Data Layer
-        cel = new CoverageRenderableLayer(app.getCoverageAnalyzer());
+//        cel = new CoverageRenderableLayer(app.getCoverageAnalyzer());
         //cel.setEnabled(false); // off by default
-        m.getLayers().add(cel); // add Layer
+//        m.getLayers().add(cel); // add Layer
 
         // add EcefTimeDepRenderableLayer layer
         timeDepLayer = new EcefTimeDepRenderableLayer(currentMJD,app);
