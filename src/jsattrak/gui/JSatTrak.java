@@ -3844,7 +3844,7 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         
         this.setStatusMessage("Custom Satellite Added: " + name );
         // open properties panel
-        objListPanel.openCurrentOptions(prop);
+        //objListPanel.openCurrentOptions(prop);
     }
 
     public // 3D windows
