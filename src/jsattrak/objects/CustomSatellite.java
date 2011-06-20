@@ -51,7 +51,7 @@ public class CustomSatellite  extends AbstractSatellite
 {
     //====================================
     private int ephemerisIncrement = 30; // number of rows added at a time to improve speed of memory allocation
-    // internal ephemeris (Time store in TT)
+    // internal ephemeris (Time stored in TT)
     private Vector<StateVector> ephemeris = new Vector<StateVector>(ephemerisIncrement, ephemerisIncrement); // array to store ephemeris
     //====================================
     
@@ -91,9 +91,9 @@ public class CustomSatellite  extends AbstractSatellite
     private double groundTrackLagPeriodMultiplier = 1.0;  // how far behind to draw ground track - in terms of periods
     
     double[][] latLongLead; // leading lat/long coordinates for ground track
-    double[][] latLongLag; // laging lat/long coordinates for ground track
+    double[][] latLongLag; // lagging lat/long coordinates for ground track
     private double[][] temePosLead; // leading Mean of date position coordinates for ground track
-    private double[][] temePosLag; // laging Mean of date position coordinates for ground track
+    private double[][] temePosLag; // lagging Mean of date position coordinates for ground track
     private double[]   timeLead; // array for holding times associated with lead coordinates (Jul Date) - UTC?
     private double[]   timeLag; // array - times associated with lag coordinates (Jul Date)
     
@@ -172,10 +172,10 @@ public class CustomSatellite  extends AbstractSatellite
     }
     
     // ================================================================
-    // functions that have to be fixed yet =========================
+    // functions that have yet to be fixed =========================
     // =================================================================
     
-    // this function is basically given time update all current info and update lead/lag data if needed
+    // this function is basically given time, updates all current info and updates lead/lag data if needed
     @Override
     public void propogate2JulDate(double julDate)
     {
@@ -200,7 +200,7 @@ public class CustomSatellite  extends AbstractSatellite
             minTime = ephemeris.get(0).state[0] - deltaTT2UTC;
             maxTime = ephemeris.get( ephemeris.size()-1).state[0] - deltaTT2UTC;
 
-            // see if the current time in inside of the ephemeris range
+            // see if the current time is inside of the ephemeris range
             if (julDate <= maxTime && julDate >= minTime)
             {
 
@@ -209,7 +209,7 @@ public class CustomSatellite  extends AbstractSatellite
                 tempTime = ephemeris.get(1).state[0]- deltaTT2UTC;
                 
                 int i = 1;
-                // find where in the ephemeris to interpolat around
+                // find where in the ephemeris to interpolate around
                 
                 while (tempTime < julDate) // not <= causes out of bounds errors
                 {
@@ -297,7 +297,7 @@ public class CustomSatellite  extends AbstractSatellite
                 // convert to LLA -- time in days since J2000
                 //posMOD = CoordinateConversion.EquatorialEquinoxFromJ2K( currentMJDtime , j2kPos);
                 //velMOD = CoordinateConversion.EquatorialEquinoxFromJ2K( currentMJDtime , j2kVel);
-                // See SatelliteTleSGP$.java explination of MOD/TEME for calculating lat/long as TLE coordinate systems
+                // See SatelliteTleSGP4.java explanation of MOD/TEME for calculating lat/long as TLE coordinate systems
                 // revised calculations:
                 double mjd = julDate-AstroConst.JDminusMJD;
                 double ttt = (mjd-AstroConst.MJD_J2000) /36525.0;
@@ -333,7 +333,7 @@ public class CustomSatellite  extends AbstractSatellite
                         initializeGroundTrack(); // for new ini each time
 
                     } // ascending node passed
-                    // ELSE if current time is not in the lead/lag interval reinintialize it
+                    // ELSE if current time is not in the lead/lag interval reinitialize it
                     else if(timeLead[timeLead.length-1]<julDate ||  timeLag[0]>julDate)
                     {
                         initializeGroundTrack();
@@ -359,7 +359,7 @@ public class CustomSatellite  extends AbstractSatellite
                     // clear ground track
                     groundTrackIni = false;
                     latLongLead = null; // save some space
-                    latLongLag = null; // sace some space
+                    latLongLag = null; // save some space
                     temePosLag = null;
                     temePosLead = null;
                     timeLead = null;
@@ -407,7 +407,7 @@ public class CustomSatellite  extends AbstractSatellite
         {
                 // convert to LLA -- time in days since J2000
                 //ptPos = CoordinateConversion.EquatorialEquinoxFromJ2K( julDate - AstroConst.JDminusMJD , j2kPosTemp);
-                // See SatelliteTleSGP$.java explination of MOD/TEME for calculating lat/long as TLE coordinate systems
+                // See SatelliteTleSGP4.java explanation of MOD/TEME for calculating lat/long as TLE coordinate systems
                 // revised calculations:
                 double mjd = julDate-AstroConst.JDminusMJD;
                 double ttt = (mjd-AstroConst.MJD_J2000) /36525.0;
@@ -455,7 +455,7 @@ public class CustomSatellite  extends AbstractSatellite
                 tempTime = ephemeris.get(1).state[0] - deltaTT2UTC;
 
                 int i = 1;
-                // find where in the ephemeris to interpolat around
+                // find where in the ephemeris to interpolate around
 
                 while (tempTime < julDate) // not <= causes out of bounds errors
                 {
@@ -883,7 +883,7 @@ public class CustomSatellite  extends AbstractSatellite
     
     public double getTleAgeDays()
     {
-        return 0;//currentJulianDate - tleEpochJD; // SEG returns 0 since really there is not TLE!!
+        return 0;//currentJulianDate - tleEpochJD; // SEG returns 0 since really there is no TLE!!
     }
 
     public int getNumPtsFootPrint()
@@ -1031,7 +1031,7 @@ public class CustomSatellite  extends AbstractSatellite
         this.show3D = show3D;
     }
 
-    // laging lat/long coordinates for ground track
+    // lagging lat/long coordinates for ground track
     public double[][] getTemePosLead()
     {
         return temePosLead;
@@ -1043,7 +1043,7 @@ public class CustomSatellite  extends AbstractSatellite
         return temePosLag;
     }
 
-    public // laging Mean of date position coordinates for ground track
+    public // lagging Mean of date position coordinates for ground track
     double[] getTimeLead()
     {
         return timeLead;

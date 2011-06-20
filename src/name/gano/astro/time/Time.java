@@ -117,7 +117,7 @@ public class Time implements java.io.Serializable
         // create new calendar with default timezone
         currentTime = new GregorianCalendar(tz);
         
-        // update other time formates
+        // update other time formats
         updateTimeMeasures();
     }
     
@@ -653,7 +653,7 @@ public String getDateTimeStr()
         // convert to calendar
         GregorianCalendar newTime = convertJD2Calendar(jd);
         
-        // format as String -- ASSUMES dateFromat is not NULL!!
+        // format as String -- ASSUMES dateFormat is not NULL!!
         dateFormat.setTimeZone(tzStringFormat);
         String retStr=dateFormat.format( newTime.getTime() );
         

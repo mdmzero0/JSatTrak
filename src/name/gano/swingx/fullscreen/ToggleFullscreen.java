@@ -51,7 +51,7 @@ public class ToggleFullscreen extends JFrame {
 	//this window fullscreen.
 	private GraphicsDevice device = null;
 	
-	//the resolution in which we want to change the monitor to.
+	//the resolution which we want to change the monitor to.
 	private DisplayMode dispMode = new DisplayMode(800, 600, 32, 60);
 	
 	//the original resolution before our program is run.
@@ -63,7 +63,7 @@ public class ToggleFullscreen extends JFrame {
 	//needed because the JFrame area changes.
 	//private JPanel drawingArea = null;
         
-        private J3DEarthComponent test; // panel were the component came from
+        private J3DEarthComponent test; // panel where the component came from
         
         private KeyAdapter keyAdp;
         
@@ -141,7 +141,7 @@ public class ToggleFullscreen extends JFrame {
 		//show the JFrame.
 		setVisible(true);
                 
-                // auto matically go to full screen mode
+                // automatically go to full screen mode
                 this.setFullscreen(true);
 	}
 	

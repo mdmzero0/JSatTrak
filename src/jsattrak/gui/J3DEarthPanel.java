@@ -318,9 +318,9 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         WwjUtils.insertBeforePlacenames(getWwd(), topo);
         
         // Coverage Data Layer
-        cel = new CoverageRenderableLayer(app.getCoverageAnalyzer());
+//        cel = new CoverageRenderableLayer(app.getCoverageAnalyzer());
         //cel.setEnabled(false); // off by default
-        m.getLayers().add(cel); // add Layer
+//        m.getLayers().add(cel); // add Layer
 
         // add EcefTimeDepRenderableLayer layer
         timeDepLayer = new EcefTimeDepRenderableLayer(currentMJD,app);
@@ -591,8 +591,6 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         jToolBar1 = new javax.swing.JToolBar();
         viewPropButton = new javax.swing.JButton();
         globeLayersButton = new javax.swing.JButton();
-        wmsButton = new javax.swing.JButton();
-        terrainProfileButton = new javax.swing.JButton();
         screenCaptureButton = new javax.swing.JButton();
         genMovieButton = new javax.swing.JButton();
         fullScreenButton = new javax.swing.JButton();
@@ -629,30 +627,6 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
             }
         });
         jToolBar1.add(globeLayersButton);
-
-        wmsButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/other/folder-remote.png"))); // NOI18N
-        wmsButton.setToolTipText("Manage Web Map Services"); // NOI18N
-        wmsButton.setFocusable(false);
-        wmsButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        wmsButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        wmsButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                wmsButtonActionPerformed(evt);
-            }
-        });
-        jToolBar1.add(wmsButton);
-
-        terrainProfileButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/gnome_2_18/stock_chart-autoformat.png"))); // NOI18N
-        terrainProfileButton.setToolTipText("Terrain Profiler"); // NOI18N
-        terrainProfileButton.setFocusable(false);
-        terrainProfileButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        terrainProfileButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        terrainProfileButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                terrainProfileButtonActionPerformed(evt);
-            }
-        });
-        jToolBar1.add(terrainProfileButton);
 
         screenCaptureButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/gnome_2_18/applets-screenshooter22.png"))); // NOI18N
         screenCaptureButton.setToolTipText("Screenshot"); // NOI18N
@@ -765,76 +739,6 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
     }//GEN-LAST:event_globeLayersButtonActionPerformed
     private int previousTabIndex = 0;
 
-    private void wmsButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_wmsButtonActionPerformed
-    {//GEN-HEADEREND:event_wmsButtonActionPerformed
-        // create a dialog for all the web map services
-
-        // create tabbed pane to add to Dialog
-        //JTabbedPane tabbedPane;
-
-        final JTabbedPane tabbedPane = new JTabbedPane();
-
-        tabbedPane.add(new JPanel());
-        tabbedPane.setTitleAt(0, "+");
-        tabbedPane.addChangeListener(new ChangeListener()
-                {
-
-                    public void stateChanged(ChangeEvent changeEvent)
-                    {
-                        if (tabbedPane.getSelectedIndex() != 0)
-                        {
-                            previousTabIndex = tabbedPane.getSelectedIndex();
-                            return;
-                        }
-
-                        String server = JOptionPane.showInputDialog("Enter wms server URL");
-                        if (server == null || server.length() < 1)
-                        {
-                            tabbedPane.setSelectedIndex(previousTabIndex);
-                            return;
-                        }
-
-                        // Respond by adding a new WMSLayerPanel to the tabbed pane.
-                        if (addWMSTab(tabbedPane.getTabCount(), server.trim(), tabbedPane) != null)
-                        {
-                            tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1);
-                        }
-                    }
-                });
-
-        // Create a tab for each server and add it to the tabbed panel.
-        for (int i = 0; i < servers.length; i++)
-        {
-            addWMSTab(i + 1, servers[i], tabbedPane); // i+1 to place all server tabs to the right of the Add Server tab
-        }
-
-        // Display the first server pane by default.
-        tabbedPane.setSelectedIndex(tabbedPane.getTabCount() > 0 ? 1 : 0);
-        previousTabIndex = tabbedPane.getSelectedIndex();
-
-        // create and open dialog
-        String windowName = "Web Map Services";
-
-        JDialog iframe = new JDialog(parent, windowName, false); // parent, title, modal
-
-        //iframe.setContentPane(newPanel);
-        Container cp = iframe.getContentPane();
-
-        // add to dialog
-        cp.add(tabbedPane);
-
-        iframe.setSize(480, 350);
-
-        Point p = parent.getLocation();
-        iframe.setLocation(p.x + 15, p.y + 15);
-
-        setLookandFeel(iframe);
-
-        iframe.setVisible(true);
-        
-        
-    }//GEN-LAST:event_wmsButtonActionPerformed
-
     private void screenCaptureButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_screenCaptureButtonActionPerformed
     {//GEN-HEADEREND:event_screenCaptureButtonActionPerformed
         createScreenCapture();
@@ -905,15 +809,6 @@ public class J3DEarthPanel extends javax.swing.JPanel implements J3DEarthCompone
         panel.setVisible(true);
     }//GEN-LAST:event_genMovieButtonActionPerformed
 
-    private void terrainProfileButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_terrainProfileButtonActionPerformed
-    {//GEN-HEADEREND:event_terrainProfileButtonActionPerformed
-        JTerrainProfileDialog panel = new JTerrainProfileDialog(app, false, app, this);
-        Point p = this.getLocationOnScreen();
-        panel.setLocation(p.x + 15, p.y + 55);
-        setLookandFeel(panel);
-        panel.setVisible(true);
-}//GEN-LAST:event_terrainProfileButtonActionPerformed
-
 private void fullScreenButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fullScreenButtonActionPerformed
 //Get the default graphics configuration from the graphics environment
 		new ToggleFullscreen(GraphicsEnvironment.getLocalGraphicsEnvironment()
@@ -958,9 +853,7 @@ private void fullScreenButtonActionPerformed(java.awt.event.ActionEvent evt) {//
     private javax.swing.JPanel jPanel2;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JButton screenCaptureButton;
-    private javax.swing.JButton terrainProfileButton;
     private javax.swing.JButton viewPropButton;
-    private javax.swing.JButton wmsButton;
     private javax.swing.JPanel wwjPanel;
     // End of variables declaration//GEN-END:variables
 

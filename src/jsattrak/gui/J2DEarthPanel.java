@@ -887,7 +887,7 @@ public class J2DEarthPanel extends JPanel implements ComponentListener , java.io
         {
             // get lat/long click first before setting new zoom factor
             double[] ll =  imageMap.findLLfromXY(e.getX(), e.getY(), imageMap.getLastTotalWidth(), imageMap.getLastTotalHeight(), imageMap.getImageWidth(), imageMap.getImageHeight());
-            if( e.getWheelRotation() > 0 )
+            if( e.getWheelRotation() < 0 )
             {
                 // new zoom factor
                 double newZoomFactor = imageMap.getZoomFactor()*imageMap.getZoomIncrementMultiplier();

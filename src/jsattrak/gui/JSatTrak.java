@@ -191,6 +191,9 @@ import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 import com.jgoodies.looks.plastic.theme.ExperienceBlue;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import jsattrak.objects.GroundStation;
 import jsattrak.about.AboutDialog;
 import com.thoughtworks.xstream.XStream;
@@ -261,17 +264,17 @@ import name.gano.astro.time.Time;
 import jsattrak.utilities.TLEDownloader;
 import name.gano.file.FileTypeFilter;
 import name.gano.file.SaveImageFile;
-import javatester.UserInput;
+import javatester.OnlineInput;
 import java.lang.String;
-
+import java.net.URL;
+import java.io.*;
 /**
  *
  * @author  Shawn E. Gano, shawn@gano.name
  */
 public class JSatTrak extends javax.swing.JFrame implements InternalFrameListener, WindowListener, Serializable
 {
-    private String versionString = "Version 4.1.3  (30 March 2010)"; // Version of app
-    
+    private String versionString = "Visualization Tool"; // Version of app
     // hashtable to store all the statelites currently being processed
     private Hashtable<String,AbstractSatellite> satHash = new Hashtable<String,AbstractSatellite>();
     
@@ -294,7 +297,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
     private Vector<JTrackingPanel> trackingWindowVec = new Vector<JTrackingPanel>();
     
     // sat panel - show list of satellites
-    JObjectListPanel objListPanel;
+//    JObjectListPanel objListPanel;
     
     // Sun object
     private Sun sun;
@@ -357,7 +360,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
     Vector<JSatTrakTimeDependent> timeDependentObjects = new Vector<JSatTrakTimeDependent>();
     
      // coverage anaylzer tool (default null, until tool opened)
-     private CoverageAnalyzer coverageAnalyzer;
+//     private CoverageAnalyzer coverageAnalyzer;
      
      // WorldWindGLCanvas so all 3D windows can share resources like 3D models
      private WorldWindowGLCanvas wwd; // intially null - only created when needed
@@ -366,12 +369,11 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
      private long lastFPSms;
      private double fpsAnimation;
      
-     
+    
     /** Creates new form JSatTrak */
     public JSatTrak()
     {
         boolean usingNimbus = false; // flag for updating nimbus
-
         // setup look and feel first        
         // if User has java 6u10 or greater that means NimbusLookAndFeel is supported!
         try
@@ -447,10 +449,10 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         
         
         // create Satelite List Internal Frame (that can never be closed)
-        objListPanel = new JObjectListPanel(satHash, gsHash, this);   
+//        objListPanel = new JObjectListPanel(satHash, gsHash, this);
         
         // add it to the internal Frame
-        satListInternalFrame.setContentPane(objListPanel);
+//        satListInternalFrame.setContentPane(objListPanel);
 
 //        // TEST
 //        JObjectListInternalFrame t = new JObjectListInternalFrame(satHash,gsHash,this);
@@ -526,7 +528,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         });
         
         // try it out status messages
-        setStatusMessage("Welcome to JSatTrak " + versionString + ", by Shawn E. Gano");
+        setStatusMessage("Welcome to the JSatTrak " + versionString + ", by Michael Mascaro.  Originally by Shawn E. Gano");
         
         
         // save root app to Bean Shell interpreter
@@ -563,16 +565,22 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         {
             System.out.println("Error saving main object to bean shell:" + e.toString());
         }
-
-
-        // Default sats in list: -- load if TLE data is local
+            // Default sats in list: -- load if TLE data is local
         try
         {
+            boolean script = true;
+            if( (new File("startup.bsh")).exists())
+                {
+                    // run startup script
+                    runScript("startup.bsh");
+                    script = false;
+                }
             TLEDownloader tleDownloader = new TLEDownloader();
             if((new File(tleDownloader.getLocalPath()).exists()) && (new File(tleDownloader.getTleFilePath(0)).exists()))
             {
                 // check for a startup script file and run it if it exists
-                if( (new File("startup.bsh")).exists())
+                
+                if( (new File("startup.bsh")).exists() && script)
                 {
                     // run startup script
                     runScript("startup.bsh");
@@ -609,12 +617,12 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         // Debug for coverage module - for now create it and add it to 2D window
         if (false)
         {
-            coverageAnalyzer = new CoverageAnalyzer(currentJulianDate); // start after first step
-            //CoverageAnalyzer coverageAnalyzer = new CoverageAnalyzer(currentJulianDate,timeStepSpeeds[currentTimeStepSpeedIndex]/(24.0*60*60),satHash);
-            twoDWindowVec.get(0).addRenderableObject(coverageAnalyzer); // add it to the panel
-            coverageAnalyzer.addSatToCoverageAnaylsis("ISS (ZARYA)             ");
-            //coverageAnalyzer.addSatToCoverageAnaylsis("test");
-            timeDependentObjects.add(coverageAnalyzer); // add object to time updates
+////            coverageAnalyzer = new CoverageAnalyzer(currentJulianDate); // start after first step
+//            //CoverageAnalyzer coverageAnalyzer = new CoverageAnalyzer(currentJulianDate,timeStepSpeeds[currentTimeStepSpeedIndex]/(24.0*60*60),satHash);
+//            twoDWindowVec.get(0).addRenderableObject(coverageAnalyzer); // add it to the panel
+//            coverageAnalyzer.addSatToCoverageAnaylsis("ISS (ZARYA)             ");
+//            //coverageAnalyzer.addSatToCoverageAnaylsis("test");
+//            timeDependentObjects.add(coverageAnalyzer); // add object to time updates
             twoDWindowVec.get(0).setShowLatLonLines(false);
             twoDWindowVec.get(0).setDrawSun(false);
             twoDWindowVec.get(0).setShowDateTime(false);
@@ -647,15 +655,15 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
     public void checkAndInstallPlugins()
     {
         // first clean out all current plugins displayed (in case it is refreshed)
-        pluginMenu.removeAll();
+//        pluginMenu.removeAll();
         
         // see if plugin directory exisits
-        File rootFile = new File("plugins");
+        File rootFile = new File("scenarios");
         
         // make sure plugins exist and is a dirctory
         if (rootFile.exists() && rootFile.isDirectory())
         {
-            System.out.println("Plugin Directory Exists:");
+            System.out.println("Scenario Directory Exists:");
 
             // create action for plugin menu items
             AbstractAction pluginAction = new AbstractAction()
@@ -672,8 +680,8 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
                 String menuName = fileName.substring(0, fileName.length()-4);
                 
                 JMenuItem newPluginMenuItem = new JMenuItem(menuName);
-                pluginMenu.add(newPluginMenuItem);
-                System.out.println("Loading plugin: " + fileName);
+//                pluginMenu.add(newPluginMenuItem);
+                System.out.println("Loading scenario: " + fileName);
 
                 newPluginMenuItem.setAction(pluginAction); // add action
                 newPluginMenuItem.setText(menuName); // reset name on menu item (since action over writes it)                
@@ -682,16 +690,16 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         } // plugin loading
         
         // add seperator
-        pluginMenu.add(new JSeparator());
+//        pluginMenu.add(new JSeparator());
         
-        AbstractAction refreshPluginAction = new AbstractAction("Refresh Plugins List")
+        AbstractAction refreshPluginAction = new AbstractAction("Refresh Scenario List")
             {
                 public void actionPerformed(ActionEvent e)
                 {
                     checkAndInstallPlugins();
                 }
             };
-        pluginMenu.add(new JMenuItem(refreshPluginAction));
+//        pluginMenu.add(new JMenuItem(refreshPluginAction));
         
         // load in all plugins with right file extension
         
@@ -708,8 +716,6 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         jPanel3 = new javax.swing.JPanel();
         jToolBar = new javax.swing.JToolBar();
         saveButton = new javax.swing.JButton();
-        openSatBrowserButton = new javax.swing.JButton();
-        openGSbrowser = new javax.swing.JButton();
         resetTimeButton = new javax.swing.JButton();
         playBackButton = new javax.swing.JButton();
         stepBackButton = new javax.swing.JButton();
@@ -732,7 +738,6 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         desktopPanel = new javax.swing.JPanel();
         desktopScrollPane = new javax.swing.JScrollPane();
         mainDesktopPane = new javax.swing.JDesktopPane();
-        satListInternalFrame = new javax.swing.JInternalFrame();
         statusPanel = new javax.swing.JPanel();
         jSeparator7 = new javax.swing.JSeparator();
         statusLabel = new javax.swing.JLabel();
@@ -740,7 +745,6 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         statusAnimationLabel = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
-        newMenuItem = new javax.swing.JMenuItem();
         openMenuItem = new javax.swing.JMenuItem();
         closeMenuItem = new javax.swing.JMenuItem();
         saveMenuItem = new javax.swing.JMenuItem();
@@ -750,36 +754,20 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         simMenu = new javax.swing.JMenu();
         simPropMenuItem = new javax.swing.JMenuItem();
         jSeparator3 = new javax.swing.JSeparator();
+        movieWholeAppMenuItem = new javax.swing.JMenuItem();
         realTimeMenuItem = new javax.swing.JMenuItem();
         nonRealTimeMenuItem = new javax.swing.JMenuItem();
         jSeparator4 = new javax.swing.JSeparator();
         utcTimeMenuItem = new javax.swing.JMenuItem();
         localTimeMenuItem = new javax.swing.JMenuItem();
-        utilitiesMenu = new javax.swing.JMenu();
-        tleLoaderMenuItem = new javax.swing.JMenuItem();
-        jSeparator6 = new javax.swing.JSeparator();
-        trackToolMenuItem = new javax.swing.JMenuItem();
-        coverageMenuItem = new javax.swing.JMenuItem();
-        jSeparator10 = new javax.swing.JSeparator();
-        movieWholeAppMenuItem = new javax.swing.JMenuItem();
-        jSeparator11 = new javax.swing.JSeparator();
-        commandServerMenuItem = new javax.swing.JMenuItem();
-        commandClientMenuItem = new javax.swing.JMenuItem();
         new3DwindowMenu = new javax.swing.JMenu();
-        showSatBrowser = new javax.swing.JMenuItem();
-        showGSBrowserMenuItem = new javax.swing.JMenuItem();
         jSeparator5 = new javax.swing.JSeparator();
         new2DWindowMenuItem = new javax.swing.JMenuItem();
-        newInternal3DWindowMenuItem = new javax.swing.JMenuItem();
         newExternal3DWindowMenuItem = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JSeparator();
         twoDwindowPropMenuItem = new javax.swing.JMenuItem();
         jSeparator8 = new javax.swing.JSeparator();
-        consoleMenuItem = new javax.swing.JMenuItem();
         jSeparator9 = new javax.swing.JSeparator();
-        commandShellMenuItem = new javax.swing.JMenuItem();
-        commandShellDesktopMenuItem = new javax.swing.JMenuItem();
-        pluginMenu = new javax.swing.JMenu();
         helpMenu = new javax.swing.JMenu();
         sysPropsMenuItem = new javax.swing.JMenuItem();
         lookFeelMenuItem = new javax.swing.JMenuItem();
@@ -800,27 +788,6 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
             }
         });
         jToolBar.add(saveButton);
-
-        openSatBrowserButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/custom/sat_icon_tle.png"))); // NOI18N
-        openSatBrowserButton.setToolTipText("Open Satellite Browser"); // NOI18N
-        openSatBrowserButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                openSatBrowserButtonActionPerformed(evt);
-            }
-        });
-        jToolBar.add(openSatBrowserButton);
-
-        openGSbrowser.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/custom/groundStation_obj.png"))); // NOI18N
-        openGSbrowser.setToolTipText("Open Ground Station Browser");
-        openGSbrowser.setFocusable(false);
-        openGSbrowser.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        openGSbrowser.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        openGSbrowser.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                openGSbrowserActionPerformed(evt);
-            }
-        });
-        jToolBar.add(openGSbrowser);
 
         resetTimeButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/gnome_2_18/media-seek-backward.png"))); // NOI18N
         resetTimeButton.setToolTipText("Reset To Current Time or Epoch"); // NOI18N
@@ -1000,28 +967,6 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         desktopScrollPane.setAutoscrolls(true);
 
         mainDesktopPane.setDoubleBuffered(true);
-
-        satListInternalFrame.setIconifiable(true);
-        satListInternalFrame.setMaximizable(true);
-        satListInternalFrame.setResizable(true);
-        satListInternalFrame.setTitle("Object List"); // NOI18N
-        satListInternalFrame.setFrameIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/logo/JSatTrakLogo_16.png"))); // NOI18N
-        satListInternalFrame.setVisible(true);
-
-        javax.swing.GroupLayout satListInternalFrameLayout = new javax.swing.GroupLayout(satListInternalFrame.getContentPane());
-        satListInternalFrame.getContentPane().setLayout(satListInternalFrameLayout);
-        satListInternalFrameLayout.setHorizontalGroup(
-            satListInternalFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 174, Short.MAX_VALUE)
-        );
-        satListInternalFrameLayout.setVerticalGroup(
-            satListInternalFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 323, Short.MAX_VALUE)
-        );
-
-        satListInternalFrame.setBounds(610, 5, 190, 350);
-        mainDesktopPane.add(satListInternalFrame, javax.swing.JLayeredPane.DEFAULT_LAYER);
-
         desktopScrollPane.setViewportView(mainDesktopPane);
 
         javax.swing.GroupLayout desktopPanelLayout = new javax.swing.GroupLayout(desktopPanel);
@@ -1068,7 +1013,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
                 .addComponent(jSeparator7, javax.swing.GroupLayout.PREFERRED_SIZE, 5, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(1, 1, 1)
                 .addGroup(statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(statusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 17, Short.MAX_VALUE)
+                    .addComponent(statusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
                     .addComponent(statusAnimationLabel)
                     .addComponent(statusProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
@@ -1077,15 +1022,6 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         getContentPane().add(statusPanel, java.awt.BorderLayout.SOUTH);
 
         fileMenu.setText("File"); // NOI18N
-
-        newMenuItem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/gnome_2_18/window-new.png"))); // NOI18N
-        newMenuItem.setText("New Scenario"); // NOI18N
-        newMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                newMenuItemActionPerformed(evt);
-            }
-        });
-        fileMenu.add(newMenuItem);
 
         openMenuItem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/gnome_2_18/folder-open.png"))); // NOI18N
         openMenuItem.setText("Open..."); // NOI18N
@@ -1148,6 +1084,15 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         simMenu.add(simPropMenuItem);
         simMenu.add(jSeparator3);
 
+        movieWholeAppMenuItem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/other/applications-multimedia.png"))); // NOI18N
+        movieWholeAppMenuItem.setText("Create Movie of Application");
+        movieWholeAppMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                movieWholeAppMenuItemActionPerformed(evt);
+            }
+        });
+        simMenu.add(movieWholeAppMenuItem);
+
         realTimeMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, java.awt.event.InputEvent.CTRL_MASK));
         realTimeMenuItem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/other/xclock.png"))); // NOI18N
         realTimeMenuItem.setText("Real Time Mode"); // NOI18N
@@ -1189,99 +1134,12 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
 
         jMenuBar1.add(simMenu);
 
-        utilitiesMenu.setText("Utilities"); // NOI18N
-        utilitiesMenu.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                utilitiesMenuActionPerformed(evt);
-            }
-        });
-
-        tleLoaderMenuItem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/tango_blue_materia/network-transmit-receive.png"))); // NOI18N
-        tleLoaderMenuItem.setText("Update Satellite TLE Data"); // NOI18N
-        tleLoaderMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                tleLoaderMenuItemActionPerformed(evt);
-            }
-        });
-        utilitiesMenu.add(tleLoaderMenuItem);
-        utilitiesMenu.add(jSeparator6);
-
-        trackToolMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, java.awt.event.InputEvent.CTRL_MASK));
-        trackToolMenuItem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/other/network-wireless.png"))); // NOI18N
-        trackToolMenuItem.setText("Tracking Tool"); // NOI18N
-        trackToolMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                trackToolMenuItemActionPerformed(evt);
-            }
-        });
-        utilitiesMenu.add(trackToolMenuItem);
-
-        coverageMenuItem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/other/preferences-system-network-proxy.png"))); // NOI18N
-        coverageMenuItem.setText("Coverage Analysis");
-        coverageMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                coverageMenuItemActionPerformed(evt);
-            }
-        });
-        utilitiesMenu.add(coverageMenuItem);
-        utilitiesMenu.add(jSeparator10);
-
-        movieWholeAppMenuItem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/other/applications-multimedia.png"))); // NOI18N
-        movieWholeAppMenuItem.setText("Create Movie of Application");
-        movieWholeAppMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                movieWholeAppMenuItemActionPerformed(evt);
-            }
-        });
-        utilitiesMenu.add(movieWholeAppMenuItem);
-        utilitiesMenu.add(jSeparator11);
-
-        commandServerMenuItem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/tango_blue_materia/network-receive.png"))); // NOI18N
-        commandServerMenuItem.setText("Command Server");
-        commandServerMenuItem.setToolTipText("TCP/IP command server");
-        commandServerMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                commandServerMenuItemActionPerformed(evt);
-            }
-        });
-        utilitiesMenu.add(commandServerMenuItem);
-
-        commandClientMenuItem.setText("Command Client");
-        commandClientMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                commandClientMenuItemActionPerformed(evt);
-            }
-        });
-        utilitiesMenu.add(commandClientMenuItem);
-
-        jMenuBar1.add(utilitiesMenu);
-
         new3DwindowMenu.setText("Windows"); // NOI18N
         new3DwindowMenu.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 new3DwindowMenuActionPerformed(evt);
             }
         });
-
-        showSatBrowser.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_B, java.awt.event.InputEvent.CTRL_MASK));
-        showSatBrowser.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/custom/folder-open_sat.png"))); // NOI18N
-        showSatBrowser.setText("Satellite Browser"); // NOI18N
-        showSatBrowser.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                showSatBrowserActionPerformed(evt);
-            }
-        });
-        new3DwindowMenu.add(showSatBrowser);
-
-        showGSBrowserMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_G, java.awt.event.InputEvent.CTRL_MASK));
-        showGSBrowserMenuItem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/custom/folder-open_gs.png"))); // NOI18N
-        showGSBrowserMenuItem.setText("Ground Station Browser"); // NOI18N
-        showGSBrowserMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                showGSBrowserMenuItemActionPerformed(evt);
-            }
-        });
-        new3DwindowMenu.add(showGSBrowserMenuItem);
         new3DwindowMenu.add(jSeparator5);
 
         new2DWindowMenuItem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/other/gnome-mime-image.png"))); // NOI18N
@@ -1292,15 +1150,6 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
             }
         });
         new3DwindowMenu.add(new2DWindowMenuItem);
-
-        newInternal3DWindowMenuItem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/other/emblem-web.png"))); // NOI18N
-        newInternal3DWindowMenuItem.setText("New 3D Window (Internal)"); // NOI18N
-        newInternal3DWindowMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                newInternal3DWindowMenuItemActionPerformed(evt);
-            }
-        });
-        new3DwindowMenu.add(newInternal3DWindowMenuItem);
 
         newExternal3DWindowMenuItem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/other/emblem-web.png"))); // NOI18N
         newExternal3DWindowMenuItem.setText("New 3D Window (External)"); // NOI18N
@@ -1321,38 +1170,9 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         });
         new3DwindowMenu.add(twoDwindowPropMenuItem);
         new3DwindowMenu.add(jSeparator8);
-
-        consoleMenuItem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/other/logviewer.png"))); // NOI18N
-        consoleMenuItem.setText("Log Console");
-        consoleMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                consoleMenuItemActionPerformed(evt);
-            }
-        });
-        new3DwindowMenu.add(consoleMenuItem);
         new3DwindowMenu.add(jSeparator9);
 
-        commandShellMenuItem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/tango_blue_materia/utilities-terminal.png"))); // NOI18N
-        commandShellMenuItem.setText("Command Shell");
-        commandShellMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                commandShellMenuItemActionPerformed(evt);
-            }
-        });
-        new3DwindowMenu.add(commandShellMenuItem);
-
-        commandShellDesktopMenuItem.setText("Command Shell Desktop");
-        commandShellDesktopMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                commandShellDesktopMenuItemActionPerformed(evt);
-            }
-        });
-        new3DwindowMenu.add(commandShellDesktopMenuItem);
-
         jMenuBar1.add(new3DwindowMenu);
-
-        pluginMenu.setText("Plugins");
-        jMenuBar1.add(pluginMenu);
 
         helpMenu.setText("Help"); // NOI18N
 
@@ -1427,46 +1247,6 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         }
     }//GEN-LAST:event_realTimeMenuItemActionPerformed
 
-    private void newMenuItemActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_newMenuItemActionPerformed
-    {//GEN-HEADEREND:event_newMenuItemActionPerformed
-        
-        // make sure you can close the current senario
-        boolean closed = closeScenario(true); // make sure it is okay to close current scenario?
-        
-        if(!closed)
-        {
-            return;
-        }
-        
-        // okay now create default layout:
-        // by default open a new 2D window to start
-        createNew2dWindow();
-        
-        // first call to update time to current time:
-        currentJulianDate.update2CurrentTime();//.update();// = getCurrentJulianDate(); // ini time
-        // set time string format
-        currentJulianDate.setDateFormat(dateformat);
-        
-        updateTime(); // update plots
-                
-        // update gui with timestep
-        updateTimeStepsDataGUI(); 
-                
-        // Default sats in list: -- load if TLE data is local
-        TLEDownloader tleDownloader = new TLEDownloader();
-        if( (new File(tleDownloader.getLocalPath()).exists()) && (new File(tleDownloader.getTleFilePath(0)).exists()) )
-        {
-            addSat2ListByName("ISS (ZARYA)             ");
-        }
-        
-        // set default epoch time to be current time
-        epochTimeEqualsCurrentTime = true;
-        // other default settings
-        realTimeAnimationRefreshRateMs = 1000; // refresh rate for real time animation
-        nonRealTimeAnimationRefreshRateMs = 50;
-    
-    }//GEN-LAST:event_newMenuItemActionPerformed
-
     private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_exitMenuItemActionPerformed
     {//GEN-HEADEREND:event_exitMenuItemActionPerformed
         // how to exit:
@@ -1519,7 +1299,8 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
 
     private void new3DwindowMenuActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_new3DwindowMenuActionPerformed
     {//GEN-HEADEREND:event_new3DwindowMenuActionPerformed
-// TODO add your handling code here:
+     //TODO add your handling code here:
+        createNew3dWindow();
 }//GEN-LAST:event_new3DwindowMenuActionPerformed
 
     private void simPropMenuItemActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_simPropMenuItemActionPerformed
@@ -2269,23 +2050,6 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         
     }//GEN-LAST:event_tleLoaderMenuItemActionPerformed
 
-    private void newInternal3DWindowMenuItemActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_newInternal3DWindowMenuItemActionPerformed
-    {//GEN-HEADEREND:event_newInternal3DWindowMenuItemActionPerformed
-        
-        // Easter Egg Sorta -- holding the control key while opening a 3D window opens the window in a dialog - though window is not saved
-        // the dialog version uses a faster WWJ rendering class!!!
-        if( evt.getModifiers() == 18) // 18 = control key held down (for win at least!) this could be problematic
-        {
-            createNew3dWindow();
-            return;
-        }
-        
-        // create new window
-        createNew3DInternalWindow();
-        
-        
-    }//GEN-LAST:event_newInternal3DWindowMenuItemActionPerformed
-
     private void showGSBrowserMenuItemActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_showGSBrowserMenuItemActionPerformed
     {//GEN-HEADEREND:event_showGSBrowserMenuItemActionPerformed
         showGSBrowserInternalFrame();
@@ -2324,7 +2088,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         iframe.setVisible(true);
         
         // set menu item to disabled
-        commandShellMenuItem.setEnabled(false);
+//        commandShellMenuItem.setEnabled(false);
         
     }//GEN-LAST:event_commandShellMenuItemActionPerformed
 
@@ -2337,21 +2101,6 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
             beanShellInterp.eval("desktop();");
         }catch(Exception e){}
     }//GEN-LAST:event_commandShellDesktopMenuItemActionPerformed
-
-    private void commandServerMenuItemActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_commandServerMenuItemActionPerformed
-    {//GEN-HEADEREND:event_commandServerMenuItemActionPerformed
-        // open a command server
-        GuiServer guiServer = new GuiServer(beanShellInterp);
-        //setLookandFeel(guiServer);
-        guiServer.setVisible(true);
-    }//GEN-LAST:event_commandServerMenuItemActionPerformed
-
-    private void commandClientMenuItemActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_commandClientMenuItemActionPerformed
-    {//GEN-HEADEREND:event_commandClientMenuItemActionPerformed
-        CommandClientGUI client = new CommandClientGUI();
-        //setLookandFeel(client);
-        client.setVisible(true);   
-    }//GEN-LAST:event_commandClientMenuItemActionPerformed
 
     private void openGSbrowserActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_openGSbrowserActionPerformed
     {//GEN-HEADEREND:event_openGSbrowserActionPerformed
@@ -2386,10 +2135,6 @@ private void createMovieButtonActionPerformed(java.awt.event.ActionEvent evt) {/
     panel.setVisible(true);
 }//GEN-LAST:event_createMovieButtonActionPerformed
 
-private void utilitiesMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_utilitiesMenuActionPerformed
-
-}//GEN-LAST:event_utilitiesMenuActionPerformed
-
 private void movieWholeAppMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_movieWholeAppMenuItemActionPerformed
     JCreateMovieDialog panel = new JCreateMovieDialog(this, false, this.getContentPane(), this, "JSatTrak App");
 
@@ -2403,50 +2148,50 @@ private void movieWholeAppMenuItemActionPerformed(java.awt.event.ActionEvent evt
 private void coverageMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_coverageMenuItemActionPerformed
         
         // check if coverage anaylzer class is null -
-        if(coverageAnalyzer == null)
-        {
-            coverageAnalyzer = new CoverageAnalyzer(currentJulianDate); // setup new analyzer
-            // add coverage analyzer to time update objects
-            timeDependentObjects.add(coverageAnalyzer); // add object to time updates
-            
-            // update the CA object in any 3D window currently opened
-            for(J3DEarthInternalPanel panel: threeDInternalWindowVec)
-            {
-                panel.updateCoverageLayerObject(coverageAnalyzer);
-            }
-            for(J3DEarthPanel panel: threeDWindowVec)
-            {
-                panel.updateCoverageLayerObject(coverageAnalyzer);
-            }
-        }
-        
-        // show satellite browser window
-        //JTrackingToolSelector trackingBrowser = new JTrackingToolSelector(satHash, gsHash, this); // non-modal version
-        JCoverageDialog coverageBrowser = new JCoverageDialog(coverageAnalyzer, currentJulianDate, this, satHash, twoDWindowVec);
-        
-        // create new internal frame window
-        String windowName = "Coverage Analysis Options";
-        JInternalFrame iframe = new JInternalFrame(windowName,true,true,true,true);
-        
-        iframe.setContentPane(coverageBrowser );
-        iframe.setSize(530+35,330+85); // w,h
-        iframe.setLocation(10,10);
-
-        iframe.setFrameIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/logo/JSatTrakLogo_16.png")));
-        
-        coverageBrowser.setIframe(iframe);
-        
-        // add close action listener -- to remove window from hash
-        iframe.addInternalFrameListener(this);
-                
-        iframe.setVisible(true);
-        mainDesktopPane.add(iframe);
-        try
-        {
-            iframe.setSelected(true);
-        }
-        catch (java.beans.PropertyVetoException e)
-        {}
+//        if(coverageAnalyzer == null)
+//        {
+//            coverageAnalyzer = new CoverageAnalyzer(currentJulianDate); // setup new analyzer
+//            // add coverage analyzer to time update objects
+//            timeDependentObjects.add(coverageAnalyzer); // add object to time updates
+//
+//            // update the CA object in any 3D window currently opened
+//            for(J3DEarthInternalPanel panel: threeDInternalWindowVec)
+//            {
+//                panel.updateCoverageLayerObject(coverageAnalyzer);
+//            }
+//            for(J3DEarthPanel panel: threeDWindowVec)
+//            {
+//                panel.updateCoverageLayerObject(coverageAnalyzer);
+//            }
+//        }
+//
+//        // show satellite browser window
+//        //JTrackingToolSelector trackingBrowser = new JTrackingToolSelector(satHash, gsHash, this); // non-modal version
+//        JCoverageDialog coverageBrowser = new JCoverageDialog(coverageAnalyzer, currentJulianDate, this, satHash, twoDWindowVec);
+//
+//        // create new internal frame window
+//        String windowName = "Coverage Analysis Options";
+//        JInternalFrame iframe = new JInternalFrame(windowName,true,true,true,true);
+//
+//        iframe.setContentPane(coverageBrowser );
+//        iframe.setSize(530+35,330+85); // w,h
+//        iframe.setLocation(10,10);
+//
+//        iframe.setFrameIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/logo/JSatTrakLogo_16.png")));
+//
+//        coverageBrowser.setIframe(iframe);
+//
+//        // add close action listener -- to remove window from hash
+//        iframe.addInternalFrameListener(this);
+//
+//        iframe.setVisible(true);
+//        mainDesktopPane.add(iframe);
+//        try
+//        {
+//            iframe.setSelected(true);
+//        }
+//        catch (java.beans.PropertyVetoException e)
+//        {}
 }//GEN-LAST:event_coverageMenuItemActionPerformed
 
 private void toolbar3DWindowButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toolbar3DWindowButtonActionPerformed
@@ -2534,12 +2279,6 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem aboutMenuItem;
     private javax.swing.JMenuItem closeMenuItem;
-    private javax.swing.JMenuItem commandClientMenuItem;
-    private javax.swing.JMenuItem commandServerMenuItem;
-    private javax.swing.JMenuItem commandShellDesktopMenuItem;
-    private javax.swing.JMenuItem commandShellMenuItem;
-    private javax.swing.JMenuItem consoleMenuItem;
-    private javax.swing.JMenuItem coverageMenuItem;
     private javax.swing.JButton createMovieButton;
     private javax.swing.JTextField dateTextField;
     private javax.swing.JButton decementTimeStepButton;
@@ -2553,13 +2292,10 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JSeparator jSeparator10;
-    private javax.swing.JSeparator jSeparator11;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JSeparator jSeparator4;
     private javax.swing.JSeparator jSeparator5;
-    private javax.swing.JSeparator jSeparator6;
     private javax.swing.JSeparator jSeparator7;
     private javax.swing.JSeparator jSeparator8;
     private javax.swing.JSeparator jSeparator9;
@@ -2572,26 +2308,18 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
     private javax.swing.JMenuItem new2DWindowMenuItem;
     private javax.swing.JMenu new3DwindowMenu;
     private javax.swing.JMenuItem newExternal3DWindowMenuItem;
-    private javax.swing.JMenuItem newInternal3DWindowMenuItem;
-    private javax.swing.JMenuItem newMenuItem;
     private javax.swing.JMenuItem nonRealTimeMenuItem;
-    private javax.swing.JButton openGSbrowser;
     private javax.swing.JMenuItem openMenuItem;
-    private javax.swing.JButton openSatBrowserButton;
     private javax.swing.JButton playBackButton;
     private javax.swing.JButton playButton;
-    private javax.swing.JMenu pluginMenu;
     private javax.swing.JMenuItem realTimeMenuItem;
     private javax.swing.JCheckBox realTimeModeCheckBox;
     private javax.swing.JToggleButton recenterToggleButton;
     private javax.swing.JButton resetTimeButton;
-    private javax.swing.JInternalFrame satListInternalFrame;
     private javax.swing.JMenuItem saveAsMenuItem;
     private javax.swing.JButton saveButton;
     private javax.swing.JMenuItem saveMenuItem;
     private javax.swing.JButton screenShotButton;
-    private javax.swing.JMenuItem showGSBrowserMenuItem;
-    private javax.swing.JMenuItem showSatBrowser;
     private javax.swing.JMenu simMenu;
     private javax.swing.JMenuItem simPropMenuItem;
     private javax.swing.JLabel statusAnimationLabel;
@@ -2603,12 +2331,9 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
     private javax.swing.JButton stopButton;
     private javax.swing.JMenuItem sysPropsMenuItem;
     private javax.swing.JLabel timeStepLabel;
-    private javax.swing.JMenuItem tleLoaderMenuItem;
     private javax.swing.JButton toolbar3DWindowButton;
-    private javax.swing.JMenuItem trackToolMenuItem;
     private javax.swing.JMenuItem twoDwindowPropMenuItem;
     private javax.swing.JMenuItem utcTimeMenuItem;
-    private javax.swing.JMenu utilitiesMenu;
     private javax.swing.JToggleButton zoomIntoggleButton;
     private javax.swing.JToggleButton zoomOuttoggleButton;
     // End of variables declaration//GEN-END:variables
@@ -2783,7 +2508,7 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
                 SatelliteTleSGP4 prop = new SatelliteTleSGP4(newTLE.getSatName(), newTLE.getLine1(), newTLE.getLine2());
             
                 // add sat to list
-                objListPanel.addSat2List(prop);
+//                objListPanel.addSat2List(prop);
              }
              catch(Exception e)
              {
@@ -2862,7 +2587,7 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
             //BufferedImage screencapture = new Robot().createScreenCapture(
             //			   new Rectangle( mainFrame.getX()+viewsTabbedPane.getX(), mainFrame.getY(),
             //					   viewsTabbedPane.getWidth(), mainFrame.getHeight() ) );
-            // scree shot of just window
+            // screen shot of just window
             BufferedImage screencapture = new Robot().createScreenCapture(
                     new Rectangle( pt.x, pt.y,width, height) );
             
@@ -3138,7 +2863,7 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         timeDependentObjects.clear();
         
         // reset coverage analysis
-        coverageAnalyzer = null;
+//        coverageAnalyzer = null;
         
         System.gc(); // clean up
         
@@ -3258,7 +2983,7 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
                     }
 
                     // update sat List
-                    objListPanel.refreshObjectList();
+//                    objListPanel.refreshObjectList();
                    
                     
                     
@@ -3281,8 +3006,8 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
                     setRealTimeAnimationRefreshRateMs(realTimeAnimationRefreshRateMs); // will reset all internal values correctly for refresh
                     
                     // location of Object list
-                    satListInternalFrame.setBounds(openClass.getSatListX(),openClass.getSatListY(),openClass.getSatListWidth(),openClass.getSatListHeight());
-                    satListInternalFrame.setSelected(true);
+//                    satListInternalFrame.setBounds(openClass.getSatListX(),openClass.getSatListY(),openClass.getSatListWidth(),openClass.getSatListHeight());
+//                    satListInternalFrame.setSelected(true);
                     
                     // wwj offline mode
                     this.wwjOfflineMode = openClass.isWwjOfflineMode();
@@ -3292,11 +3017,11 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
                     }catch(Exception ee){}
                     
                     // coverage analyzer
-                    this.coverageAnalyzer = openClass.getCa();
-                    if(coverageAnalyzer != null)
-                    {
-                        timeDependentObjects.add(coverageAnalyzer); // add object to time updates
-                    }
+//                    this.coverageAnalyzer = openClass.getCa();
+//                    if(coverageAnalyzer != null)
+//                    {
+//                        timeDependentObjects.add(coverageAnalyzer); // add object to time updates
+//                    }
                     
                     // create all the needed 2D windows:
                     for( J2DEarthPanelSave j2dp : openClass.getTwoDWindowSaveVec() )
@@ -3467,10 +3192,10 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         return satHash;
     }
     
-    public int[] getSatListWHXY()
-    {
-        return new int[] {satListInternalFrame.getWidth(),satListInternalFrame.getHeight(),satListInternalFrame.getX(),satListInternalFrame.getY()};
-    }
+//    public int[] getSatListWHXY()
+//    {
+//        return new int[] {satListInternalFrame.getWidth(),satListInternalFrame.getHeight(),satListInternalFrame.getX(),satListInternalFrame.getY()};
+//    }
     
     public boolean isRealTimeMode()
     {
@@ -3534,7 +3259,7 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
                 if( ((JDialog)e.getSource()).getContentPane() instanceof JConsole)
                 {
                     // enable menu item again
-                    commandShellMenuItem.setEnabled(true);
+//                    commandShellMenuItem.setEnabled(true);
                 }
                 
                 // something else closed
@@ -3708,7 +3433,7 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
     {
         String fileName = ((JMenuItem)e.getSource()).getText();
         // new way
-        runScript("plugins/" + fileName + ".bsh");
+        runScript("scenarios/" + fileName + ".bsh");
 
 //        // old way
 //        System.out.println("Running Plugin: " + fileName);
@@ -3731,7 +3456,7 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
      */
     public void runScript(String scriptFilePath)
     {
-        System.out.println("Running Plugin: " + scriptFilePath);
+        System.out.println("Running Scenario: " + scriptFilePath);
 
         // runnning bash script
         try
@@ -3740,8 +3465,8 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         }
         catch(Exception ee)
         {
-            System.out.println("Error running plugin script (" + scriptFilePath + "): " + ee.toString());
-            JOptionPane.showMessageDialog(this, "Error running plugin script (" + scriptFilePath + "): \n" + ee.toString(), "Pluging Error", JOptionPane.ERROR_MESSAGE);
+            System.out.println("Error running scenario script (" + scriptFilePath + "): " + ee.toString());
+            JOptionPane.showMessageDialog(this, "Error running scenario script (" + scriptFilePath + "): \n" + ee.toString(), "Pluging Error", JOptionPane.ERROR_MESSAGE);
         }
     } // runScript
 
@@ -3785,10 +3510,10 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
 //        }
 //    }
 
-    public CoverageAnalyzer getCoverageAnalyzer()
-    {
-        return coverageAnalyzer;
-    }
+//    public CoverageAnalyzer getCoverageAnalyzer()
+//    {
+//        return coverageAnalyzer;
+//    }
     
     
     public void addCustomSat()
@@ -3829,7 +3554,7 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         prop.propogate2JulDate(this.getCurrentJulTime());
 
         // add item to the Object list tree
-        objListPanel.addSat2List(prop);
+//        objListPanel.addSat2List(prop);
         
 //        //topSatTreeNode.add( new IconTreeNode(name) );
 //        IconTreeNode newNode = new IconTreeNode(name);
@@ -3844,7 +3569,7 @@ private void lookFeelMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
         
         this.setStatusMessage("Custom Satellite Added: " + name );
         // open properties panel
-        objListPanel.openCurrentOptions(prop);
+        //objListPanel.openCurrentOptions(prop);
     }
 
     public // 3D windows

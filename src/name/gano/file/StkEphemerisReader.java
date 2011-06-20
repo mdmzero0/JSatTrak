@@ -27,6 +27,9 @@ package name.gano.file;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
@@ -34,6 +37,7 @@ import java.util.Vector;
 import jsattrak.utilities.StateVector;
 import name.gano.astro.AstroConst;
 import name.gano.astro.time.Time;
+import java.net.URL;
 
 /**
  *
@@ -76,9 +80,9 @@ public class StkEphemerisReader
     }
 
     /**
-     * Reads in an STK .e formated epehermis file NOTE that time is returned in Terestrial time not UTC!! As epeheris data is typically stored in TT
+     * Reads in an STK .e formated ephemeris file NOTE that time is returned in Terrestrial time not UTC!! As ephemeris data is typically stored in TT
      * @param filename
-     * @return epehermis vector Julian Data, x,y,z, dx, dy, dz (meters, m/s) - can be null if file couldn't be read at all
+     * @return ephemeris vector Julian Data, x,y,z, dx, dy, dz (meters, m/s) - can be null if file couldn't be read at all
      * @throws Exception error in reading file
      */
     public Vector<StateVector> readStkEphemeris(String filename) throws Exception
@@ -96,10 +100,19 @@ public class StkEphemerisReader
         {
             //use buffering, reading one line at a time
             //FileReader always assumes default encoding is OK!
-            BufferedReader input = new BufferedReader(new FileReader(filename));
+            
+            //Code for reading ephemeris from a URL (6/14/2011)
+            URL url = new URL(filename);
+            InputStream is = url.openStream();
+            //ZipInputStream in = new ZipInputStream(is);
+            //ZipEntry entry = in.getNextEntry();
+            BufferedReader input = new BufferedReader(new InputStreamReader(is));
+            
+            //BufferedReader input = new BufferedReader(new FileReader(filename));
             try
             {
                 String line = null; //not declared within while loop
+                
         /*
                  * readLine is a bit quirky :
                  * it returns the content of a line MINUS the newline.
@@ -111,11 +124,10 @@ public class StkEphemerisReader
                 boolean ephemerisBegin = false; // flag for when the ephemeris is about to begin
 
                 while((line = input.readLine()) != null && !ephemerisBegin)
-                {
-				
-					line = line.trim(); //removes white space from beginning of line
-                    
-					if(line.startsWith("Ephemeris"))
+                {line = line.trim(); // removes excess white space so line doesn't begin with '  '
+                   
+                   
+                    if(line.startsWith("Ephemeris"))
                     {
                         ephemerisBegin = true;
                         break; // need to break out of loop without reading another line in the while statement
@@ -136,7 +148,7 @@ public class StkEphemerisReader
                     {
                         scenarioEpoch = line.substring(13).trim();
                     }
-
+                    
                 } // while reading file
 
                 // convert ScenarioEpoch to Julian Date -- if not read in throw an Exception - the method throws exception
@@ -145,6 +157,7 @@ public class StkEphemerisReader
 
                 // read ephemeris
                 while((line = input.readLine()) != null && ephemerisBegin)
+                
                 {
                     if(line.length() < 1)
                     {
@@ -233,12 +246,12 @@ public class StkEphemerisReader
             catch(Exception e3)
             {
                 // bad date input
-                throw new Exception("Scenario Date/Time format incorrect");
+                throw new Exception("Scenario Date/Time format incorrect" + scenarioTimeStr);
             } // catch 2
 
         } // catch 1
 
-        // if we get here the date was acapted
+        // if we get here the date was accepted
         Time t = new Time();
         t.set(currentTimeDate.getTimeInMillis());
 
