@@ -1,0 +1,71 @@
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svnroot/jsattrak/!svn/ver/133/JSatTrak/Required_Libraries/JOGL
+END
+jogl-1.1.2-pre-20080523-windows-amd64.zip
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svnroot/jsattrak/!svn/ver/133/JSatTrak/Required_Libraries/JOGL/jogl-1.1.2-pre-20080523-windows-amd64.zip
+END
+jogl_awt.dll
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svnroot/jsattrak/!svn/ver/103/JSatTrak/Required_Libraries/JOGL/jogl_awt.dll
+END
+gluegen-rt.dll
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svnroot/jsattrak/!svn/ver/103/JSatTrak/Required_Libraries/JOGL/gluegen-rt.dll
+END
+gluegen-rt.jar
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svnroot/jsattrak/!svn/ver/103/JSatTrak/Required_Libraries/JOGL/gluegen-rt.jar
+END
+CHANGELOG.txt
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svnroot/jsattrak/!svn/ver/103/JSatTrak/Required_Libraries/JOGL/CHANGELOG.txt
+END
+LICENSE-JOGL-1.1.1.txt
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svnroot/jsattrak/!svn/ver/103/JSatTrak/Required_Libraries/JOGL/LICENSE-JOGL-1.1.1.txt
+END
+jogl.dll
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svnroot/jsattrak/!svn/ver/103/JSatTrak/Required_Libraries/JOGL/jogl.dll
+END
+COPYRIGHT.txt
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svnroot/jsattrak/!svn/ver/9/JSatTrak/Required_Libraries/JOGL/COPYRIGHT.txt
+END
+jogl.jar
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svnroot/jsattrak/!svn/ver/103/JSatTrak/Required_Libraries/JOGL/jogl.jar
+END
+README.txt
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svnroot/jsattrak/!svn/ver/103/JSatTrak/Required_Libraries/JOGL/README.txt
+END
+jogl_cg.dll
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svnroot/jsattrak/!svn/ver/103/JSatTrak/Required_Libraries/JOGL/jogl_cg.dll
+END
