@@ -349,6 +349,8 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
     // WWJ online/offline mode
     private boolean wwjOfflineMode = false;
     
+    //just for kicks
+    
     // console for displaying things written to system.out
     ConsoleDialog console;
     
