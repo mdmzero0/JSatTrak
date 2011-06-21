@@ -268,6 +268,9 @@ import javatester.OnlineInput;
 import java.lang.String;
 import java.net.URL;
 import java.io.*;
+import java.lang.System;
+
+
 /**
  *
  * @author  Shawn E. Gano, shawn@gano.name
@@ -298,6 +301,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
     
     // sat panel - show list of satellites
 //    JObjectListPanel objListPanel;
+    
     
     // Sun object
     private Sun sun;
@@ -375,6 +379,8 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
     /** Creates new form JSatTrak */
     public JSatTrak()
     {
+        System.loadLibrary("jogl");
+        System.loadLibrary("jogl_awt");
         boolean usingNimbus = false; // flag for updating nimbus
         // setup look and feel first        
         // if User has java 6u10 or greater that means NimbusLookAndFeel is supported!
@@ -398,7 +404,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
             } catch (Exception ex1) // default using jgoodies looks plastic theme
             {
                 PlasticLookAndFeel.setPlasticTheme(new ExperienceBlue());
-                PlasticLookAndFeel.setTabStyle("Metal"); // makes tabes look much better
+                PlasticLookAndFeel.setTabStyle("Metal"); // makes tabs look much better
 
                 try
                 {
@@ -491,7 +497,7 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
         // test if 3d JOGL is working
 //        try
 //        {
-//            GLCanvas canvas = new GLCanvas();
+//            WorldWindowGLCanvas canvas = new WorldWindowGLCanvas();
 //        }
 //        catch(Exception e)
 //        {

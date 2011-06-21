@@ -2,15 +2,13 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/1">
         <file>
+            <url>src/jsattrak/gui/JSatTrak.java</url>
+            <line>2965</line>
+        </file>
+        <file>
             <url>src/name/gano/astro/propogators/sgp4_cssi/SGP4unit.java</url>
             <line>401</line>
             <line>1758</line>
-        </file>
-        <file>
-            <url>src/jsattrak/gui/JSatTrak.java</url>
-            <line>2596</line>
-            <line>2725</line>
-            <line>2959</line>
         </file>
     </editor-bookmarks>
 </project-private>
