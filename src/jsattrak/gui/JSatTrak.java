@@ -379,8 +379,8 @@ public class JSatTrak extends javax.swing.JFrame implements InternalFrameListene
     /** Creates new form JSatTrak */
     public JSatTrak()
     {
-        System.loadLibrary("jogl");
-        System.loadLibrary("jogl_awt");
+//        System.loadLibrary("Important.jogl");
+//        System.loadLibrary("Important.jogl_awt");
         boolean usingNimbus = false; // flag for updating nimbus
         // setup look and feel first        
         // if User has java 6u10 or greater that means NimbusLookAndFeel is supported!
