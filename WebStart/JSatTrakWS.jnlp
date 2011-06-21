@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp spec="1.0"
+      codebase="file:///C:\Documents and Settings\MMascaro\Desktop\WebStart\"
+      href="JSatTrakWS.jnlp">
+    <information>
+        <title>JSatTrak</title>
+        <vendor>Shawn Gano</vendor>
+        <homepage href="http://www.gano.name/shawn/JSatTrak"/>
+        <description>Real-Time Satellite Tracker</description>
+        <description kind="short">Real-Time Satellite Tracker</description>
+        <offline-allowed/>
+		<related content href ="file:///C:\Documents and Settings\MMascaro\Desktop\WebStart\startup.bsh" />
+    </information>
+    <security>
+        <all-permissions/>
+    </security>
+
+	<resources os="Windows">
+			<nativelib href = "../Webstart/Important.jar"/>
+	</resources>
+    <resources>
+        <j2se href="http://java.sun.com/products/autodl/j2se" version="1.6+" initial-heap-size="512m"
+              max-heap-size="512m"/>
+        <property name="sun.java2d.noddraw" value="true"/>
+        <jar href="JSatTrak_Distributable.jar" main="true"/>
+        <jar href="../WebStart/lib/looks-2.2.1.jar"/>
+        <jar href="../WebStart/lib/plugin.jar"/>
+        <jar href="../WebStart/lib/swing-layout-1.0.3.jar"/>
+        <jar href="../WebStart/lib/jmf.jar"/>
+        <jar href="../WebStart/lib/javatester.jar"/>
+        <jar href="../WebStart/lib/swingx-0.9.4.jar"/>
+        <jar href="../WebStart/lib/xpp3_min-1.1.4c.jar"/>
+        <jar href="../WebStart/lib/xstream-1.3.jar"/>
+        <jar href="../WebStart/lib/Jama-1.0.2.jar"/>
+        <jar href="../WebStart/lib/bsh-2.0b4_seg.jar"/>
+	    <jar href="../WebStart/lib/JOGLUTILS.jar"/>
+	    <jar href="../WebStart/lib/worldwind.jar"/>
+        <jar href="../WebStart/lib/substance.jar"/>
+        <jar href="../WebStart/lib/substance-swingx.jar"/>
+		<jar href="../WebStart/lib/gluegen-rt.jar"/>
+        <extension name="jogl" href="http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl.jnlp"/>
+
+	</resources>
+    <application-desc main-class="jsattrak.gui.JSatTrak"/>
+</jnlp>

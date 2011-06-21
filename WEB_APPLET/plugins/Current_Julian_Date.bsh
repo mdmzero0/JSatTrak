@@ -1,2 +1,0 @@
-a = jsattrak.getCurrentJulTime();
-JOptionPane.showMessageDialog(jsattrak, "The current Julian Date is: " + a);
